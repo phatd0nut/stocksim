@@ -45,12 +45,16 @@ body {
 
 .createUserBtn {
   padding: 10px;
-  background-color: aquamarine;
+  background-color: white;
   font-weight: bold;
   font-size: 1.2rem;
   font-family: "Roboto", sans-serif;
   border-top-left-radius: 20px;
   border-bottom-right-radius: 20px;
+}
+
+.createUserBtn:active {
+  background-color: aquamarine;
 }
 
 

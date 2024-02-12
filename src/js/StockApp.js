@@ -3,11 +3,10 @@ function StockApp() {
     var parent = document.getElementById('app');
 
     this.init = function () {
-        this.createContainer();
+        this.appBody();
     }
 
-
-    this.createContainer = function() {
+    this.appBody = function() {
         var container = document.createElement('div');
         container.className = 'container';
         parent.appendChild(container);
