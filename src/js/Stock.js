@@ -12,3 +12,4 @@ function Stock(ticker, stockName, price) {
         return "No stock information available for " + this.stockName + " (" + this.ticker + ")";
     };
 }
+

@@ -22,9 +22,9 @@ function CreateUser(container) {
         createUserBtn.innerHTML = 'Tryck för att påbörja';
         createUserDiv.appendChild(createUserBtn);
 
-        createUserBtn.addEventListener('click', function() {
+        createUserBtn.addEventListener('click', () => {
             var name = inputName.value;
-            var createNewU = new User(name);
+            var createNewU = new User(name, this.parentContainer);
             createUserDiv.remove();
         });
     }

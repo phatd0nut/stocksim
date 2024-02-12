@@ -1,5 +1,4 @@
 function StockApp() {
-    var apiKey = new StockMarketAPI()();
     var parent = document.getElementById('app');
 
     this.init = function () {
