@@ -5,10 +5,5 @@ function User(name) {
     this.balance = initialBalance;
     // this.portfolio = new Portfolio();
 
-    window.addEventListener('load', function() {
-        // Läs namnet från LocalStorage
-        var name = localStorage.getItem('name');
-        // Visa namnet på sidan
-      console.log(name);
-    });
+  console.log('User created: ' + this.name + ' with balance: ' + this.balance);
 }

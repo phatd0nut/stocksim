@@ -25,8 +25,7 @@ function CreateUser(container) {
         createUserBtn.addEventListener('click', function() {
             var name = inputName.value;
             var createNewU = new User(name);
-            localStorage.setItem('name', name);
-            window.location.href = '../menu.html';
+            createUserDiv.remove();
         });
     }
 
