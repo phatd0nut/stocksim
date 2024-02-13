@@ -7,18 +7,18 @@ function CreateUser(container) {
         this.parentContainer.appendChild(createUserDiv);
 
         var h2 = document.createElement('h2');
-        h2.innerHTML = 'Hej, fyll i ditt namn för att fortsätta';
+        h2.innerHTML = 'Fyll i ditt namn för att fortsätta';
         h2.className = 'h2instructions';
         createUserDiv.appendChild(h2);
 
         var inputName = document.createElement('input');
         inputName.type = 'text';
         inputName.placeholder = 'Ange namn här';
-        inputName.className = 'inputName';
+        inputName.className = 'inputBars inputName';
         createUserDiv.appendChild(inputName);
 
         var createUserBtn = document.createElement('button');
-        createUserBtn.className = 'createUserBtn';
+        createUserBtn.className = 'buttons createUserBtn';
         createUserBtn.innerHTML = 'Tryck för att påbörja';
         createUserDiv.appendChild(createUserBtn);
 

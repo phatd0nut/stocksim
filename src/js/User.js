@@ -1,15 +1,10 @@
-// Funktion för att skapa en användarklass
+// Klass för att skapa en ny användare
 function User(name, parent) {
   var initialBalance = 0;
   this.name = name;
   this.balance = initialBalance;
-  // this.portfolio = new Portfolio();
 
-  this.setupInterface = function () {
-    // Initiera API-nyckel
-    var getApiKey = new StockMarketAPI()();
-
-
+  this.userInterface = function () {
     var setupDiv = document.createElement('div');
     setupDiv.className = 'setupDiv';
     parent.appendChild(setupDiv);
@@ -18,25 +13,32 @@ function User(name, parent) {
     this.h2UserName.className = 'h2UserName';
     setupDiv.appendChild(this.h2UserName);
     this.p = document.createElement('p');
-    this.p.innerHTML = 'Leta efter aktier att köpa!';
-    this.p.className = 'searchStocks';
+    this.p.innerHTML = 'Bestäm hur mycket pengar du vill investera:';
+    this.p.className = 'setBudgetP';
     setupDiv.appendChild(this.p);
 
-    // Create search input
-    var searchStockInput = document.createElement('input');
-    searchStockInput.type = 'text';
-    searchStockInput.placeholder = 'Sök efter aktier';
-    searchStockInput.className = 'searchStockInput';
-    setupDiv.appendChild(searchStockInput);
+    var inputBudget = document.createElement('input');
+    inputBudget.type = 'number';
+    inputBudget.placeholder = 'Ange belopp';
+    inputBudget.className = 'inputBars inputBudget';
+    setupDiv.appendChild(inputBudget);
 
-    // Add event listener for search input
-    searchStockInput.addEventListener('input', function (event) {
-      var searchValue = event.target.value;
-      var search = new Search();
-      search.searchStocks(searchValue);
-      
-    })
+    var setBudgetBtn = document.createElement('button');
+    setBudgetBtn.className = 'buttons setBudgetBtn';
+    setBudgetBtn.innerHTML = 'Spara';
+    setupDiv.appendChild(setBudgetBtn);
+
+    setBudgetBtn.addEventListener('click', () => {
+      this.balance = inputBudget.value;
+      inputBudget.remove();
+      setBudgetBtn.remove();
+      this.p.remove();
+      this.h2UserName.remove();
+      var search = new Search();  
+      search.createSearchBox(this.balance);
+      setupDiv.remove();
+    });
   }
 
-  this.setupInterface();
+  this.userInterface();
 }
