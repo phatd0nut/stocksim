@@ -2,7 +2,8 @@ body {
   font-family: "Roboto", sans-serif;
   margin: 0;
   box-sizing: border-box;
-
+  width: 100vw;
+  height: 100vh;
 }
 
 .container {
@@ -10,8 +11,6 @@ body {
   display: flex;
   flex-direction: column; /* Add this line */
   align-items: center;
-  width: 100wv;
-  height: 100vh;
   background-color: #278664;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.199);
   color:#F9FFAE;
