@@ -5,6 +5,14 @@
     "start_url":"/index.html",
     "display":"standalone",
     "background_color":"#278664",
+    "theme_color":"#278664",
     "orientation":"portrait-primary",
-    "icon": "/src/img/stocksim_icon.png"
+
+    "icons": [
+        {
+          "src": "/src/img/stocksim_icon.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+    ]
 }
