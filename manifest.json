@@ -1,0 +1,9 @@
+{
+    "short_name":"Stocksim",
+    "name":"Stocksim",
+    "description":"Stocksim is a stock market simulator that allows you to buy and sell stocks with fake money. It is a great way to learn about the stock market without risking any real money.",
+    "start_url":"/index.html",
+    "display":"standalone",
+    "background_color":"#278664",
+    "orientation":"portrait-primary"
+}
