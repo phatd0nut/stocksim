@@ -10,6 +10,7 @@ function StockApp() {
         container.className = 'container';
         parent.appendChild(container);
         var createUser = new CreateUser(container);
+        createUser.createUserBox(parent);
     }
 
 }

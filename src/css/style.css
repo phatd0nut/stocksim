@@ -13,9 +13,9 @@ body {
   align-items: center;
   width: 370px;
   height: 100vh;
-  background-color: aquamarine;
-  border-top-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  background-color: rgb(122, 187, 212);
+  border-radius: 20px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.199);
 }
 
 .createUserDiv {
@@ -38,13 +38,11 @@ body {
 
 .searchResultsDiv {
   margin-top: 10px;
-  width: 100%;
+  width: 272px;
   background-color: white;
-  border-top-left-radius: 20px;
-  border-bottom-right-radius: 20px;
   height: 100px;
   scrollbar-width: thin;
-  scrollbar-color: aquamarine white;
+  scrollbar-color:  rgb(122, 187, 212) white;
   -webkit-overflow-scrolling: touch;
   overflow-y: auto;
   overflow-x: hidden;
@@ -81,7 +79,9 @@ body {
 }
 
 .buttons:active {
-  background-color: aquamarine;
+  background-color:  rgb(122, 187, 212);
+  color: white;
+  border-color: white;
 }
 
 .inputBars {

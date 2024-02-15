@@ -25,9 +25,8 @@ function CreateUser(container) {
         createUserBtn.addEventListener('click', () => {
             var name = inputName.value;
             var createNewU = new User(name, this.parentContainer);
+            createNewU.userInterface();
             createUserDiv.remove();
         });
     }
-
-    this.createUserBox(this.parentContainer);
 }

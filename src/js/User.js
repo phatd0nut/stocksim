@@ -39,6 +39,4 @@ function User(name, parent) {
       setupDiv.remove();
     });
   }
-
-  this.userInterface();
 }
