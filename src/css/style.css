@@ -10,7 +10,7 @@ body {
   display: flex;
   flex-direction: column; /* Add this line */
   align-items: center;
-  width: 100%;
+  width: 100wv;
   height: 100vh;
   background-color: #278664;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.199);
