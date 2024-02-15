@@ -3,11 +3,12 @@ body {
   margin: 0;
   box-sizing: border-box;
   width: 100vw;
-  height: 100vh;
+  overflow-x: hidden;
 }
 
 .container {
   /* Color Palette: https://www.color-hex.com/color-palette/86099 */
+  height: 100vh;
   display: flex;
   flex-direction: column; /* Add this line */
   align-items: center;
