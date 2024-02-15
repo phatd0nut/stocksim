@@ -2,73 +2,101 @@ body {
   font-family: "Roboto", sans-serif;
   margin: 0;
   box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
 }
 
 .container {
+  /* Color Palette: https://www.color-hex.com/color-palette/86099 */
   display: flex;
-  justify-content: center;
+  flex-direction: column; /* Add this line */
   align-items: center;
-  width: 370px;
+  width: 100%;
   height: 100vh;
-  background-color: rgb(122, 187, 212);
-  border-radius: 20px;
+  background-color: #278664;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.199);
+  color:#F9FFAE;
+}
+
+#appLogo {
+  margin: 0;
+  margin-top: 30px;
+  width: 300px;
 }
 
 .createUserDiv {
+  margin-top: 20%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .setupDiv {
+  margin-top: 20%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .searchBox {
+  margin-top: 10%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.searchResultsDiv {
+#searchResultsDiv {
   margin-top: 10px;
-  width: 272px;
+  width: 370px;
   background-color: white;
-  height: 100px;
+  height: 140px;
   scrollbar-width: thin;
-  scrollbar-color:  rgb(122, 187, 212) white;
+  scrollbar-color: #4e594a white;
   -webkit-overflow-scrolling: touch;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
   font-weight: bold;
+  border: solid 2px black;
+}
+.searchResults {
+  padding-left: 0;
+  margin-left: 0;
 }
 
-.searchResultsDiv ul {
-  padding: 10px;
-  margin: 0;
-}
-
-.searchResultsDiv li {
+.searchResults li {
+  display: flex;
+  justify-content: space-between;
   list-style-type: none;
-  border-bottom: 1px solid black;
+  padding: 10px;
+  padding-bottom: 4px;
   margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #4e594a;
+}
+
+.searchResults li:active {
+  background-color:#79a471;
+  color: white;
+}
+
+#searchBoxStockPrice {
+  text-align: right;
 }
 
 .h2instructions {
   text-align: center;
   margin: 0;
+  margin-bottom: 30px;
+}
+
+.h2UserName {
+  margin: 0;
 }
 
 .buttons {
   margin-top: 10px;
-  width: 296px;
+  width: 380px;
   padding: 10px;
   background-color: white;
   font-weight: bold;
@@ -79,20 +107,57 @@ body {
 }
 
 .buttons:active {
-  background-color:  rgb(122, 187, 212);
-  color: white;
-  border-color: white;
+  background-color: #4e594a;
+  color: #F9FFAE;
+  border-color: #F9FFAE;
 }
+
+.stockButtonsDiv {
+  position: relative;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  width: 296px;
+}
+
+.buyStock,
+.goToStock {
+  width: 140px;
+  font-size: 0.8rem;
+}
+
+.buyStock {
+  background-color: #F9FFAE;
+  box-shadow: 0 0 5px #F9FFAE;
+  animation: glow 5s infinite;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0px #F9FFAE;
+  }
+  50% {
+    box-shadow: 0 0 10px #F9FFAE;
+  }
+  100% {
+    box-shadow: 0 0 0px #F9FFAE;
+  }
+}
+
 
 .inputBars {
   margin-top: 10px;
-  width: 270px;
+  width: 360px;
   padding: 10px;
   border-top-left-radius: 20px;
   border-bottom-right-radius: 20px;
   text-align: center;
   font-weight: bold;
   font-size: 1.2rem;
+}
+
+.inputBars:focus {
+  background-color:#F9FFAE;
 }
 
 .inputBars::placeholder {

@@ -15,6 +15,7 @@ function CreateUser(container) {
         inputName.type = 'text';
         inputName.placeholder = 'Ange namn här';
         inputName.className = 'inputBars inputName';
+        inputName.name = 'name';
         createUserDiv.appendChild(inputName);
 
         var createUserBtn = document.createElement('button');
