@@ -127,6 +127,11 @@ body {
   font-size: 0.8rem;
 }
 
+.weeklyButton, .monthlyButton, .yearlyButton {
+  width: 50px;
+  font-size: 0.8rem;
+}
+
 .buyStock {
   background-color: #F9FFAE;
   box-shadow: 0 0 5px #F9FFAE;
@@ -169,4 +174,8 @@ body {
 .inputBudget::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+#myChart {
+  background-color: white;
 }
