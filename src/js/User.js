@@ -5,38 +5,45 @@ function User(name, parent) {
   this.balance = initialBalance;
 
   this.userInterface = function () {
-    var setupDiv = document.createElement('div');
-    setupDiv.className = 'setupDiv';
-    parent.appendChild(setupDiv);
+    this.setupDiv = document.createElement('div');
+    this.setupDiv.className = 'setupDiv';
+    parent.appendChild(this.setupDiv);
+
     this.h2UserName = document.createElement('h2');
     this.h2UserName.innerHTML = 'Hej ' + this.name + '!';
     this.h2UserName.className = 'h2UserName';
-    setupDiv.appendChild(this.h2UserName);
+    this.setupDiv.appendChild(this.h2UserName);
+
     this.p = document.createElement('p');
     this.p.innerHTML = 'Bestäm hur mycket pengar du vill investera:';
     this.p.className = 'setBudgetP';
-    setupDiv.appendChild(this.p);
+    this.setupDiv.appendChild(this.p);
 
-    var inputBudget = document.createElement('input');
-    inputBudget.type = 'number';
-    inputBudget.placeholder = 'Ange belopp';
-    inputBudget.className = 'inputBars inputBudget';
-    setupDiv.appendChild(inputBudget);
+    this.inputBudget = document.createElement('input');
+    this.inputBudget.type = 'number';
+    this.inputBudget.placeholder = 'Ange belopp';
+    this.inputBudget.className = 'inputBars inputBudget';
+    this.setupDiv.appendChild(this.inputBudget);
 
-    var setBudgetBtn = document.createElement('button');
-    setBudgetBtn.className = 'buttons setBudgetBtn';
-    setBudgetBtn.innerHTML = 'Spara';
-    setupDiv.appendChild(setBudgetBtn);
+    this.setBudgetBtn = document.createElement('button');
+    this.setBudgetBtn.className = 'buttons setBudgetBtn';
+    this.setBudgetBtn.innerHTML = 'Spara';
+    this.setupDiv.appendChild(this.setBudgetBtn);
 
-    setBudgetBtn.addEventListener('click', () => {
-      this.balance = inputBudget.value;
-      inputBudget.remove();
-      setBudgetBtn.remove();
-      this.p.remove();
-      this.h2UserName.remove();
-      var search = new Search();  
-      search.createSearchBox(this.balance);
-      setupDiv.remove();
+    this.setBudgetBtn.addEventListener('click', () => {
+      var budget = this.inputBudget.value;
+      if (budget !== '') {
+        this.balance = this.inputBudget.value;
+        this.inputBudget.remove();
+        this.setBudgetBtn.remove();
+        this.p.remove();
+        this.h2UserName.remove();
+        var search = new Search();  
+        search.createSearchBox(this.balance);
+        this.setupDiv.remove();
+      } else {
+        this.p.innerHTML = 'Belopp saknas, försök igen';
+      }
     });
   }
 }

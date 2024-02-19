@@ -25,36 +25,19 @@ function StockPage(parent) {
         this.canvas = document.createElement('canvas');
         this.canvas.id = 'myChart';
         this.stockChart.appendChild(this.canvas);
-        this.buyStockFunc(this.stockPage);
+        this.stockBtns();
     }
 
     this.createChart = function (ticker, apiKey) {
-        this.changeTimeFrameDiv = document.createElement('div');
-        this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
-        this.stockPage.appendChild(this.changeTimeFrameDiv);
-
-        this.weeklyButton = document.createElement('button');
-        this.monthlyButton = document.createElement('button');
-        this.yearlyButton = document.createElement('button');
-
-        this.weeklyButton.className = 'buttons weeklyButton';
-        this.weeklyButton.innerText = 'Vecka';
-        this.monthlyButton.className = 'buttons monthlyButton';
-        this.monthlyButton.innerText = 'Månad';
-        this.yearlyButton.className = 'buttons yearlyButton';
-        this.yearlyButton.innerText = 'År';
-
-        this.changeTimeFrameDiv.appendChild(this.weeklyButton);
-        this.changeTimeFrameDiv.appendChild(this.monthlyButton);
-        this.changeTimeFrameDiv.appendChild(this.yearlyButton);
-
         // Hämta data från API
         const apiUrl2 = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&outputsize=full&apikey=${apiKey}`;
+        // Deklarera unit som används för att ändra tidsintervall i grafen
+        var unit;
 
         fetch(apiUrl2)
             .then(response => response.json())
             .then(data => {
-                
+
                 console.log(data);
                 /*
                 const timeSeriesData = data['Time Series (Daily)'];
@@ -126,7 +109,7 @@ function StockPage(parent) {
 
                 // Dummy response
 
-                
+
                 var weeklyDummyData = [
                     { x: new Date('2022-01-01'), y: 100 },
                     { x: new Date('2022-01-02'), y: 105 },
@@ -157,8 +140,6 @@ function StockPage(parent) {
                     { x: new Date('2028-01-01'), y: 97 }
                 ];
 
-                var unit;
-
                 // Använd dummyresponsen istället för att göra ett API-anrop
                 var ctx = document.getElementById('myChart').getContext('2d');
                 var chart = new Chart(ctx, {
@@ -173,6 +154,7 @@ function StockPage(parent) {
                             backgroundColor: 'transparent',  // Fyllning
                             borderWidth: 2,
                             pointRadius: 6,
+                            hoverRadius: 6,
                             hidden: false  // Visa detta dataset som standard
                         }, {
                             label: 'Månadsvis aktiepris',
@@ -209,13 +191,13 @@ function StockPage(parent) {
                                     fontColor: '#f9ffae',  // Svart text
                                     drawOnChartArea: false,  // Dölj tick marks på x-axeln
                                 },
-                                
+
                                 type: 'time',
                                 time: {
                                     unit: unit,
                                 },
                                 display: true,
-                       
+
                             }],
                             yAxes: [{
                                 gridLines: {
@@ -229,44 +211,45 @@ function StockPage(parent) {
                         }
                     }
                 });
-                function changeTimeUnit(unit) {
+
+                this.changeTimeUnit = function (unit) {
                     chart.options.scales.xAxes[0].time.unit = unit;  // Ändra tidsenheten
                     chart.update();  // Uppdatera diagrammet med den nya tidsenheten
                 }
-                
+
                 // Använd funktionen för att byta till dag, månad eller år
-                changeTimeUnit('day');
-                changeTimeUnit('month');
-                changeTimeUnit('year');
+                this.changeTimeUnit('day');
+                this.changeTimeUnit('month');
+                this.changeTimeUnit('year');
 
- document.querySelector('.weeklyButton').addEventListener('click', () => {
-            chart.getDatasetMeta(0).hidden = false;  // Visa veckovis data
-            chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
-            chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
-            changeTimeUnit('day');
-            chart.update();
-        });
+                document.querySelector('.weeklyButton').addEventListener('click', () => {
+                    chart.getDatasetMeta(0).hidden = false;  // Visa veckovis data
+                    chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
+                    chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
+                    this.changeTimeUnit('day');
+                    chart.update();
+                });
 
-        document.querySelector('.monthlyButton').addEventListener('click', () => {
-            chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
-            chart.getDatasetMeta(1).hidden = false;  // Visa månadsvis data
-            chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
-            changeTimeUnit('month');
-            chart.update();
-        });
+                document.querySelector('.monthlyButton').addEventListener('click', () => {
+                    chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
+                    chart.getDatasetMeta(1).hidden = false;  // Visa månadsvis data
+                    chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
+                    this.changeTimeUnit('month');
+                    chart.update();
+                });
 
-        document.querySelector('.yearlyButton').addEventListener('click', () => {
-            chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
-            chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
-            chart.getDatasetMeta(2).hidden = false;  // Visa årsvis data
-            changeTimeUnit('year');
-            chart.update();
-        });
+                document.querySelector('.yearlyButton').addEventListener('click', () => {
+                    chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
+                    chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
+                    chart.getDatasetMeta(2).hidden = false;  // Visa årsvis data
+                    this.changeTimeUnit('year');
+                    chart.update();
+                });
 
             });
 
         // Lägg till knappar för att växla mellan veckovis, månadsvis och årsvis data
-       
+
 
         // Hjälpfunktioner för att formatera datum
         function getWeek(date) {
@@ -298,7 +281,26 @@ function StockPage(parent) {
         }
     }
 
-    this.buyStockFunc = function (stockPage) {
+    this.stockBtns = function () {
+        this.changeTimeFrameDiv = document.createElement('div');
+        this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
+        this.stockPage.appendChild(this.changeTimeFrameDiv);
+
+        this.weeklyButton = document.createElement('button');
+        this.monthlyButton = document.createElement('button');
+        this.yearlyButton = document.createElement('button');
+
+        this.weeklyButton.className = 'buttons weeklyButton';
+        this.weeklyButton.innerText = 'Vecka';
+        this.monthlyButton.className = 'buttons monthlyButton';
+        this.monthlyButton.innerText = 'Månad';
+        this.yearlyButton.className = 'buttons yearlyButton';
+        this.yearlyButton.innerText = 'År';
+
+        this.changeTimeFrameDiv.appendChild(this.weeklyButton);
+        this.changeTimeFrameDiv.appendChild(this.monthlyButton);
+        this.changeTimeFrameDiv.appendChild(this.yearlyButton);
+
         this.buyStockButton = document.createElement('button');
         this.buyStockButton.innerHTML = 'Köp aktie';
         this.buyStockButton.className = 'buttons stockPageBuyButton';
