@@ -32,7 +32,7 @@ function StockPage(parent) {
         // Hämta data från API
         const apiUrl2 = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&outputsize=full&apikey=${apiKey}`;
         // Deklarera unit som används för att ändra tidsintervall i grafen
-        var unit;
+        var unit = 'day';
 
         fetch(apiUrl2)
             .then(response => response.json())
@@ -108,8 +108,6 @@ function StockPage(parent) {
                 });*/
 
                 // Dummy response
-
-
                 var weeklyDummyData = [
                     { x: new Date('2022-01-01'), y: 100 },
                     { x: new Date('2022-01-02'), y: 105 },
@@ -165,6 +163,7 @@ function StockPage(parent) {
                             backgroundColor: 'transparent',  // Fyllning
                             borderWidth: 2,
                             pointRadius: 6,
+                            hoverRadius: 6,
                             hidden: true  // Dölj detta dataset som standard
                         }, {
                             label: 'Årsvis aktiepris',
@@ -175,12 +174,13 @@ function StockPage(parent) {
                             backgroundColor: 'transparent',  // Fyllning
                             borderWidth: 2,
                             pointRadius: 6,
+                            hoverRadius: 6,
                             hidden: true  // Dölj detta dataset som standard
                         }]
                     },
                     options: {
                         legend: {
-                            display: false  // Dölj legenderna
+                            display: false,  // Dölj legenderna
                         },
                         scales: {
                             xAxes: [{
@@ -189,9 +189,8 @@ function StockPage(parent) {
                                 },
                                 ticks: {
                                     fontColor: '#f9ffae',  // Svart text
-                                    drawOnChartArea: false,  // Dölj tick marks på x-axeln
+                                  
                                 },
-
                                 type: 'time',
                                 time: {
                                     unit: unit,
@@ -216,12 +215,7 @@ function StockPage(parent) {
                     chart.options.scales.xAxes[0].time.unit = unit;  // Ändra tidsenheten
                     chart.update();  // Uppdatera diagrammet med den nya tidsenheten
                 }
-
-                // Använd funktionen för att byta till dag, månad eller år
-                this.changeTimeUnit('day');
-                this.changeTimeUnit('month');
-                this.changeTimeUnit('year');
-
+         
                 document.querySelector('.weeklyButton').addEventListener('click', () => {
                     chart.getDatasetMeta(0).hidden = false;  // Visa veckovis data
                     chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
@@ -247,10 +241,6 @@ function StockPage(parent) {
                 });
 
             });
-
-        // Lägg till knappar för att växla mellan veckovis, månadsvis och årsvis data
-
-
         // Hjälpfunktioner för att formatera datum
         function getWeek(date) {
             var onejan = new Date(date.getFullYear(), 0, 1);
