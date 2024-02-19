@@ -137,6 +137,28 @@ function StockPage(parent) {
                     { x: new Date('2022-01-07'), y: 97 }
                 ];
 
+                var monthlyDummyData = [
+                    { x: new Date('2022-01-01'), y: 100 },
+                    { x: new Date('2022-02-01'), y: 105 },
+                    { x: new Date('2022-03-01'), y: 102 },
+                    { x: new Date('2022-04-01'), y: 99 },
+                    { x: new Date('2022-05-01'), y: 101 },
+                    { x: new Date('2022-06-01'), y: 98 },
+                    { x: new Date('2022-07-01'), y: 97 }
+                ];
+
+                var yearlyDummyData = [
+                    { x: new Date('2022-01-01'), y: 100 },
+                    { x: new Date('2023-01-01'), y: 105 },
+                    { x: new Date('2024-01-01'), y: 102 },
+                    { x: new Date('2025-01-01'), y: 99 },
+                    { x: new Date('2026-01-01'), y: 101 },
+                    { x: new Date('2027-01-01'), y: 98 },
+                    { x: new Date('2028-01-01'), y: 97 }
+                ];
+
+                var unit;
+
                 // Använd dummyresponsen istället för att göra ett API-anrop
                 var ctx = document.getElementById('myChart').getContext('2d');
                 var chart = new Chart(ctx, {
@@ -150,14 +172,27 @@ function StockPage(parent) {
                             pointBorderColor: 'black',  // Färg på punkternas border
                             backgroundColor: 'transparent',  // Fyllning
                             borderWidth: 2,
+                            pointRadius: 6,
                             hidden: false  // Visa detta dataset som standard
                         }, {
                             label: 'Månadsvis aktiepris',
-                            data: [],  // Tomt dataset för nu
+                            data: monthlyDummyData,  // Tomt dataset för nu
+                            borderColor: 'white',  // Linjefärg
+                            pointBackgroundColor: '#f9ffae',  // Färg på punkterna
+                            pointBorderColor: 'black',  // Färg på punkternas border
+                            backgroundColor: 'transparent',  // Fyllning
+                            borderWidth: 2,
+                            pointRadius: 6,
                             hidden: true  // Dölj detta dataset som standard
                         }, {
                             label: 'Årsvis aktiepris',
-                            data: [],  // Tomt dataset för nu
+                            data: yearlyDummyData,  // Tomt dataset för nu
+                            borderColor: 'white',  // Linjefärg
+                            pointBackgroundColor: '#f9ffae',  // Färg på punkterna
+                            pointBorderColor: 'black',  // Färg på punkternas border
+                            backgroundColor: 'transparent',  // Fyllning
+                            borderWidth: 2,
+                            pointRadius: 6,
                             hidden: true  // Dölj detta dataset som standard
                         }]
                     },
@@ -177,7 +212,7 @@ function StockPage(parent) {
                                 
                                 type: 'time',
                                 time: {
-                                    unit: 'day',
+                                    unit: unit,
                                 },
                                 display: true,
                        
@@ -188,16 +223,27 @@ function StockPage(parent) {
                                 },
                                 ticks: {
                                     fontColor: '#f9ffae',  // Svart text
+                                    drawOnChartArea: false,  // Dölj tick marks på y-axeln
                                 }
                             }]
                         }
                     }
                 });
+                function changeTimeUnit(unit) {
+                    chart.options.scales.xAxes[0].time.unit = unit;  // Ändra tidsenheten
+                    chart.update();  // Uppdatera diagrammet med den nya tidsenheten
+                }
+                
+                // Använd funktionen för att byta till dag, månad eller år
+                changeTimeUnit('day');
+                changeTimeUnit('month');
+                changeTimeUnit('year');
 
  document.querySelector('.weeklyButton').addEventListener('click', () => {
             chart.getDatasetMeta(0).hidden = false;  // Visa veckovis data
             chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
             chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
+            changeTimeUnit('day');
             chart.update();
         });
 
@@ -205,6 +251,7 @@ function StockPage(parent) {
             chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
             chart.getDatasetMeta(1).hidden = false;  // Visa månadsvis data
             chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
+            changeTimeUnit('month');
             chart.update();
         });
 
@@ -212,6 +259,7 @@ function StockPage(parent) {
             chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
             chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
             chart.getDatasetMeta(2).hidden = false;  // Visa årsvis data
+            changeTimeUnit('year');
             chart.update();
         });
 

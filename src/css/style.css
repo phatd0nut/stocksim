@@ -9,15 +9,13 @@ body {
 .container {
   /* Color Palette: https://www.color-hex.com/color-palette/86099 */
   height: 100vh;
+  width: auto;
   display: flex;
   flex-direction: column; /* Add this line */
   align-items: center;
   background-color: #278664;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.199);
   color: #f9ffae;
   overflow-x: hidden;
-  padding-left: 10px;
-  padding-right: 10px;
 }
 
 #appLogo {
@@ -49,7 +47,7 @@ body {
 
 #searchResultsDiv {
   margin-top: 10px;
-  width: 370px;
+  width: 330px;
   background-color: white;
   height: 140px;
   scrollbar-width: thin;
@@ -99,7 +97,7 @@ body {
 
 .buttons {
   margin-top: 10px;
-  width: 380px;
+  width: 340px;
   padding: 10px;
   background-color: white;
   font-weight: bold;
@@ -175,7 +173,7 @@ body {
 
 .inputBars {
   margin-top: 10px;
-  width: 360px;
+  width: 320px;
   padding: 10px;
   border-top-left-radius: 20px;
   border-bottom-right-radius: 20px;
