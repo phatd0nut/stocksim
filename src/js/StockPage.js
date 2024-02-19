@@ -1,5 +1,4 @@
 function StockPage(parent) {
-
     this.createStockPage = function (name) {
         this.stockPage = document.createElement('div');
         this.stockPage.className = 'stockPage';
@@ -15,7 +14,7 @@ function StockPage(parent) {
         this.stockPage.appendChild(this.stockInfo);
 
         this.stockPrice = document.createElement('p');
-        this.stockPrice.innerHTML = 'Aktuell kurs: <b>100:-</b>';
+        this.stockPrice.innerHTML = 'Dagens Kurs: <b>100:-</b>';
         this.stockPrice.className = 'stockPrice';
         this.stockInfo.appendChild(this.stockPrice);
 
@@ -26,14 +25,7 @@ function StockPage(parent) {
         this.canvas = document.createElement('canvas');
         this.canvas.id = 'myChart';
         this.stockChart.appendChild(this.canvas);
-
-        this.buyStockButton = document.createElement('button');
-        this.buyStockButton.innerHTML = 'Köp aktie';
-        this.buyStockButton.className = 'buyStockButton';
-        this.stockPage.appendChild(this.buyStockButton);
-        this.buyStockButton.addEventListener('click', () => {
-            this.buyStockFunc(stock);
-        });
+        this.buyStockFunc(this.stockPage);
     }
 
     this.createChart = function (ticker, apiKey) {
@@ -46,11 +38,11 @@ function StockPage(parent) {
         this.yearlyButton = document.createElement('button');
 
         this.weeklyButton.className = 'buttons weeklyButton';
-        this.weeklyButton.innerText = 'Visa veckovis data';
+        this.weeklyButton.innerText = 'Vecka';
         this.monthlyButton.className = 'buttons monthlyButton';
-        this.monthlyButton.innerText = 'Visa månadsvis data';
+        this.monthlyButton.innerText = 'Månad';
         this.yearlyButton.className = 'buttons yearlyButton';
-        this.yearlyButton.innerText = 'Visa årsvis data';
+        this.yearlyButton.innerText = 'År';
 
         this.changeTimeFrameDiv.appendChild(this.weeklyButton);
         this.changeTimeFrameDiv.appendChild(this.monthlyButton);
@@ -62,7 +54,9 @@ function StockPage(parent) {
         fetch(apiUrl2)
             .then(response => response.json())
             .then(data => {
+                
                 console.log(data);
+                /*
                 const timeSeriesData = data['Time Series (Daily)'];
                 const formattedData = Object.entries(timeSeriesData).map(([date, valueObj]) => {
                     return {
@@ -71,14 +65,32 @@ function StockPage(parent) {
                     };
                 });
 
-                // Gruppera data efter vecka, månad och år
-                const weeklyData = groupBy(formattedData, getWeek);
-                const monthlyData = groupBy(formattedData, getMonth);
-                const yearlyData = groupBy(formattedData, getYear);
+                // Hämta dagens datum och datumet för en vecka, en månad och ett år sedan
+                var today = new Date();
+                var oneWeekAgo = new Date();
+                oneWeekAgo.setDate(today.getDate() - 7);
+                var oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(today.getMonth() - 1);
+                var oneYearAgo = new Date();
+                oneYearAgo.setFullYear(today.getFullYear() - 1);
+
+                // Filtrera formattedData till att endast innehålla data från den senaste veckan, månaden och året
+                var lastWeekData = formattedData.filter(item => item.x >= oneWeekAgo);
+                var lastMonthData = formattedData.filter(item => item.x >= oneMonthAgo);
+                var lastYearData = formattedData.filter(item => item.x >= oneYearAgo);
+
+                // Gruppera lastWeekData, lastMonthData och lastYearData
+                var weeklyData = groupBy(lastWeekData, getWeek).flat();
+                var monthlyData = groupBy(lastMonthData, getMonth).flat();
+                var yearlyData = groupBy(lastYearData, getYear).flat();
+                console.log(weeklyData);
+
+                */
 
                 // Skapa diagrammet
-                let ctx = document.getElementById('myChart').getContext('2d');
-                let chart = new Chart(ctx, {
+                /*
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         datasets: [{
@@ -97,19 +109,92 @@ function StockPage(parent) {
                     },
                     options: {
                         scales: {
-                            x: {
+                            xAxes: [{
                                 type: 'time',
                                 time: {
-                                    unit: 'month'
+                                    unit: 'day',
+                                },
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Datum'
                                 }
-                            }
+                            }]
+                        }
+                    }
+                });*/
+
+                // Dummy response
+
+                
+                var weeklyDummyData = [
+                    { x: new Date('2022-01-01'), y: 100 },
+                    { x: new Date('2022-01-02'), y: 105 },
+                    { x: new Date('2022-01-03'), y: 102 },
+                    { x: new Date('2022-01-04'), y: 99 },
+                    { x: new Date('2022-01-05'), y: 101 },
+                    { x: new Date('2022-01-06'), y: 98 },
+                    { x: new Date('2022-01-07'), y: 97 }
+                ];
+
+                // Använd dummyresponsen istället för att göra ett API-anrop
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'Veckovis aktiepris',
+                            data: weeklyDummyData,
+                            borderColor: 'white',  // Linjefärg
+                            pointBackgroundColor: '#f9ffae',  // Färg på punkterna
+                            pointBorderColor: 'black',  // Färg på punkternas border
+                            backgroundColor: 'transparent',  // Fyllning
+                            borderWidth: 2,
+                            hidden: false  // Visa detta dataset som standard
+                        }, {
+                            label: 'Månadsvis aktiepris',
+                            data: [],  // Tomt dataset för nu
+                            hidden: true  // Dölj detta dataset som standard
+                        }, {
+                            label: 'Årsvis aktiepris',
+                            data: [],  // Tomt dataset för nu
+                            hidden: true  // Dölj detta dataset som standard
+                        }]
+                    },
+                    options: {
+                        legend: {
+                            display: false  // Dölj legenderna
+                        },
+                        scales: {
+                            xAxes: [{
+                                gridLines: {
+                                    display: false,  // Dölj grid lines på x-axeln
+                                },
+                                ticks: {
+                                    fontColor: '#f9ffae',  // Svart text
+                                    drawOnChartArea: false,  // Dölj tick marks på x-axeln
+                                },
+                                
+                                type: 'time',
+                                time: {
+                                    unit: 'day',
+                                },
+                                display: true,
+                       
+                            }],
+                            yAxes: [{
+                                gridLines: {
+                                    color: 'rgba(0, 0, 0, 0)',  // Dölj grid lines
+                                },
+                                ticks: {
+                                    fontColor: '#f9ffae',  // Svart text
+                                }
+                            }]
                         }
                     }
                 });
-            });
 
-        // Lägg till knappar för att växla mellan veckovis, månadsvis och årsvis data
-        document.querySelector('.weeklyButton').addEventListener('click', () => {
+ document.querySelector('.weeklyButton').addEventListener('click', () => {
             chart.getDatasetMeta(0).hidden = false;  // Visa veckovis data
             chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
             chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
@@ -129,6 +214,11 @@ function StockPage(parent) {
             chart.getDatasetMeta(2).hidden = false;  // Visa årsvis data
             chart.update();
         });
+
+            });
+
+        // Lägg till knappar för att växla mellan veckovis, månadsvis och årsvis data
+       
 
         // Hjälpfunktioner för att formatera datum
         function getWeek(date) {
@@ -160,7 +250,12 @@ function StockPage(parent) {
         }
     }
 
-    this.buyStockFunc = function (stock) {
-        console.log('Buying stock', stock);
+    this.buyStockFunc = function (stockPage) {
+        this.buyStockButton = document.createElement('button');
+        this.buyStockButton.innerHTML = 'Köp aktie';
+        this.buyStockButton.className = 'buttons stockPageBuyButton';
+        this.stockPage.appendChild(this.buyStockButton);
+        this.buyStockButton.addEventListener('click', () => {
+        });
     }
 }
