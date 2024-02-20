@@ -2,7 +2,7 @@
 function StockMarketAPI() {
     // Privat funktion för att returnera API-nyckeln
     function getApiKey() {
-        return 'PNMIK4RI0BD5791Y';
+        return '901b884f4298a5f73b8d8176dd2c3d37';
     }
 
     var getKey = getApiKey;

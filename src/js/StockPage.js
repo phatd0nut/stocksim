@@ -29,246 +29,101 @@ function StockPage(parent) {
     }
 
     this.createChart = function (ticker, apiKey) {
-        // Hämta data från API
-        const apiUrl2 = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&outputsize=full&apikey=${apiKey}`;
-        // Deklarera unit som används för att ändra tidsintervall i grafen
-        var unit = 'day';
+        var unit = 'week';
+        const createNewChart = (unit) => {
+            // Beräkna startdatum baserat på tidsramen
+            let startDate = new Date();
+            let startDateStr;
+            if (unit === 'week') {
+                startDate.setDate(startDate.getDate() - 7);
+            } else if (unit === 'month') {
+                startDate.setDate(startDate.getDate() - 31);
+            } else if (unit === 'year') {
+                startDate.setFullYear(startDate.getFullYear() - 1);
+            }
 
-        fetch(apiUrl2)
-            .then(response => response.json())
-            .then(data => {
+            // Formatera startdatumet till YYYY-MM-DD format
+            startDateStr = startDate.toISOString().split('T')[0];
 
-                console.log(data);
-                /*
-                const timeSeriesData = data['Time Series (Daily)'];
-                const formattedData = Object.entries(timeSeriesData).map(([date, valueObj]) => {
-                    return {
-                        x: new Date(date),
-                        y: parseFloat(valueObj['4. close'])  // Använd stängningspriset för varje dag
-                    };
-                });
+            // Hämta data från API
+            const apiUrl2 = `https://financialmodelingprep.com/api/v3/historical-price-full/${ticker}?from=${startDateStr}&to=${new Date().toISOString().split('T')[0]}&apikey=${apiKey}`;
 
-                // Hämta dagens datum och datumet för en vecka, en månad och ett år sedan
-                var today = new Date();
-                var oneWeekAgo = new Date();
-                oneWeekAgo.setDate(today.getDate() - 7);
-                var oneMonthAgo = new Date();
-                oneMonthAgo.setMonth(today.getMonth() - 1);
-                var oneYearAgo = new Date();
-                oneYearAgo.setFullYear(today.getFullYear() - 1);
+            fetch(apiUrl2)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    var formattedData = data.historical.map(item => ({
+                        x: item.date,
+                        y: item.close,
+                    }));
+                    var canvas = document.getElementById('myChart');
+                    var ctx = canvas.getContext('2d');
 
-                // Filtrera formattedData till att endast innehålla data från den senaste veckan, månaden och året
-                var lastWeekData = formattedData.filter(item => item.x >= oneWeekAgo);
-                var lastMonthData = formattedData.filter(item => item.x >= oneMonthAgo);
-                var lastYearData = formattedData.filter(item => item.x >= oneYearAgo);
-
-                // Gruppera lastWeekData, lastMonthData och lastYearData
-                var weeklyData = groupBy(lastWeekData, getWeek).flat();
-                var monthlyData = groupBy(lastMonthData, getMonth).flat();
-                var yearlyData = groupBy(lastYearData, getYear).flat();
-                console.log(weeklyData);
-
-                */
-
-                // Skapa diagrammet
-                /*
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: 'Veckovis aktiepris',
-                            data: weeklyData,
-                            hidden: false  // Visa detta dataset som standard
-                        }, {
-                            label: 'Månadsvis aktiepris',
-                            data: monthlyData,
-                            hidden: true  // Dölj detta dataset som standard
-                        }, {
-                            label: 'Årsvis aktiepris',
-                            data: yearlyData,
-                            hidden: true  // Dölj detta dataset som standard
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            xAxes: [{
-                                type: 'time',
-                                time: {
-                                    unit: 'day',
-                                },
-                                display: true,
-                                scaleLabel: {
-                                    display: true,
-                                    labelString: 'Datum'
-                                }
+                    var myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            datasets: [{
+                                label: 'Aktiekurs',
+                                data: formattedData,
+                                borderColor: 'white',  // Linjefärg
+                                pointBackgroundColor: '#f9ffae',  // Färg på punkterna
+                                pointBorderColor: 'black',  // Färg på punkternas border
+                                backgroundColor: 'transparent',  // Fyllning
+                                borderWidth: 2,
+                                pointRadius: 6,
+                                hoverRadius: 6,
                             }]
-                        }
-                    }
-                });*/
-
-                // Dummy response
-                var weeklyDummyData = [
-                    { x: new Date('2022-01-01'), y: 100 },
-                    { x: new Date('2022-01-02'), y: 105 },
-                    { x: new Date('2022-01-03'), y: 102 },
-                    { x: new Date('2022-01-04'), y: 99 },
-                    { x: new Date('2022-01-05'), y: 101 },
-                    { x: new Date('2022-01-06'), y: 98 },
-                    { x: new Date('2022-01-07'), y: 97 }
-                ];
-
-                var monthlyDummyData = [
-                    { x: new Date('2022-01-01'), y: 100 },
-                    { x: new Date('2022-02-01'), y: 105 },
-                    { x: new Date('2022-03-01'), y: 102 },
-                    { x: new Date('2022-04-01'), y: 99 },
-                    { x: new Date('2022-05-01'), y: 101 },
-                    { x: new Date('2022-06-01'), y: 98 },
-                    { x: new Date('2022-07-01'), y: 97 }
-                ];
-
-                var yearlyDummyData = [
-                    { x: new Date('2022-01-01'), y: 100 },
-                    { x: new Date('2023-01-01'), y: 105 },
-                    { x: new Date('2024-01-01'), y: 102 },
-                    { x: new Date('2025-01-01'), y: 99 },
-                    { x: new Date('2026-01-01'), y: 101 },
-                    { x: new Date('2027-01-01'), y: 98 },
-                    { x: new Date('2028-01-01'), y: 97 }
-                ];
-
-                // Använd dummyresponsen istället för att göra ett API-anrop
-                var ctx = document.getElementById('myChart').getContext('2d');
-                var chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        datasets: [{
-                            label: 'Veckovis aktiepris',
-                            data: weeklyDummyData,
-                            borderColor: 'white',  // Linjefärg
-                            pointBackgroundColor: '#f9ffae',  // Färg på punkterna
-                            pointBorderColor: 'black',  // Färg på punkternas border
-                            backgroundColor: 'transparent',  // Fyllning
-                            borderWidth: 2,
-                            pointRadius: 6,
-                            hoverRadius: 6,
-                            hidden: false  // Visa detta dataset som standard
-                        }, {
-                            label: 'Månadsvis aktiepris',
-                            data: monthlyDummyData,  // Tomt dataset för nu
-                            borderColor: 'white',  // Linjefärg
-                            pointBackgroundColor: '#f9ffae',  // Färg på punkterna
-                            pointBorderColor: 'black',  // Färg på punkternas border
-                            backgroundColor: 'transparent',  // Fyllning
-                            borderWidth: 2,
-                            pointRadius: 6,
-                            hoverRadius: 6,
-                            hidden: true  // Dölj detta dataset som standard
-                        }, {
-                            label: 'Årsvis aktiepris',
-                            data: yearlyDummyData,  // Tomt dataset för nu
-                            borderColor: 'white',  // Linjefärg
-                            pointBackgroundColor: '#f9ffae',  // Färg på punkterna
-                            pointBorderColor: 'black',  // Färg på punkternas border
-                            backgroundColor: 'transparent',  // Fyllning
-                            borderWidth: 2,
-                            pointRadius: 6,
-                            hoverRadius: 6,
-                            hidden: true  // Dölj detta dataset som standard
-                        }]
-                    },
-                    options: {
-                        legend: {
-                            display: false,  // Dölj legenderna
                         },
-                        scales: {
-                            xAxes: [{
-                                gridLines: {
-                                    display: false,  // Dölj grid lines på x-axeln
-                                },
-                                ticks: {
-                                    fontColor: '#f9ffae',  // Svart text
-                                  
-                                },
-                                type: 'time',
-                                time: {
-                                    unit: unit,
-                                },
-                                display: true,
+                        options: {
+                            legend: {
+                                display: false,  // Dölj legenderna
+                            },
+                            scales: {
+                                xAxes: [{
+                                    gridLines: {
+                                        display: false,  // Dölj grid lines på x-axeln
+                                    },
+                                    ticks: {
+                                        fontColor: '#f9ffae',  // Svart text
 
-                            }],
-                            yAxes: [{
-                                gridLines: {
-                                    color: 'rgba(0, 0, 0, 0)',  // Dölj grid lines
-                                },
-                                ticks: {
-                                    fontColor: '#f9ffae',  // Svart text
-                                    drawOnChartArea: false,  // Dölj tick marks på y-axeln
-                                }
-                            }]
+                                    },
+                                    type: 'time',
+                                    time: {
+                                        unit: unit,
+                                    },
+                                    display: true,
+
+                                }],
+                                yAxes: [{
+                                    gridLines: {
+                                        color: 'rgba(0, 0, 0, 0)',  // Dölj grid lines
+                                    },
+                                    ticks: {
+                                        fontColor: '#f9ffae',  // Svart text
+                                        drawOnChartArea: false,  // Dölj tick marks på y-axeln
+                                    }
+                                }]
+                            }
                         }
-                    }
+                    });
                 });
-
-                this.changeTimeUnit = function (unit) {
-                    chart.options.scales.xAxes[0].time.unit = unit;  // Ändra tidsenheten
-                    chart.update();  // Uppdatera diagrammet med den nya tidsenheten
-                }
-         
-                document.querySelector('.weeklyButton').addEventListener('click', () => {
-                    chart.getDatasetMeta(0).hidden = false;  // Visa veckovis data
-                    chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
-                    chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
-                    this.changeTimeUnit('day');
-                    chart.update();
-                });
-
-                document.querySelector('.monthlyButton').addEventListener('click', () => {
-                    chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
-                    chart.getDatasetMeta(1).hidden = false;  // Visa månadsvis data
-                    chart.getDatasetMeta(2).hidden = true;  // Dölj årsvis data
-                    this.changeTimeUnit('month');
-                    chart.update();
-                });
-
-                document.querySelector('.yearlyButton').addEventListener('click', () => {
-                    chart.getDatasetMeta(0).hidden = true;  // Dölj veckovis data
-                    chart.getDatasetMeta(1).hidden = true;  // Dölj månadsvis data
-                    chart.getDatasetMeta(2).hidden = false;  // Visa årsvis data
-                    this.changeTimeUnit('year');
-                    chart.update();
-                });
-
-            });
-        // Hjälpfunktioner för att formatera datum
-        function getWeek(date) {
-            var onejan = new Date(date.getFullYear(), 0, 1);
-            return Math.ceil((((date - onejan) / 86400000) + onejan.getDay() + 1) / 7);
         }
 
-        function getMonth(date) {
-            return date.getMonth() + 1;
-        }
+        // Skapa den ursprungliga grafen
+        createNewChart(unit);
 
-        function getYear(date) {
-            return date.getFullYear();
-        }
+        // Lyssna på klick på knappar för att ändra tidsintervall
+        this.weeklyButton.addEventListener('click', () => {
+            createNewChart('week');
+        });
 
-        // Hjälpfunktion för att gruppera data
-        function groupBy(array, keyGetter) {
-            const map = new Map();
-            array.forEach((item) => {
-                const key = keyGetter(item.x);
-                const collection = map.get(key);
-                if (!collection) {
-                    map.set(key, [item]);
-                } else {
-                    collection.push(item);
-                }
-            });
-            return Array.from(map.values());
-        }
+        this.monthlyButton.addEventListener('click', () => {
+            createNewChart('month');
+        });
+
+        this.yearlyButton.addEventListener('click', () => {
+            createNewChart('year');
+        });
     }
 
     this.stockBtns = function () {

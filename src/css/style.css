@@ -71,8 +71,7 @@ body {
   align-items: center;
   list-style-type: none;
   padding: 10px;
-  padding-bottom: 4px;
-  margin-bottom: 10px;
+  
   font-size: 0.9rem;
   color: #4e594a;
 }
@@ -80,6 +79,12 @@ body {
 .searchResults li:active {
   background-color: #79a471;
   color: white;
+  border-top-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.searchResults li:active span {
+  color:#4e594a;
 }
 
 #stockRegion {
