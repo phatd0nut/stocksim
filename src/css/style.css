@@ -125,6 +125,7 @@ body {
   font-family: "Roboto", sans-serif;
   border-top-left-radius: 20px;
   border-bottom-right-radius: 20px;
+  flex-wrap: nowrap;
 }
 
 .buttons:active {

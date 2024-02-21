@@ -38,11 +38,6 @@ function Search() {
     this.balanceText.className = 'searchBalance';
     this.searchBox.appendChild(this.balanceText);
 
-    this.p = document.createElement('p');
-    this.p.innerHTML = 'Sök efter aktier nedan';
-    this.p.className = 'pSearch';
-    this.searchBox.appendChild(this.p);
-
     this.searchStockInput = document.createElement('input');
     this.searchStockInput.type = 'text';
     this.searchStockInput.placeholder = 'Sök aktie här';
@@ -123,10 +118,10 @@ function Search() {
       this.usStocks = data.filter(stock => stock.type === 'stock' && (stock.exchangeShortName === 'NASDAQ' || stock.exchangeShortName === 'NYSE'));
     }
 
-      // Ta bort laddnings-GIF om den fortfarande är en del av this.searchResults
-  if (this.searchResults.contains(gif)) {
-    this.searchResults.removeChild(gif);
-  }
+    // Ta bort laddnings-GIF om den fortfarande är en del av this.searchResults
+    if (this.searchResults.contains(gif)) {
+      this.searchResults.removeChild(gif);
+    }
 
     // Sök igenom listan över amerikanska aktier
     var matchingStocks = this.usStocks.filter(stock => stock.name && stock.name.toLowerCase().startsWith(searchValue.toLowerCase()));
@@ -138,7 +133,10 @@ function Search() {
         this.showResults(symbol, name, exchangeShortName);
       });
     } else {
+      this.p = document.createElement('p');
+      this.p.className = 'pSearch';
       this.p.innerHTML = 'Inga aktier hittades';
+      this.searchBox.appendChild(this.p);
     }
   }
   this.buyStockFunc = function (ticker, name, apiKey) {
