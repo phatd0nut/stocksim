@@ -30,6 +30,7 @@ function StockPage(parent) {
 
     this.createChart = function (ticker, apiKey) {
         var unit = 'week';
+
         const createNewChart = (unit) => {
             // Beräkna startdatum baserat på tidsramen
             let startDate = new Date();
@@ -58,6 +59,10 @@ function StockPage(parent) {
                     }));
                     var canvas = document.getElementById('myChart');
                     var ctx = canvas.getContext('2d');
+
+                    if (myChart) {
+                        myChart.destroy();
+                    }
 
                     var myChart = new Chart(ctx, {
                         type: 'line',
