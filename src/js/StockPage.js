@@ -14,7 +14,6 @@ function StockPage(parent) {
         this.stockPage.appendChild(this.stockInfo);
 
         this.stockPrice = document.createElement('p');
-        this.stockPrice.innerHTML = 'Dagens Kurs: <b>100:-</b>';
         this.stockPrice.className = 'stockPrice';
         this.stockInfo.appendChild(this.stockPrice);
 
@@ -30,6 +29,7 @@ function StockPage(parent) {
 
     this.createChart = function (ticker, apiKey) {
         var unit = 'week';
+        var myChart;
 
         const createNewChart = (unit) => {
             // Beräkna startdatum baserat på tidsramen
@@ -52,11 +52,46 @@ function StockPage(parent) {
             fetch(apiUrl2)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    var formattedData = data.historical.map(item => ({
-                        x: item.date,
-                        y: item.close,
-                    }));
+                    var formattedData = data.historical
+                        .filter(item => {
+                            const dayOfWeek = new Date(item.date).getDay();
+                            return dayOfWeek !== 0 && dayOfWeek !== 6;  // Filtrera ut lördagar och söndagar
+                        })
+                        .map(item => ({
+                            x: item.date,
+                            y: item.close,
+                        }));
+
+                    // Hämta dagens kurs
+                    const todaysDate = new Date().toISOString().split('T')[0];
+                    const todaysData = data.historical.find(item => item.date === todaysDate);
+                    const todaysPrice = todaysData ? todaysData.close : 'N/A';
+
+                    // Uppdatera p-elementet med dagens kurs
+                    this.stockPrice.innerHTML = `Dagens Kurs: <b>${todaysPrice}:-</b>`;
+
+                    // const realTimePrice = `https://financialmodelingprep.com/api/v3/stock/real-time-price/${ticker}?apikey=${apiKey}`;
+                    // fetch(realTimePrice)
+                    //     .then(response => response.json())
+                    //     .then(data => {
+                    //         this.stockPrice.innerHTML = `Dagens Kurs: <b>${data.price}:-</b>`;
+                    //     });
+
+                    // Om unit är 'year', aggregera data till månadsvisa punkter
+                    if (unit === 'year') {
+                        const aggregatedData = {};
+                        formattedData.forEach(dataPoint => {
+                            const month = dataPoint.x.slice(0, 7);  // Hämta året och månaden
+                            if (!aggregatedData[month]) {
+                                aggregatedData[month] = dataPoint.y;  // Spara priset för den första dagen i månaden
+                            }
+                        });
+                        formattedData = Object.entries(aggregatedData).map(([month, value]) => ({
+                            x: `${month}-01`,  // Lägg till "-01" till månaden
+                            y: value,
+                        }));
+                    }
+
                     var canvas = document.getElementById('myChart');
                     var ctx = canvas.getContext('2d');
 
@@ -64,7 +99,7 @@ function StockPage(parent) {
                         myChart.destroy();
                     }
 
-                    var myChart = new Chart(ctx, {
+                    myChart = new Chart(ctx, {
                         type: 'line',
                         data: {
                             datasets: [{
@@ -93,8 +128,10 @@ function StockPage(parent) {
 
                                     },
                                     type: 'time',
+                                    distribution: 'series',  // Add this line
                                     time: {
-                                        unit: unit,
+                                        unit: unit === 'year' ? 'month' : 'day',
+                                        stepSize: unit === 'year' ? 1 : undefined,
                                     },
                                     display: true,
 

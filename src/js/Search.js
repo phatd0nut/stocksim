@@ -99,24 +99,35 @@ function Search() {
   this.fetchApi = async function (searchValue) {
     // Rensa tidigare sökresultat
     this.searchResults.innerHTML = '';
-  
+
     // Kontrollera om vi redan har hämtat listan över aktier
     if (!this.usStocks) {
       const apiUrl = 'https://financialmodelingprep.com/api/v3/stock/list?apikey=' + apiKey;
+
+      // Ta bort befintlig laddnings-GIF om den finns
+      var existingGif = document.getElementById('loadingGif');
+      if (existingGif) {
+        this.searchResults.removeChild(existingGif);
+      }
 
       var gif = document.createElement('img');
       gif.src = '../src/img/sedel_1.gif';
       gif.id = 'loadingGif';
       this.searchResults.appendChild(gif);
-  
+
       // Hämta en lista över alla amerikanska aktier
       const response = await fetch(apiUrl);
       const data = await response.json();
-  
+
       // Filtrera listan för att endast inkludera amerikanska aktier
       this.usStocks = data.filter(stock => stock.type === 'stock' && (stock.exchangeShortName === 'NASDAQ' || stock.exchangeShortName === 'NYSE'));
     }
-  
+
+      // Ta bort laddnings-GIF om den fortfarande är en del av this.searchResults
+  if (this.searchResults.contains(gif)) {
+    this.searchResults.removeChild(gif);
+  }
+
     // Sök igenom listan över amerikanska aktier
     var matchingStocks = this.usStocks.filter(stock => stock.name && stock.name.toLowerCase().startsWith(searchValue.toLowerCase()));
     if (matchingStocks.length > 0) {
