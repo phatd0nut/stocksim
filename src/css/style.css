@@ -3,7 +3,6 @@ body {
   margin: 0;
   box-sizing: border-box;
   width: 100vw;
-  overflow-x: hidden;
 }
 
 .container {
@@ -16,6 +15,7 @@ body {
   background-color: #278664;
   color: #f9ffae;
   overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 #appLogo {
