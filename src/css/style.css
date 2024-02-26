@@ -1,14 +1,9 @@
-* {
-  max-width: 100vw;
-  max-height: 100vh;
-}
 body {
   font-family: "Roboto", sans-serif;
   margin: 0;
   box-sizing: border-box;
   width: 100vw;
   overflow-x: hidden;
-  overflow-y: hidden;
 }
 
 .container {
@@ -21,7 +16,6 @@ body {
   background-color: #278664;
   color: #f9ffae;
   overflow-x: hidden;
-  overflow-y: hidden;
 }
 
 #appLogo {
@@ -45,6 +39,7 @@ body {
 }
 
 .searchBox {
+  position: relative;
   margin-top: 10%;
   display: flex;
   flex-direction: column;
@@ -88,19 +83,19 @@ body {
   align-items: center;
   list-style-type: none;
   padding: 10px;
-
+  cursor: pointer;
   font-size: 0.9rem;
   color: #4e594a;
 }
 
-.searchResults li:active {
-  background-color: #79a471;
+#clicked {
   color: white;
+  background-color: #79a471;
   border-top-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
 
-.searchResults li:active span {
+#clicked span {
   color: #4e594a;
 }
 
@@ -121,6 +116,10 @@ body {
   margin: 0;
 }
 
+.h2search {
+  margin: 0;
+}
+
 .buttons {
   margin-top: 10px;
   width: 340px;
@@ -132,6 +131,7 @@ body {
   border-top-left-radius: 20px;
   border-bottom-right-radius: 20px;
   flex-wrap: nowrap;
+  cursor: pointer;
 }
 
 .buttons:active {
@@ -159,6 +159,10 @@ body {
   flex-direction: column;
 }
 
+.stockPrice {
+  margin-top: 0;
+}
+
 .stockPageBuyButton {
   margin-top: 20px;
   background-color: #f9ffae;
@@ -183,6 +187,49 @@ body {
   background-color: #f9ffae;
   box-shadow: 0 0 5px #f9ffae;
   animation: glow 5s infinite;
+}
+
+.buyDiv {
+  position: absolute;
+  width: 330px;
+  height: 120px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  flex-direction: column-reverse;
+  top: 105%;
+}
+
+#buyHeader {
+  color: #4e594a;
+  margin: 0;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+#headerPrice {
+  background-color: #f9ffae;
+  color: #4e594a;
+  margin-right: 10px;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 5px;
+  margin-left: auto;
+  font-size: 1rem;
+}
+
+.buyInputField {
+  width: 60px;
+}
+
+.revertBuy {
+  position: absolute;
+  width: 140px;
+  align-self: center;
+  font-size: 0.8rem;
+  top: 105%;
+  left: 30%;
+  cursor: pointer;
 }
 
 @keyframes glow {
@@ -239,7 +286,7 @@ body {
   .createUserDiv,
   .setupDiv,
   .searchBox {
-    margin-top: 10%;
+    margin-top: 7%;
     padding-top: 0px;
   }
 }

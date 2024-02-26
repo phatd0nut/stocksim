@@ -3,6 +3,7 @@ function User(name, parent) {
   var initialBalance = 0;
   this.name = name;
   this.balance = initialBalance;
+  const portfolio = new Portfolio();
 
   this.userInterface = function () {
     this.setupDiv = document.createElement('div');

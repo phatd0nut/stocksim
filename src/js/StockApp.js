@@ -13,6 +13,8 @@ function StockApp() {
         parent.appendChild(container);
         var createUser = new CreateUser(container);
         createUser.createUserBox(parent);
+        var detectMode = new DetectMode(container);
+        detectMode.detect();
     }
 
 }

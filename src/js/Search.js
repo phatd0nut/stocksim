@@ -1,8 +1,17 @@
 function Search() {
-  var apiKey = new StockMarketAPI()();
-  var parentContainer = document.querySelector('.container');
+  const apiKey = new StockMarketAPI()();
+  const parentContainer = document.querySelector('.container');
   var searchValue;
   var symbol;
+  const buy = new BuyStocks();
+  const stockPrice = new StockPrice();
+  const stockPage = new StockPage(parentContainer, stockPrice);
+
+  var startDateSearch = new Date();
+  this.startDateSearchStr = startDateSearch.toISOString().split('T')[0];
+
+  stockPrice.setApiKey(apiKey);
+  stockPrice.setStartDate(this.startDateSearchStr);
 
   this.resultsBox = function (searchBox) {
     // Kontrollera om searchResultsDiv redan finns
@@ -24,6 +33,7 @@ function Search() {
   }
 
   this.createSearchBox = function (balance) {
+    buy.getBudget(balance);
     this.searchBox = document.createElement('div');
     this.searchBox.className = 'searchBox';
     parentContainer.appendChild(this.searchBox);
@@ -62,6 +72,24 @@ function Search() {
     this.searchResults.appendChild(this.stockItem);
 
     this.stockItem.addEventListener('click', () => {
+      stockPrice.setSymbol(symbol);
+      console.log(symbol);
+
+      const stockItems = document.querySelectorAll('.searchResults li');
+
+      stockItems.forEach(item => {
+        item.addEventListener('click', function () {
+          // Remove 'clicked' class from all li elements
+          stockItems.forEach(item => {
+            item.id = '';
+          });
+
+          // Add 'clicked' class to the clicked li element
+          this.id = 'clicked';
+        });
+      });
+
+
       this.previousButtonsDiv = document.querySelector('.stockButtonsDiv');
       if (this.previousButtonsDiv) {
         this.previousButtonsDiv.remove();
@@ -74,8 +102,48 @@ function Search() {
       this.buyStock.className = 'buttons buyStock';
       this.buttonsDiv.appendChild(this.buyStock);
 
+      this.buyDiv = document.createElement('div');
+      this.buyDiv.className = 'buyDiv';
+
       this.buyStock.addEventListener('click', () => {
-        this.buyStockFunc({ ticker, name, type, region, price });
+        this.searchStockInput.style.display = 'none';
+        this.searchResultsDiv.style.display = 'none';
+        this.buttonsDiv.style.display = 'none';
+        this.searchBox.appendChild(this.buyDiv);
+
+        var buyHeader = document.createElement('h2');
+        var headerPrice = document.createElement('span');
+
+        stockPrice.getRealTimePrice().then(realTimePrice => {
+          if (realTimePrice) {
+            headerPrice.innerHTML = realTimePrice;
+          } else {
+            stockPrice.lastClosingPrice().then(closingPrice => {
+              headerPrice.innerHTML = closingPrice;
+            });
+          }
+          buyHeader.innerHTML = name;
+          headerPrice.id = 'headerPrice';
+          buyHeader.id = 'buyHeader';
+          this.buyDiv.appendChild(buyHeader);
+          this.buyDiv.appendChild(headerPrice);
+        }).catch(error => {
+          console.error('Error getting price:', error);
+        });
+
+        this.revertBuy = document.createElement('button');
+        this.revertBuy.innerHTML = 'Gå tillbaka';
+        this.revertBuy.className = 'buttons revertBuy';
+        this.buyDiv.appendChild(this.revertBuy);
+
+        this.revertBuy.addEventListener('click', () => {
+          this.buyDiv.remove();
+          this.searchStockInput.style.display = 'flex';
+          this.searchResultsDiv.style.display = 'flex';
+          this.buttonsDiv.style.display = 'flex';
+        });
+
+        this.buyStockFunc(symbol, name);
       });
 
       this.goToStock = document.createElement('button');
@@ -125,7 +193,12 @@ function Search() {
 
     // Sök igenom listan över amerikanska aktier
     var matchingStocks = this.usStocks.filter(stock => stock.name && stock.name.toLowerCase().startsWith(searchValue.toLowerCase()));
+
     if (matchingStocks.length > 0) {
+      // If this.p exists and is a child of this.searchBox, remove it
+      if (this.p && this.searchBox.contains(this.p)) {
+        this.searchBox.removeChild(this.p);
+      }
       matchingStocks.forEach(stock => {
         symbol = stock.symbol;
         var name = stock.name;
@@ -136,44 +209,27 @@ function Search() {
       this.p = document.createElement('p');
       this.p.className = 'pSearch';
       this.p.innerHTML = 'Inga aktier hittades';
-      this.searchBox.appendChild(this.p);
+      if (!this.searchBox.contains(this.p)) {
+        this.searchBox.appendChild(this.p);
+      }
     }
   }
-  this.buyStockFunc = function (ticker, name, apiKey) {
-    var buyStock = new Stock(ticker, name, apiKey);
-    this.searchResultsDiv.remove();
+
+  this.buyStockFunc = function (symbol, name) {
+    this.inputField = document.createElement('input');
+    this.inputField.type = 'text';
+    this.inputField.className = 'inputBars';
+    this.inputField.id = 'buyInputField';
+    this.inputField.placeholder = 'Ange belopp att köpa för';
+    this.buyDiv.appendChild(this.inputField);
+    // var buyStock = new BuyStocks(symbol, name, apiKey);
+    // buyStock.buyStock();
   }
 
-  this.goToStockFunc = function (ticker, name, apiKey) {
+  this.goToStockFunc = function (symbol, name, apiKey) {
     this.searchResultsDiv.remove();
     this.searchBox.remove();
-    var stockPage = new StockPage(parentContainer);
     stockPage.createStockPage(name);
-    stockPage.createChart(ticker, apiKey);
+    stockPage.prepareChart(symbol, apiKey, unit = 'week');
   }
-
-
 }
-
-
-/*
- fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-              if (data) {
-                console.log(data);
-                this.searchResults.innerHTML = ''; // Rensa tidigare sökresultat
-                data.forEach(stock => {
-                  symbol = stock.symbol;
-                  var name = stock.name;
-                  var currency = stock.currency;
-                  var exchangeName = stock.stockExchange;
-                  var exchangeShortName = stock.exchangeShortName;
-                  this.showResults(symbol, name, exchangeShortName);
-                  // console.log(symbol, name, currency, exchangeName, exchangeShortName);
-                });
-              } else {
-                console.log('No stock found');
-              }
-            });
-            */
