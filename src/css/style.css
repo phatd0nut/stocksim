@@ -276,6 +276,111 @@ body {
   background-color: transparent;
 }
 
+#settingsBar {
+  transition: transform 0.5s ease-in-out;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #f9ffae;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content:center;
+  transform: translateY(100%); /* Hide the bar offscreen */
+
+}
+
+#settingsBar.show {
+  transform: translateY(0); /* Show the bar */
+}
+
+#adjustMode, #clearCookies {
+  margin: 0;
+  width: fit-content;
+  font-size: 0.9rem;
+  margin-left: 20px;
+}
+
+#adjustMode:active, #clearCookies:active {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+#settingsIcon {
+  margin: 0;
+  position: absolute;
+  top: 90%;
+  width: 55px;
+  cursor: pointer;
+  transition: opacity 0.2s linear;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#settingsIcon.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease-in-out;
+}
+
+#closeSettings {
+  transition: opacity 0.2s linear;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#closeSettings.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#modeDiv {
+  transition: opacity 0.2s linear;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  bottom: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 50px;
+  z-index: 1;
+  background-color: #4e594a
+}
+
+#modeDiv.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#darkMode, #lightMode {
+  margin: 0;
+  width: fit-content;
+  font-size: 0.9rem;
+  margin-left: 20px;
+}
+
+#closeMode {
+  position: absolute;
+  bottom: 100%;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(0, 0%, 0%, 0.199); /* Black background with 50% opacity */
+  z-index: 0; /* Make sure it's below #modeDiv */
+  display: none;
+}
+
 #loadingGif {
   width: 130px;
   margin: 0;

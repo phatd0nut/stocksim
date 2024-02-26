@@ -15,6 +15,8 @@ function StockApp() {
         createUser.createUserBox(parent);
         var detectMode = new DetectMode(container);
         detectMode.detect();
+        var settings = new Settings(container, detectMode);
+        settings.settingsIcon();
     }
 
 }
