@@ -284,7 +284,6 @@ body {
   right: 0;
   background-color: #f9ffae;
   width: 100%;
-  height: 75px;
   display: flex;
   align-items: center;
   justify-content:center;
@@ -328,7 +327,7 @@ body {
 #closeSettingsIcon {
   margin: 0;
   position: absolute;
-  top: 80%;
+  top: 86%;
   width: 35px;
   cursor: pointer;
   transition: opacity 0.2s linear;
@@ -352,7 +351,6 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 75px;
   z-index: 1;
   background-color: #4e594a
 }
@@ -372,7 +370,7 @@ body {
 
 #closeModeIcon {
   position: absolute;
-  bottom: 125%;
+  bottom: 120%;
   width: 35px;
   cursor: pointer;
 }
@@ -401,6 +399,10 @@ body {
     margin-top: 7%;
     padding-top: 0px;
   }
+
+  #settingsBar, #modeDiv {
+    height: 50px;
+  }
 }
 
 @media screen and (max-width: 500px) {
@@ -411,5 +413,21 @@ body {
 
   .searchBox {
     margin-top: 10%;
+  }
+
+  #settingsBar, #modeDiv {
+    height: 45px;
+  }
+
+  #closeSettingsIcon {
+   top: 84%;
+  }
+
+  #closeModeIcon {
+    bottom: 107%;
+  }
+
+  #adjustMode,#clearCookies ,#darkMode, #lightMode {
+    scale: 0.7;
   }
 }
