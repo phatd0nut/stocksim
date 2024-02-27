@@ -1,86 +1,17 @@
-function StockPage(parent, stockPrice, settings, charts) {
-    this.settings = settings;
-    this.stockPrice = stockPrice;
-    this.charts = charts;
+function Charts() {
 
-    this.createStockPage = function (name) {
-        this.stockPage = document.createElement('div');
-        this.stockPage.className = 'stockPage';
-        parent.insertBefore(this.stockPage, this.settings.getSettingsIconElm());
+    this.stockChartSetters = function (stockPrice, stockPriceP, stockChart) {
+        this.stockPrice = stockPrice;
+        this.stockPriceP = stockPriceP;
+        this.parent = stockChart;
+        console.log(this.parent);
 
-        this.h2 = document.createElement('h2');
-        this.h2.innerHTML = name;
-        this.h2.className = 'h2stock';
-        this.stockPage.appendChild(this.h2);
-
-        this.stockInfo = document.createElement('div');
-        this.stockInfo.className = 'stockInfo';
-        this.stockPage.appendChild(this.stockInfo);
-
-        this.stockPriceP = document.createElement('p');
-        this.stockPriceP.className = 'stockPrice';
-        this.stockInfo.appendChild(this.stockPriceP);
-
-        this.stockChart = document.createElement('div');
-        this.stockChart.className = 'stockChart';
-        this.stockInfo.appendChild(this.stockChart);
-
-        this.charts.stockChartSetters(this.stockPrice, this.stockPriceP, this.stockChart);
-        this.stockBtns();
+        this.canvas = document.createElement('canvas');
+        this.canvas.id = 'myChart';
+        this.parent.appendChild(this.canvas);
     }
 
-    this.prepareChart = function (symbol, apiKey, unit) {
-        this.charts.initStockChart(symbol, apiKey, unit);
-    }
-
-    this.stockBtns = function () {
-        this.changeTimeFrameDiv = document.createElement('div');
-        this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
-        this.stockPage.appendChild(this.changeTimeFrameDiv);
-
-        this.weeklyButton = document.createElement('button');
-        this.monthlyButton = document.createElement('button');
-        this.yearlyButton = document.createElement('button');
-
-        this.weeklyButton.className = 'buttons weeklyButton';
-        this.weeklyButton.innerText = 'Vecka';
-        this.monthlyButton.className = 'buttons monthlyButton';
-        this.monthlyButton.innerText = 'Månad';
-        this.yearlyButton.className = 'buttons yearlyButton';
-        this.yearlyButton.innerText = 'År';
-
-        this.changeTimeFrameDiv.appendChild(this.weeklyButton);
-        this.changeTimeFrameDiv.appendChild(this.monthlyButton);
-        this.changeTimeFrameDiv.appendChild(this.yearlyButton);
-
-        // Lyssna på klick på knappar för att ändra tidsintervall
-        this.weeklyButton.addEventListener('click', () => {
-            this.prepareChart(this.symbol, this.apiKey, 'week');
-        });
-
-        this.monthlyButton.addEventListener('click', () => {
-            this.prepareChart(this.symbol, this.apiKey, 'month');
-        });
-
-        this.yearlyButton.addEventListener('click', () => {
-            this.prepareChart(this.symbol, this.apiKey, 'year');
-        });
-
-        this.buyStockButton = document.createElement('button');
-        this.buyStockButton.innerHTML = 'Köp aktie';
-        this.buyStockButton.className = 'buttons stockPageBuyButton';
-        this.stockPage.appendChild(this.buyStockButton);
-
-        this.buyStockButton.addEventListener('click', () => {
-            var quantity = /* get quantity from user input */
-                portfolio.buyStock(currentStock, quantity);
-        });
-    }
-}
-
-
-/*
- this.prepareChart = function (symbol, apiKey, unit) {
+    this.initStockChart = function (symbol, apiKey, unit) {
         this.symbol = symbol;
         this.apiKey = apiKey;
 
@@ -98,7 +29,7 @@ function StockPage(parent, stockPrice, settings, charts) {
         this.startDateStr = startDate.toISOString().split('T')[0];
         this.stockPrice.setStartDate(this.startDateStr);
 
-        this.updatePrice = function() {
+        this.updatePrice = function () {
             this.stockPrice.getRealTimePrice().then(realTimePrice => {
                 if (realTimePrice) {
                     this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + realTimePrice + ':-</b>';
@@ -118,13 +49,13 @@ function StockPage(parent, stockPrice, settings, charts) {
                 console.error('historicalData is undefined', historicalData);
                 return;
             }
-            this.createNewChart(unit, historicalData);
+            this.createNewStockChart(unit, historicalData);
         }).catch(function (error) {
             console.error('Error getting historical price:', error);
         });
     }
 
-    this.createNewChart = (unit, data) => {
+    this.createNewStockChart = (unit, data) => {
         var formattedData = data.map(dataPoint => ({
             x: dataPoint.date,
             y: dataPoint.close,
@@ -199,4 +130,4 @@ function StockPage(parent, stockPrice, settings, charts) {
             }
         });
     };
-    */
+}

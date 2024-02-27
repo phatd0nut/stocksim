@@ -1,12 +1,13 @@
-function Search(settings) {
+function Search(settings, charts) {
   this.settings = settings;
+  this.charts = charts;
   const apiKey = new StockMarketAPI()();
   const parentContainer = document.querySelector('.container');
   var searchValue;
   var symbol;
   const buy = new BuyStocks();
   const stockPrice = new StockPrice();
-  const stockPage = new StockPage(parentContainer, stockPrice, this.settings);
+  const stockPage = new StockPage(parentContainer, stockPrice, this.settings, this.charts);
 
   var startDateSearch = new Date();
   this.startDateSearchStr = startDateSearch.toISOString().split('T')[0];

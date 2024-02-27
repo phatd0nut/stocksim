@@ -5,6 +5,7 @@ function User(name, parent, settings) {
   this.name = name;
   this.balance = initialBalance;
   const portfolio = new Portfolio();
+  const charts = new Charts();
 
   this.userInterface = function () {
     this.setupDiv = document.createElement('div');
@@ -40,7 +41,7 @@ function User(name, parent, settings) {
         this.setBudgetBtn.remove();
         this.p.remove();
         this.h2UserName.remove();
-        var search = new Search(this.settings);  
+        var search = new Search(this.settings, charts);  
         search.createSearchBox(this.balance);
         this.setupDiv.remove();
       } else {

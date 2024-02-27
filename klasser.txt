@@ -1,0 +1,9 @@
+Klasser som ska finnas i Stocksim:
+
+Stock: Representerar en aktie och innehåller information som aktiens namn, symbol och nuvarande pris.
+
+Portfolio: Hanterar användarens portfölj av aktier och innehåller metoder för att köpa och sälja aktier.
+
+User: Representerar användaren och håller information om användarens namn, kontosaldo och portfölj.
+
+StockMarketAPI: Hanterar anrop till aktiekurs-API:et för att hämta aktuell kursinformation.
