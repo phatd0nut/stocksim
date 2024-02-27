@@ -1,11 +1,12 @@
-function Search() {
+function Search(settings) {
+  this.settings = settings;
   const apiKey = new StockMarketAPI()();
   const parentContainer = document.querySelector('.container');
   var searchValue;
   var symbol;
   const buy = new BuyStocks();
   const stockPrice = new StockPrice();
-  const stockPage = new StockPage(parentContainer, stockPrice);
+  const stockPage = new StockPage(parentContainer, stockPrice, this.settings);
 
   var startDateSearch = new Date();
   this.startDateSearchStr = startDateSearch.toISOString().split('T')[0];
@@ -36,7 +37,7 @@ function Search() {
     buy.getBudget(balance);
     this.searchBox = document.createElement('div');
     this.searchBox.className = 'searchBox';
-    parentContainer.appendChild(this.searchBox);
+    parentContainer.insertBefore(this.searchBox, this.settings.getSettingsIconElm());
 
     this.h2 = document.createElement('h2');
     this.h2.innerHTML = 'Sök efter aktier';

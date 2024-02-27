@@ -3,43 +3,52 @@ function Settings(parent, detectMode) {
     var overlay = document.createElement('div');
     overlay.id = 'overlay';
     parent.appendChild(overlay);
+    var settingsIconElm, closeModeIconElm, closeSettingsIconElm;
+
+    closeModeIconElm = document.createElement('img');
+    closeModeIconElm.src = '../src/img/close_icon_1.png';
+    closeModeIconElm.id = 'closeModeIcon';
+    parent.appendChild(closeModeIconElm);
+
+    settingsIconElm = document.createElement('img');
+    settingsIconElm.src = '../src/img/settings_icon_1.png';
+    settingsIconElm.id = 'settingsIcon';
+    parent.appendChild(settingsIconElm);
+
+    settingsIconElm.style.visibility = 'visible'; // Make the settings icon visible initially
+    setTimeout(() => {
+        settingsIconElm.classList.add('show'); // Fade in the settings icon
+    }, 0);
+
+    closeSettingsIconElm = document.createElement('img');
+    closeSettingsIconElm.src = '../src/img/close_icon_1.png';
+    closeSettingsIconElm.id = 'closeSettingsIcon';
+    parent.appendChild(closeSettingsIconElm);
+    closeSettingsIconElm.style.visibility = 'hidden'; // Hide the closeSettings icon initially
+
+    mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm);
 
     this.settingsIcon = function () {
-        var settingsIcon = document.createElement('img');
-        settingsIcon.src = '../src/img/settings_icon_2.png';
-        settingsIcon.id = 'settingsIcon';
-        parent.appendChild(settingsIcon);
-        settingsIcon.style.visibility = 'visible'; // Make the settings icon visible initially
-        setTimeout(() => {
-            settingsIcon.classList.add('show'); // Fade in the settings icon
-        }, 0);
-
-        var closeSettings = document.createElement('p');
-        closeSettings.innerHTML = '🗙';
-        closeSettings.id = 'closeSettings';
-        parent.appendChild(closeSettings);
-        closeSettings.style.visibility = 'hidden'; // Hide the closeSettings icon initially
-
-        settingsIcon.addEventListener('click', () => {
-            settingsIcon.classList.remove('show'); // Start the fade out transition for settings icon
+        settingsIconElm.addEventListener('click', () => {
+            settingsIconElm.classList.remove('show'); // Start the fade out transition for settings icon
             setTimeout(() => {
-                settingsIcon.style.visibility = 'hidden'; // Hide the settings icon after the transition
-                closeSettings.style.visibility = 'visible'; // Show the closeSettings icon
-                closeSettings.classList.add('show'); // Fade in the closeSettings icon
+                settingsIconElm.style.visibility = 'hidden'; // Hide the settings icon after the transition
+                closeSettingsIconElm.style.visibility = 'visible'; // Show the closeSettings icon
+                closeSettingsIconElm.classList.add('show'); // Fade in the closeSettings icon
             }, 200); // The duration of your transition
             this.createSettingsBar();
         });
 
-        closeSettings.addEventListener('click', () => {
-            closeSettings.classList.remove('show'); // Start the fade out transition for closeSettings icon
+        closeSettingsIconElm.addEventListener('click', () => {
+            closeSettingsIconElm.classList.remove('show'); // Start the fade out transition for closeSettings icon
             var settingsBar = document.getElementById('settingsBar');
             // Hide the bar
             settingsBar.classList.remove('show');
             // Wait for the transition to finish before removing the bar and hiding the closeSettings icon
             setTimeout(() => {
-                closeSettings.style.visibility = 'hidden'; // Hide the closeSettings icon after the transition
-                settingsIcon.style.visibility = 'visible'; // Show the settings icon
-                settingsIcon.classList.add('show'); // Fade in the settings icon
+                closeSettingsIconElm.style.visibility = 'hidden'; // Hide the closeSettings icon after the transition
+                settingsIconElm.style.visibility = 'visible'; // Show the settings icon
+                settingsIconElm.classList.add('show'); // Fade in the settings icon
                 settingsBar.remove();
             }, 500); // The duration of your transition
         });
@@ -62,7 +71,7 @@ function Settings(parent, detectMode) {
         settingsBar.appendChild(adjustMode);
 
         adjustMode.addEventListener('click', () => {
-            closeSettings.classList.remove('show');
+            closeSettingsIconElm.classList.remove('show');
             overlay.style.display = 'block';
             var modeDiv = document.createElement('div');
             modeDiv.id = 'modeDiv';
@@ -90,24 +99,20 @@ function Settings(parent, detectMode) {
                 mode.darkMode();
             });
 
-            var closeMode = document.createElement('p');
-            closeMode.innerHTML = '🗙';
-            closeMode.id = 'closeMode';
-            modeDiv.appendChild(closeMode);
+            modeDiv.appendChild(closeModeIconElm);
 
-            closeMode.addEventListener('click', () => {
-                closeSettings.classList.add('show'); // Start the fade out transition for closeMode icon
+            closeModeIconElm.addEventListener('click', () => {
+                closeSettingsIconElm.classList.add('show'); // Start the fade out transition for closeModeIcon icon
                 modeDiv.classList.remove('show');
                 setTimeout(() => {
                     modeDiv.style.visibility = 'hidden'; // Hide the modeDiv after the transition
                     modeDiv.remove();
-                    closeMode.remove();
+                    closeModeIconElm.remove();
                 }, 200); // The duration of your transition
                 // Rest of your code...
-             
+
                 overlay.style.display = 'none';
             });
-
         });
 
         var clearCookies = document.createElement('button');
@@ -115,5 +120,9 @@ function Settings(parent, detectMode) {
         clearCookies.className = 'buttons';
         clearCookies.id = 'clearCookies';
         settingsBar.appendChild(clearCookies);
+    }
+
+    this.getSettingsIconElm = function() {
+        return settingsIconElm;
     }
 }

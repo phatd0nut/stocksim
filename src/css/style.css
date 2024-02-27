@@ -7,13 +7,13 @@ body {
 }
 
 .container {
+  position: relative;
   /* Color Palette: https://www.color-hex.com/color-palette/86099 */
   height: 100vh;
   width: auto;
   display: flex;
   flex-direction: column; /* Add this line */
   align-items: center;
-  background-color: #278664;
   color: #f9ffae;
   overflow-x: hidden;
 }
@@ -284,7 +284,7 @@ body {
   right: 0;
   background-color: #f9ffae;
   width: 100%;
-  height: 50px;
+  height: 75px;
   display: flex;
   align-items: center;
   justify-content:center;
@@ -310,8 +310,8 @@ body {
 
 #settingsIcon {
   margin: 0;
-  position: absolute;
-  top: 90%;
+  position: fixed;
+  bottom: 25px;
   width: 55px;
   cursor: pointer;
   transition: opacity 0.2s linear;
@@ -325,13 +325,18 @@ body {
   transition: opacity 0.5s ease-in-out;
 }
 
-#closeSettings {
+#closeSettingsIcon {
+  margin: 0;
+  position: absolute;
+  top: 80%;
+  width: 35px;
+  cursor: pointer;
   transition: opacity 0.2s linear;
   opacity: 0;
   visibility: hidden;
 }
 
-#closeSettings.show {
+#closeSettingsIcon.show {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.2s ease-in-out;
@@ -342,12 +347,12 @@ body {
   opacity: 0;
   visibility: hidden;
   position: absolute;
-  bottom: 100%;
+  bottom: 101%;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 50px;
+  height: 75px;
   z-index: 1;
   background-color: #4e594a
 }
@@ -365,9 +370,11 @@ body {
   margin-left: 20px;
 }
 
-#closeMode {
+#closeModeIcon {
   position: absolute;
-  bottom: 100%;
+  bottom: 125%;
+  width: 35px;
+  cursor: pointer;
 }
 
 #overlay {

@@ -1,5 +1,6 @@
 // Klass för att skapa en ny användare
-function User(name, parent) {
+function User(name, parent, settings) {
+  this.settings = settings;
   var initialBalance = 0;
   this.name = name;
   this.balance = initialBalance;
@@ -8,7 +9,7 @@ function User(name, parent) {
   this.userInterface = function () {
     this.setupDiv = document.createElement('div');
     this.setupDiv.className = 'setupDiv';
-    parent.appendChild(this.setupDiv);
+    parent.insertBefore(this.setupDiv, this.settings.getSettingsIconElm());
 
     this.h2UserName = document.createElement('h2');
     this.h2UserName.innerHTML = 'Hej ' + this.name + '!';
@@ -39,7 +40,7 @@ function User(name, parent) {
         this.setBudgetBtn.remove();
         this.p.remove();
         this.h2UserName.remove();
-        var search = new Search();  
+        var search = new Search(this.settings);  
         search.createSearchBox(this.balance);
         this.setupDiv.remove();
       } else {
