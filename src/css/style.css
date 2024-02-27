@@ -428,6 +428,6 @@ body {
   }
 
   #adjustMode,#clearCookies ,#darkMode, #lightMode {
-    scale: 0.7;
+    scale: 0.85;
   }
 }
