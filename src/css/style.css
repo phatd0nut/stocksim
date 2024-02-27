@@ -401,7 +401,7 @@ body {
   }
 
   #settingsBar, #modeDiv {
-    height: 50px;
+    height: 65px;
   }
 }
 
@@ -416,7 +416,7 @@ body {
   }
 
   #settingsBar, #modeDiv {
-    height: 45px;
+    height: 55px;
   }
 
   #closeSettingsIcon {
