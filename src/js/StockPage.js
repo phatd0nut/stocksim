@@ -1,12 +1,12 @@
-function StockPage(parent, stockPrice, settings, charts) {
-    this.settings = settings;
+function StockPage(parent, stockPrice, charts) {
     this.stockPrice = stockPrice;
     this.charts = charts;
+    this.parent = parent;
 
     this.createStockPage = function (name) {
         this.stockPage = document.createElement('div');
         this.stockPage.className = 'stockPage';
-        parent.insertBefore(this.stockPage, this.settings.getSettingsIconElm());
+        parent.appendChild(this.stockPage);
 
         this.h2 = document.createElement('h2');
         this.h2.innerHTML = name;

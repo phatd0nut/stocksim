@@ -1,5 +1,4 @@
-function Search(settings, charts) {
-  this.settings = settings;
+function Search(charts) {
   this.charts = charts;
   const apiKey = new StockMarketAPI()();
   const parentContainer = document.querySelector('.container');
@@ -7,7 +6,7 @@ function Search(settings, charts) {
   var symbol;
   const buy = new BuyStocks();
   const stockPrice = new StockPrice();
-  const stockPage = new StockPage(parentContainer, stockPrice, this.settings, this.charts);
+  const stockPage = new StockPage(parentContainer, stockPrice, this.charts);
 
   var startDateSearch = new Date();
   this.startDateSearchStr = startDateSearch.toISOString().split('T')[0];
@@ -38,7 +37,7 @@ function Search(settings, charts) {
     buy.getBudget(balance);
     this.searchBox = document.createElement('div');
     this.searchBox.className = 'searchBox';
-    parentContainer.insertBefore(this.searchBox, this.settings.getSettingsIconElm());
+    parentContainer.appendChild(this.searchBox);
 
     this.h2 = document.createElement('h2');
     this.h2.innerHTML = 'Sök efter aktier';
@@ -199,23 +198,26 @@ function Search(settings, charts) {
     if (matchingStocks.length > 0) {
       // If this.p exists and is a child of this.searchBox, remove it
       if (this.p && this.searchBox.contains(this.p)) {
-        this.searchBox.removeChild(this.p);
+          this.searchBox.removeChild(this.p);
+          this.p = null; // Nullify this.p
       }
       matchingStocks.forEach(stock => {
-        symbol = stock.symbol;
-        var name = stock.name;
-        var exchangeShortName = stock.exchangeShortName;
-        this.showResults(symbol, name, exchangeShortName);
+          symbol = stock.symbol;
+          var name = stock.name;
+          var exchangeShortName = stock.exchangeShortName;
+          this.showResults(symbol, name, exchangeShortName);
       });
-    } else {
-      this.p = document.createElement('p');
-      this.p.className = 'pSearch';
-      this.p.innerHTML = 'Inga aktier hittades';
-      if (!this.searchBox.contains(this.p)) {
-        this.searchBox.appendChild(this.p);
+  } else {
+      // If this.p doesn't exist, create it
+      if (!this.p) {
+          this.p = document.createElement('p');
+          this.p.className = 'pSearch';
+          this.searchBox.appendChild(this.p);
       }
-    }
+      // Update the innerHTML of this.p
+      this.p.innerHTML = 'Inga aktier hittades';
   }
+}
 
   this.buyStockFunc = function (symbol, name) {
     this.inputField = document.createElement('input');

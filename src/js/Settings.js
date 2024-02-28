@@ -122,6 +122,12 @@ function Settings(parent, detectMode) {
         settingsBar.appendChild(clearCookies);
     }
 
+    this.removeIcons = function () {
+        settingsIconElm.remove();
+        closeSettingsIconElm.remove();
+        closeModeIconElm.remove();
+    }
+
     this.getSettingsIconElm = function() {
         return settingsIconElm;
     }

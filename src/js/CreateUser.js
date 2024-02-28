@@ -27,7 +27,8 @@ function CreateUser(container, settings) {
         this.createUserBtn.addEventListener('click', () => {
             var name = this.inputName.value;
             if (name !== '') { // Check if input is not empty
-                var createNewU = new User(name, this.parentContainer, this.settings);
+                var createNewU = new User(name, this.parentContainer);
+                this.settings.removeIcons();
                 createNewU.userInterface();
                 this.createUserDiv.remove();
             } else {

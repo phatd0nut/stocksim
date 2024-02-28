@@ -4,7 +4,6 @@ function Charts() {
         this.stockPrice = stockPrice;
         this.stockPriceP = stockPriceP;
         this.parent = stockChart;
-        console.log(this.parent);
 
         this.canvas = document.createElement('canvas');
         this.canvas.id = 'myChart';

@@ -10,7 +10,7 @@ function User(name, parent, settings) {
   this.userInterface = function () {
     this.setupDiv = document.createElement('div');
     this.setupDiv.className = 'setupDiv';
-    parent.insertBefore(this.setupDiv, this.settings.getSettingsIconElm());
+    parent.appendChild(this.setupDiv);
 
     this.h2UserName = document.createElement('h2');
     this.h2UserName.innerHTML = 'Hej ' + this.name + '!';
@@ -41,7 +41,7 @@ function User(name, parent, settings) {
         this.setBudgetBtn.remove();
         this.p.remove();
         this.h2UserName.remove();
-        var search = new Search(this.settings, charts);  
+        var search = new Search(charts);  
         search.createSearchBox(this.balance);
         this.setupDiv.remove();
       } else {
