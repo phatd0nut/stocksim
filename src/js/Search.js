@@ -1,42 +1,46 @@
+// Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
 function Search(charts, portfolio) {
-  this.charts = charts;
-  this.portfolio = portfolio;
+  this.charts = charts; // En array med diagramdata.
+  this.portfolio = portfolio; // Portföljobjektet.
+
+  // Initialisering av variabler och instanser.
   const self = this;
-  const apiKey = new StockMarketAPI()();
-  const parentContainer = document.querySelector('.container');
-  const stockPrice = new StockPrice();
-  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self);
-  var searchValue;
-  var symbol;
-  var currentStockPrice;
+  const apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
+  const parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
+  const stockPrice = new StockPrice(); // Instans för aktiepris.
+  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self); // Instans för sida med aktieinformation.
+  var searchValue; // Söksträng.
+  var symbol; // Aktiesymbol.
+  var currentStockPrice; // Aktiepris.
 
-  var startDateSearch = new Date();
-  this.startDateSearchStr = startDateSearch.toISOString().split('T')[0];
 
-  stockPrice.setApiKey(apiKey);
-  stockPrice.setStartDate(this.startDateSearchStr);
+  var startDateSearch = new Date(); // Instans av Date-objekt för att sätta startdatum för sökningen.
+  this.startDateSearchStr = startDateSearch.toISOString().split('T')[0]; // Sätter startdatum för sökningen till dagens datum.
 
+  stockPrice.setApiKey(apiKey); // Sätt API-nyckel för aktieprisobjektet.
+  stockPrice.setStartDate(this.startDateSearchStr); // Sätt startdatum för aktieprisobjektet.
+
+  // Funktion för att skapa sökresultatboxen.
   this.resultsBox = function (searchBox) {
-    // Kontrollera om searchResultsDiv redan finns
+    // Kontrollera om searchResultsDiv redan finns.
     this.searchResultsDiv = document.getElementById('searchResultsDiv');
 
-    // Om den inte finns, skapa den
+    // Om den inte finns, skapa den.
     if (!this.searchResultsDiv) {
       this.searchResultsDiv = document.createElement('div');
       this.searchResultsDiv.id = 'searchResultsDiv';
       searchBox.appendChild(this.searchResultsDiv);
     } else {
-      // Om den finns, rensa dess innehåll
+      // Om den finns, rensa dess innehåll.
       this.searchResultsDiv.innerHTML = '';
     }
-
     this.searchResults = document.createElement('ul');
     this.searchResults.className = 'searchResults';
     this.searchResultsDiv.appendChild(this.searchResults);
   }
 
+  // Funktion för att skapa sökrutan och visa saldo.
   this.createSearchBox = function () {
-    // this.balance = this.portfolio.getBalance();
     this.searchBox = document.createElement('div');
     this.searchBox.className = 'searchBox';
     parentContainer.appendChild(this.searchBox);
@@ -49,6 +53,7 @@ function Search(charts, portfolio) {
     this.balanceText = document.createElement('p');
     this.balanceText.className = 'searchBalance';
     this.updateBalance = function () {
+      // Uppdatera saldo och visa det i sökrutan med hjälp av portföljobjektet (se Portfolio.js).
       this.balance = this.portfolio.getBalance();
       this.balanceText.innerHTML = 'Ditt saldo: <b>' + this.balance + '$</b>';
     }
@@ -63,16 +68,18 @@ function Search(charts, portfolio) {
     this.searchBox.appendChild(this.searchStockInput);
 
     var debounceTimeout;
+    // Lyssnar på input-händelsen i sökrutan och skapar en timeout-funktion för att hantera sökningen (debounce) för att undvika överbelastning av API:et med för många förfrågningar på kort tid.
     this.searchStockInput.addEventListener('input', () => {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
         searchValue = this.searchStockInput.value;
         this.resultsBox(this.searchBox);
         this.fetchApi(searchValue);
-      }, 600);
+      }, 600); // 600 ms timeout för att hantera sökningen (debounce).
     });
   }
 
+  // Funktion för att skapa knappar för köp och knapp för att gå till aktiesidan.
   this.createButtons = (name, symbol, apiKey) => {
     this.previousButtonsDiv = document.querySelector('.stockButtonsDiv');
     if (this.previousButtonsDiv) {
@@ -102,12 +109,11 @@ function Search(charts, portfolio) {
     this.searchBox.appendChild(this.buttonsDiv);
   }
 
+  // Funktion för att visa sökresultaten i en lista och lägga till klickhändelse för att köpa aktier. Om användaren klickar på en aktie, skapas en köpbox för att köpa aktier med.
   this.showResults = (symbol, name, exchangeShortName) => {
     this.stockItem = document.createElement('li');
     this.stockItem.innerHTML = `(${symbol}) ${name}  <span id="stockRegion">${exchangeShortName}</span>`;
     this.searchResults.appendChild(this.stockItem);
-
-
 
     this.stockItem.addEventListener('click', () => {
       stockPrice.setSymbol(symbol);
@@ -118,57 +124,80 @@ function Search(charts, portfolio) {
 
     stockItems.forEach(item => {
       item.addEventListener('click', function () {
-        // Remove 'clicked' id from all li elements
+        // Ta bort 'clicked' id från alla li-element.
         stockItems.forEach(item => {
           item.id = '';
         });
 
-        // Add 'clicked' id to the clicked li element
+        // Lägg till 'clicked' id till det klickade li-elementet. Detta används för att visa vilken aktie som är vald för köp.
         this.id = 'clicked';
       });
     });
   }
 
+  // Funktion för att hämta aktiedata från API.
   this.fetchApi = async function (searchValue) {
-    // Rensa tidigare sökresultat
+    // Rensa sökresultaten
     this.searchResults.innerHTML = '';
 
-    // Kontrollera om vi redan har hämtat listan över aktier
+    // Om usStocks inte finns (som är en lista med amerikanska aktier), hämta aktier från API.
     if (!this.usStocks) {
       const apiUrl = 'https://financialmodelingprep.com/api/v3/stock/list?apikey=' + apiKey;
 
-      // Ta bort befintlig laddnings-GIF om den finns
+      // Rensa redan existerande GIF.
       var existingGif = document.getElementById('loadingGif');
       if (existingGif) {
         this.searchResults.removeChild(existingGif);
       }
 
+      // Skapa en GIF för att visa att aktier hämtas från API (laddning).
       var gif = document.createElement('img');
       gif.src = '../src/img/sedel_1.gif';
       gif.id = 'loadingGif';
       this.searchResults.appendChild(gif);
 
-      // Hämta en lista över alla amerikanska aktier
-      const response = await fetch(apiUrl);
-      const data = await response.json();
+      // Om informationstexten inte finns, skapa den.
+      if (!this.p) {
+        this.p = document.createElement('p');
+        this.p.id = 'pSearch';
+        this.searchBox.appendChild(this.p);
+      }
+      this.p.innerHTML = 'Letar efter aktier...';
 
-      // Filtrera listan för att endast inkludera amerikanska aktier
-      this.usStocks = data.filter(stock => stock.type === 'stock' && (stock.exchangeShortName === 'NASDAQ' || stock.exchangeShortName === 'NYSE'));
+      // Försök hämta aktier från API 5 gånger. Om det inte går att hämta aktier, visa felmeddelande.
+      for (let i = 0; i < 5; i++) {
+        try {
+          const response = await fetch(apiUrl);
+          const data = await response.json();
+
+          // Filtrera ut amerikanska aktier enbart.
+          this.usStocks = data.filter(stock => stock.type === 'stock' && (stock.exchangeShortName === 'NASDAQ' || stock.exchangeShortName === 'NYSE'));
+          break;
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed. Retrying...`);
+          if (i === 4) {
+            console.error('Error fetching stocklist after 5 attempts');
+            this.p.innerHTML = 'Fel vid hämtning av aktier. Kontrollera din nätanslutning eller försök igen senare.';
+          } else {
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Vänta 3 sekunder innan nästa försök.
+          }
+        }
+      }
     }
 
-    // Ta bort laddnings-GIF om den fortfarande är en del av this.searchResults
+    // Rensa GIF om den finns och visa sökresultaten.
     if (this.searchResults.contains(gif)) {
       this.searchResults.removeChild(gif);
     }
 
-    // Sök igenom listan över amerikanska aktier
+    // Filtrera ut matchande aktier och visa dem i sökresultaten om de finns (annars visa felmeddelande).
     var matchingStocks = this.usStocks.filter(stock => stock.name && stock.name.toLowerCase().startsWith(searchValue.toLowerCase()));
 
     if (matchingStocks.length > 0) {
-      // If this.p exists and is a child of this.searchBox, remove it
+      // Om this.p finns och den finns i searchBox, ta bort den från searchBox och sätt this.p till null (nullifiera den).
       if (this.p && this.searchBox.contains(this.p)) {
         this.searchBox.removeChild(this.p);
-        this.p = null; // Nullify this.p
+        this.p = null;
       }
       matchingStocks.forEach(stock => {
         symbol = stock.symbol;
@@ -177,50 +206,53 @@ function Search(charts, portfolio) {
         this.showResults(symbol, name, exchangeShortName);
       });
     } else {
-      // If this.p doesn't exist, create it
+      // Om this.p inte finns, skapa den och sätt innerHTML till 'Inga aktier hittades' (om det inte finns några matchande aktier).
       if (!this.p) {
         this.p = document.createElement('p');
-        this.p.className = 'pSearch';
+        this.p.id = 'pSearch';
         this.searchBox.appendChild(this.p);
       }
-      // Update the innerHTML of this.p
       this.p.innerHTML = 'Inga aktier hittades';
     }
   }
 
+  // Funktion för att köpa aktier och uppdatera saldo och portfölj med köpet (inklusive validering).
   this.buyStockFunc = async function (name) {
-    // Hide relevant elements
+    // Dölj sökresultaten
     this.hideSearchElements();
 
-    // Remove existing stockInfo and set to null
+    // Rensa buyDiv, stockInfo och buyHeader om de finns och sätt dem till null.
     if (this.stockInfo) {
       this.stockInfo.remove();
       this.stockInfo = null;
     }
 
-    // Check if this.buyDiv exists, and create it if it doesn't
+    // Skapa buyDiv om den inte finns, annars uppdatera stockInfo med aktieinformationen med hjälp av name som argument. Name är aktiens namn som användaren klickade på i sökresultaten (se showResults-funktionen), och name är det som används för att skapa buyDiv och stockInfo för rätt aktie (se createBuyDiv-funktionen).
     if (!this.buyDiv) {
       this.createBuyDiv(name);
     } else {
-      // If this.buyDiv already exists, just update the stockInfo
+      // Om buyDiv finns, uppdatera stockInfo med aktieinformationen med hjälp av name som argument.
       this.createStockInfo(name);
     }
   };
 
+  // Funktion för att dölja sökresultaten och sökrutan när användaren klickar på en aktie för att köpa den.
   this.hideSearchElements = function () {
     this.searchResultsDiv.style.display = 'none';
     this.searchStockInput.style.display = 'none';
     this.buttonsDiv.style.display = 'none';
   };
 
+  // Funktion för att åter visa sökresultaten och sökrutan när användaren klickar på 'Köp' eller 'Gå tillbaka' i köpboxen.
   this.showSearchElements = function () {
     this.searchResultsDiv.style.display = 'flex';
     this.searchStockInput.style.display = 'flex';
     this.buttonsDiv.style.display = 'flex';
   };
 
+  // Funktion för att skapa köpboxen och visa aktieinformation och köpknappar för användaren att köpa aktier med (inklusive validering).
   this.createBuyDiv = async function (name) {
-    // Remove existing buyDiv, stockInfo, and buyHeader and set to null
+    // Rensa buyDiv och stockInfo om de finns och sätt dem till null.
     if (this.buyDiv) {
       this.buyDiv.remove();
       this.buyDiv = null;
@@ -235,11 +267,12 @@ function Search(charts, portfolio) {
     this.buyDiv.className = 'buyDiv';
     parentContainer.appendChild(this.buyDiv);
 
-    // Wait for the asynchronous calls to complete before proceeding
+    // Vänta på att aktiepriset hämtas och skapa sedan stockInfo och köpinputs med hjälp av namnet på aktien som användaren klickade på i sökresultaten (se showResults-funktionen) som argument för att skapa rätt köpbox för rätt aktie (se createStockInfo-funktionen).
     await this.createStockInfo(name);
     this.setupBuyStockInputs(name);
   };
 
+  // Funktion för att skapa aktieinformationen och visa den i köpboxen. Name är argumentet som används för att skapa rätt köpbox för rätt aktie (se createBuyDiv-funktionen) och för att hämta rätt aktieinformation (se showResults-funktionen).
   this.createStockInfo = function (name) {
     this.stockInfo = document.createElement('div');
     this.stockInfo.id = 'stockInfoFromBuyBox';
@@ -247,7 +280,7 @@ function Search(charts, portfolio) {
     var headerPrice = document.createElement('span');
 
     buyHeader.innerHTML = name;
-    if (name.length > 15) {
+    if (name.length > 15) { // Om aktiens namn är längre än 15 tecken, sätt fontstorleken till 1rem.
       buyHeader.style.fontSize = '1rem';
     }
     headerPrice.id = 'headerPrice';
@@ -256,157 +289,161 @@ function Search(charts, portfolio) {
     this.stockInfo.appendChild(buyHeader);
     this.stockInfo.appendChild(headerPrice);
 
-    stockPrice.getRealTimePrice().then(realTimePrice => {
-      if (realTimePrice) {
-        currentStockPrice = realTimePrice; // Store the real-time price
-        headerPrice.innerHTML = realTimePrice + '$';
-      } else {
-        stockPrice.lastClosingPrice().then(closingPrice => {
-          currentStockPrice = closingPrice; // Store the last closing price
-          headerPrice.innerHTML = closingPrice + '$';
-        });
+    // Hämta realtidspriset (5 försök) för aktien och uppdatera sedan inputfältet med det nya priset (inklusive validering) och visa det i köpboxen. Om det inte går att hämta realtidspriset, hämta det senaste stängningspriset istället. Om det inte går att hämta det senaste stängningspriset, visa ett felmeddelande.
+    this.retryGetRealTimePrice = async function () {
+      for (let i = 0; i < 5; i++) {
+        try {
+          const realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
+          if (realTimePrice) {
+            currentStockPrice = realTimePrice; // Sparar det realtida priset.
+            headerPrice.innerHTML = realTimePrice + '$';
+            this.updateInputField();
+            return;
+          } else {
+            console.error(`Attempt ${i + 1} failed. Retrying...`);
+          }
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed. Retrying...`);
+        }
       }
-
+      console.error('Error getting real-time price after 5 attempts. Falling back to last closing price.');
+      const closingPrice = await stockPrice.lastClosingPrice(); // Hämtar det senaste stängningspriset
+      currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
+      headerPrice.innerHTML = closingPrice + '$';
       this.updateInputField();
-    }).catch(error => {
-      console.error('Error getting price:', error);
-    });
-  };
+    };
+    this.retryGetRealTimePrice();
 
-  this.updateInputField = () => {
-    this.numberOfStocks = parseInt(this.stockQuantityInput.value);
+    // Funktion för att uppdatera inputfältet med det nya priset (inklusive validering) och visa det i köpboxen när användaren ändrar antalet aktier att köpa.
+    this.updateInputField = () => {
+      this.numberOfStocks = parseInt(this.stockQuantityInput.value);
 
-    // Validate the input
-    if (isNaN(this.numberOfStocks) || this.numberOfStocks < 1) {
-      alert('Ange ett giltigt antal aktier att köpa');
-      return;
-    }
-
-    // Use the stored stock price
-    if (typeof currentStockPrice === 'undefined') {
-      alert('Vänligen vänta tills aktiepriset har hämtats');
-      return;
-    }
-
-    // Update the input field
-    this.inputField.value = this.numberOfStocks * currentStockPrice;
-  };
-
-  this.setupBuyStockInputs = function (name) {
-    // Create div for input fields
-    this.inputFieldsDiv = document.createElement('div');
-    this.inputFieldsDiv.className = 'inputFieldsDiv';
-
-    // Create div for buttons
-    this.buttonsDiv = document.createElement('div');
-    this.buttonsDiv.className = 'buttonsDiv';
-
-    this.inputField = document.createElement('input');
-    this.inputField.type = 'text';
-    this.inputField.className = 'inputBars';
-    this.inputField.id = 'buyInputField';
-    this.inputFieldsDiv.appendChild(this.inputField); // Append to inputFieldsDiv
-
-    this.stockQuantityInput = document.createElement('input');
-    this.stockQuantityInput.type = 'number';
-    this.stockQuantityInput.className = 'inputBars';
-    this.stockQuantityInput.id = 'stockQuantityInput';
-    this.stockQuantityInput.setAttribute('type', 'number');
-    this.stockQuantityInput.setAttribute('min', '1');
-    this.stockQuantityInput.value = '1'; // Set initial value to 1
-    this.inputFieldsDiv.appendChild(this.stockQuantityInput); // Append to inputFieldsDiv
-
-    this.buyButton = document.createElement('button');
-    this.buyButton.innerHTML = 'Köp';
-    this.buyButton.className = 'buttons';
-    this.buyButton.id = 'buyButton';
-    this.buttonsDiv.appendChild(this.buyButton); // Append to buttonsDiv
-
-    // Create revertBuy button here and append to buttonsDiv
-    this.revertBuy = document.createElement('button');
-    this.revertBuy.innerHTML = 'Gå tillbaka';
-    this.revertBuy.className = 'buttons';
-    this.revertBuy.id = 'revertBuy';
-    this.buttonsDiv.appendChild(this.revertBuy); // Append to buttonsDiv
-
-    this.revertBuy.addEventListener('click', () => {
-      if (this.buyDiv) {
-        this.buyDiv.remove();
-        this.buyDiv = null; // Set buyDiv to null
-      }
-      if (this.stockInfo) {
-        this.stockInfo = null; // Set stockInfo to null
-      }
-      if (this.buyButton) {
-        this.buyButton.remove();
-        this.buyButton = null; // Set buyButton to null
-      }
-      if (this.revertBuy) {
-        this.revertBuy.remove();
-        this.revertBuy = null; // Set revertBuy to null
-      }
-      
-      const stockPageDiv = document.querySelector('.stockPage');
-
-      if (stockPageDiv) {
-          stockPageDiv.style.display = 'flex';
-      }
-      
-
-      this.showSearchElements();
-      this.createButtons(name, symbol, apiKey);
-      this.searchBox.appendChild(this.buttonsDiv);
-    });
-
-    // Append inputFieldsDiv and buttonsDiv to buyDiv
-    this.buyDiv.appendChild(this.inputFieldsDiv);
-    this.buyDiv.appendChild(this.buttonsDiv);
-    this.stockQuantityInput.addEventListener('change', this.updateInputField);
-
-    // Add event listener to handle input change
-    this.inputField.addEventListener('change', async () => {
-      this.amountToInvest = parseFloat(this.inputField.value);
-      if (isNaN(this.amountToInvest)) {
-        alert('Please enter a valid number');
+      // Validering av antalet aktier att köpa.
+      if (isNaN(this.numberOfStocks) || this.numberOfStocks < 1) {
+        alert('Ange ett giltigt antal aktier att köpa');
         return;
       }
-    });
 
-    this.buyButton.addEventListener('click', async () => {
-      await this.updateInputField();
-      this.buyDiv.remove();
-      this.buyDiv = null; // Set buyDiv to null
-      this.searchStockInput.style.display = 'flex';
-      this.searchResultsDiv.style.display = 'flex';
-      this.buttonsDiv.style.display = 'flex';
-      this.inputField.remove();
-      this.inputField = null; // Set inputField to null
-      this.buyButton.remove();
-      this.buyButton = null;
-      this.revertBuy.remove();
-      this.revertBuy = null; // Set revertBuy to null
-      this.searchBox.appendChild(this.buttonsDiv);
+      // Validering av aktiepriset (om det inte har hämtats än, visa ett felmeddelande).
+      if (typeof currentStockPrice === 'undefined') {
+        alert('Inget aktiepris hittades. Försök igen senare.');
+        return;
+      }
 
-      // Create a new instance of the Stock class
-      console.log(name);
-      var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks); // Adjusted here
+      // Uppdatera inputfältet med det nya priset (antal aktier * aktiepris) och visa det i köpboxen.
+      this.inputField.value = this.numberOfStocks * currentStockPrice;
+    };
 
-      this.portfolio.addStock(stockObj);
-      this.portfolio.getBalance();
-      this.updateBalance();
+    // Funktion för att skapa inputfält för att ange belopp att investera och antal aktier att köpa samt knappar för att köpa och gå tillbaka i köpboxen.
+    this.setupBuyStockInputs = function (name) {
+      this.inputFieldsDiv = document.createElement('div');
+      this.inputFieldsDiv.className = 'inputFieldsDiv';
 
-      // Hide searchResultsDiv
-      this.searchResultsDiv.style.display = 'none';
+      this.buttonsDiv = document.createElement('div');
+      this.buttonsDiv.className = 'buttonsDiv';
 
-      // Recreate buyDiv with the stock name
-      this.createBuyDiv(stockObj.name);
-    });
-  };
+      this.inputField = document.createElement('input');
+      this.inputField.type = 'text';
+      this.inputField.className = 'inputBars';
+      this.inputField.id = 'buyInputField';
+      this.inputFieldsDiv.appendChild(this.inputField);
 
-  this.goToStockFunc = function (symbol, name, apiKey) {
-    this.searchResultsDiv.remove();
-    this.searchBox.remove();
-    stockPage.createStockPage(name);
-    stockPage.prepareChart(symbol, apiKey, unit = 'week');
-  };
+      this.stockQuantityInput = document.createElement('input');
+      this.stockQuantityInput.type = 'number';
+      this.stockQuantityInput.className = 'inputBars';
+      this.stockQuantityInput.id = 'stockQuantityInput';
+      this.stockQuantityInput.setAttribute('type', 'number');
+      this.stockQuantityInput.setAttribute('min', '1');
+      this.stockQuantityInput.value = '1'; // Standardvärde ett (1) för antal aktier att köpa.
+      this.inputFieldsDiv.appendChild(this.stockQuantityInput);
+
+      this.buyButton = document.createElement('button');
+      this.buyButton.innerHTML = 'Köp';
+      this.buyButton.className = 'buttons';
+      this.buyButton.id = 'buyButton';
+      this.buttonsDiv.appendChild(this.buyButton);
+
+      this.revertBuy = document.createElement('button');
+      this.revertBuy.innerHTML = 'Gå tillbaka';
+      this.revertBuy.className = 'buttons';
+      this.revertBuy.id = 'revertBuy';
+      this.buttonsDiv.appendChild(this.revertBuy);
+
+      // Event listeners för att hantera köp och gå tillbaka i köpboxen (inklusive validering).
+      this.revertBuy.addEventListener('click', () => {
+        // Rensa buyDiv, stockInfo, inputField, buyButton och revertBuy om de finns och sätt dem till null (nullifiera dem).
+        if (this.buyDiv) {
+          this.buyDiv.remove();
+          this.buyDiv = null;
+        }
+        if (this.stockInfo) {
+          this.stockInfo = null;
+        }
+        if (this.buyButton) {
+          this.buyButton.remove();
+          this.buyButton = null;
+        }
+        if (this.revertBuy) {
+          this.revertBuy.remove();
+          this.revertBuy = null;
+        }
+
+        // Hämta stockPageDiv (aktiesidan) från DOM:en om den finns och visa den om du går tillbaka från köpboxen på aktiesidan.
+        const stockPageDiv = document.querySelector('.stockPage');
+        if (stockPageDiv) {
+          stockPageDiv.style.display = 'flex';
+        }
+
+        // Visa sökresultaten och sökrutan igen när du går tillbaka från köpboxen på söksidan (se showSearchElements-funktionen).
+        this.showSearchElements();
+        this.createButtons(name, symbol, apiKey);
+        this.searchBox.appendChild(this.buttonsDiv);
+      });
+
+
+      this.buyDiv.appendChild(this.inputFieldsDiv);
+      this.buyDiv.appendChild(this.buttonsDiv);
+      this.stockQuantityInput.addEventListener('change', this.updateInputField); // Lägg till event listener för att hantera ändring av antal aktier att köpa (se updateInputField-funktionen).
+
+      // Event listener för att hantera ändring av belopp att investera (inklusive validering).
+      this.inputField.addEventListener('change', async () => {
+        this.amountToInvest = parseFloat(this.inputField.value);
+        if (isNaN(this.amountToInvest)) {
+          alert('Please enter a valid number');
+          return;
+        }
+      });
+
+      // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen).
+      this.buyButton.addEventListener('click', async () => {
+        await this.updateInputField(); // Kontrollera att inputfältet uppdaterats med det nya priset innan köpet genomförs.
+        this.buyDiv.remove();
+        this.buyDiv = null;
+        this.inputField.remove();
+        this.inputField = null;
+        this.buyButton.remove();
+        this.buyButton = null;
+        this.revertBuy.remove();
+        this.revertBuy = null;
+        this.searchBox.appendChild(this.buttonsDiv);
+        this.showSearchElements();
+
+        //Skapa en ny instans av Stock (se Stock.js) med aktiens symbol, namn, aktiepris och antal köpa aktier som argument.
+        var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks);
+
+        // Lägg till aktien i portföljen och uppdatera saldo och portfölj med köpet (se Portfolio.js).
+        this.portfolio.addStock(stockObj);
+        this.portfolio.getBalance();
+        this.updateBalance();
+      });
+    };
+
+    // Funktion för att gå till aktiesidan med aktieinformationen när användaren klickar på 'Gå till aktien' i sökresultaten (se showResults-funktionen och createButtons-funktionen).
+    this.goToStockFunc = function (symbol, name, apiKey) {
+      this.searchResultsDiv.remove();
+      this.searchBox.remove();
+      stockPage.createStockPage(name);
+      stockPage.prepareChart(symbol, apiKey, unit = 'week');
+    };
+  }
 }

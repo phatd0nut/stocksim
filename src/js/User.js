@@ -1,7 +1,7 @@
-// Klass för att skapa en ny användare
+// Klass för att skapa en ny användare och sätta budget för användaren. Användarens namn och budget sätts här och används sedan i hela programmet för att visa användarens namn och budget i olika delar av programmet.
 function User(name, parent, settings) {
-  this.settings = settings;
-  this.name = name;
+  this.settings = settings; // Settings objektet som skickas in från StockApp.js.
+  this.name = name; // Användarens namn som skickas in från main.js.
   this.balance = 0;
   const portfolio = new Portfolio();
   const charts = new Charts();
