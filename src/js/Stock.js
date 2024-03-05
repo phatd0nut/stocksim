@@ -1,17 +1,9 @@
 // Funktion för att skapa en aktieklass
-function Stock(ticker, name, type, region, price) {
-    this.ticker = ticker;
+function Stock(symbol, name, price, quantity) {
+    this.symbol = symbol;
     this.name = name;
-    this.type = type;
-    this.region = region;
     this.price = price;
-
-    if (ticker === null || name === null || price === null) {
-        this.noStockInfo();
-    }
-
-    this.noStockInfo = function () {
-        return "No stock information available for " + this.name + " (" + this.ticker + ")";
-    };
+    this.quantity = quantity;
+    this.amountInvested = this.price * this.quantity;
 }
 

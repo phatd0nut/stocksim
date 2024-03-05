@@ -1,9 +1,8 @@
 // Klass för att skapa en ny användare
 function User(name, parent, settings) {
   this.settings = settings;
-  var initialBalance = 0;
   this.name = name;
-  this.balance = initialBalance;
+  this.balance = 0;
   const portfolio = new Portfolio();
   const charts = new Charts();
 
@@ -36,13 +35,16 @@ function User(name, parent, settings) {
     this.setBudgetBtn.addEventListener('click', () => {
       var budget = this.inputBudget.value;
       if (budget !== '') {
-        this.balance = this.inputBudget.value;
+        this.balance = parseFloat(this.inputBudget.value);
+        console.log('User Balance:', this.balance); // Log user balance
         this.inputBudget.remove();
         this.setBudgetBtn.remove();
         this.p.remove();
         this.h2UserName.remove();
-        var search = new Search(charts);  
-        search.createSearchBox(this.balance);
+        portfolio.setBalance(this.balance);
+        console.log('Portfolio Balance:', portfolio.getBalance()); // Log portfolio balance
+        var search = new Search(charts, portfolio);  
+        search.createSearchBox();
         this.setupDiv.remove();
       } else {
         this.p.innerHTML = 'Belopp saknas, försök igen';

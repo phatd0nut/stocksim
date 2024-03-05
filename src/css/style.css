@@ -22,6 +22,7 @@ body {
   margin: 0;
   margin-top: 30px;
   width: 300px;
+  cursor: pointer;
 }
 
 .createUserDiv {
@@ -91,8 +92,6 @@ body {
 #clicked {
   color: white;
   background-color: #79a471;
-  border-top-left-radius: 20px;
-  border-bottom-right-radius: 20px;
 }
 
 #clicked span {
@@ -128,8 +127,7 @@ body {
   font-weight: bold;
   font-size: 1.2rem;
   font-family: "Roboto", sans-serif;
-  border-top-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+border-radius: 20px;
   flex-wrap: nowrap;
   cursor: pointer;
 }
@@ -148,10 +146,39 @@ body {
   width: 296px;
 }
 
+.buttonsDiv {
+  position: absolute;
+  top: 105%;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: row;
+  width: 100%;
+}
+
+.inputFieldsDiv{
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+#stockQuantityInput {
+  width: 40px;
+}
+
+#buyInputField {
+  width: 59%;
+}
+
+#buyButton, #revertBuy {
+  width: 140px;
+  font-size: 0.9rem;
+}
+
 .buyStock,
 .goToStock {
   width: 140px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .stockPage {
@@ -180,7 +207,7 @@ body {
   padding: 0px;
   width: 80px;
   height: 25px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .buyStock {
@@ -190,46 +217,42 @@ body {
 }
 
 .buyDiv {
-  position: absolute;
-  width: 330px;
-  height: 120px;
+  position: relative;
+  width: 343.2px;
+  height: 150px;
   background-color: white;
   display: flex;
   align-items: center;
-  flex-direction: column-reverse;
-  top: 105%;
+  flex-direction: column;
+  justify-content: center;
+  top: 10%;
+}
+
+#stockInfoFromBuyBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 #buyHeader {
   color: #4e594a;
   margin: 0;
-  padding: 10px;
-  font-size: 1rem;
+  font-size: 1.4rem;
+  align-self: flex-start;
+  padding: 5px;
+  margin-left: 15px;
 }
 
 #headerPrice {
   background-color: #f9ffae;
   color: #4e594a;
-  margin-right: 10px;
   font-weight: bold;
-  border-radius: 10px;
   padding: 5px;
-  margin-left: auto;
-  font-size: 1rem;
-}
-
-.buyInputField {
-  width: 60px;
-}
-
-.revertBuy {
-  position: absolute;
-  width: 140px;
-  align-self: center;
-  font-size: 0.8rem;
-  top: 105%;
-  left: 30%;
-  cursor: pointer;
+  border-radius: 10px;
+  font-size: 1.4rem;
+  align-self: flex-end;
+  margin-right: 15px;
 }
 
 @keyframes glow {
@@ -248,8 +271,6 @@ body {
   margin-top: 10px;
   width: 320px;
   padding: 10px;
-  border-top-left-radius: 20px;
-  border-bottom-right-radius: 20px;
   text-align: center;
   font-weight: bold;
   font-size: 1.2rem;
@@ -286,23 +307,24 @@ body {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content:center;
+  justify-content: center;
   transform: translateY(100%); /* Hide the bar offscreen */
-
 }
 
 #settingsBar.show {
   transform: translateY(0); /* Show the bar */
 }
 
-#adjustMode, #clearCookies {
+#adjustMode,
+#clearCookies {
   margin: 0;
   width: fit-content;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   margin-left: 20px;
 }
 
-#adjustMode:active, #clearCookies:active {
+#adjustMode:active,
+#clearCookies:active {
   color: #ffffff;
   border-color: #ffffff;
 }
@@ -352,7 +374,7 @@ body {
   justify-content: center;
   width: 100%;
   z-index: 1;
-  background-color: #4e594a
+  background-color: #4e594a;
 }
 
 #modeDiv.show {
@@ -361,10 +383,11 @@ body {
   transition: opacity 0.2s ease-in-out;
 }
 
-#darkMode, #lightMode {
+#darkMode,
+#lightMode {
   margin: 0;
   width: fit-content;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   margin-left: 20px;
 }
 
@@ -381,7 +404,12 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: hsla(0, 0%, 0%, 0.199); /* Black background with 50% opacity */
+  background-color: hsla(
+    0,
+    0%,
+    0%,
+    0.199
+  ); /* Black background with 50% opacity */
   z-index: 0; /* Make sure it's below #modeDiv */
   display: none;
 }
@@ -400,7 +428,8 @@ body {
     padding-top: 0px;
   }
 
-  #settingsBar, #modeDiv {
+  #settingsBar,
+  #modeDiv {
     height: 50px;
   }
 }
@@ -415,19 +444,16 @@ body {
     margin-top: 10%;
   }
 
-  #settingsBar, #modeDiv {
+  #settingsBar,
+  #modeDiv {
     height: 55px;
   }
 
   #closeSettingsIcon {
-   top: 84%;
+    top: 84%;
   }
 
   #closeModeIcon {
     bottom: 107%;
-  }
-
-  #adjustMode,#clearCookies ,#darkMode, #lightMode {
-    scale: 0.85;
   }
 }

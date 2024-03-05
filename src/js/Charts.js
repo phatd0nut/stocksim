@@ -31,11 +31,11 @@ function Charts() {
         this.updatePrice = function () {
             this.stockPrice.getRealTimePrice().then(realTimePrice => {
                 if (realTimePrice) {
-                    this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + realTimePrice + ':-</b>';
+                    this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + realTimePrice + '$</b>';
                 } else {
                     this.stockPrice.lastClosingPrice().then(closingPrices => {
                         // Use either todaysClosingPrice or lastClosingPrice
-                        this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + (closingPrices.todaysClosingPrice !== 'N/A' ? closingPrices.todaysClosingPrice : closingPrices.lastClosingPrice) + ':-</b>';
+                        this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + (closingPrices.todaysClosingPrice !== 'N/A' ? closingPrices.todaysClosingPrice : closingPrices.lastClosingPrice) + '$</b>';
                     });
                 }
             });
