@@ -1,4 +1,4 @@
-// Enkel klass för Alpha Vintage API-nyckel
+// Enkel klass för att hämta API-nyckeln för att använda i andra klasser som behöver den. API-nyckel är från Financial Modeling Prep (https://financialmodelingprep.com/developer/docs/).
 function StockMarketAPI() {
     // Privat funktion för att returnera API-nyckeln
     function getApiKey() {

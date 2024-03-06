@@ -4,7 +4,7 @@ function StockPage(parent, stockPrice, charts, searchClass) {
     this.parent = parent;
     this.searchClass = searchClass;
 
-    this.createStockPage = function (name) {
+    this.createStockPage = function (symbol, name) {
         this.stockPage = document.createElement('div');
         this.stockPage.className = 'stockPage';
         parent.appendChild(this.stockPage);
@@ -30,8 +30,44 @@ function StockPage(parent, stockPrice, charts, searchClass) {
         this.stockBtns(name);
     }
 
+    // Kollar om aktien finns i portföljen och skapar en div för att visa aktier som ägs av användaren.
+    this.checkIfStockExistsInPortfolio = function (symbol) {
+        this.ownedStocks = this.searchClass.portfolio.getOwnedStocks();
+        this.isOwned = this.ownedStocks.some(stock => stock.symbol === symbol);
+
+        if (this.stockPage) {
+            // Check if the ownedStocksDiv already exists
+            if (!this.ownedStocksDiv) {
+                console.log('Creating ownedStocksDiv');
+                this.ownedStocksDiv = document.createElement('div');
+                this.ownedStocksDiv.className = 'ownedStocks';
+                this.stockPage.appendChild(this.ownedStocksDiv);
+
+                this.ownedStocksHeader = document.createElement('h3');
+                this.ownedStocksHeader.innerHTML = 'Äger aktier:';
+                this.ownedStocksDiv.appendChild(this.ownedStocksHeader);
+
+                // Create the initial ownedStockP element
+                this.ownedStockP = document.createElement('p');
+                this.ownedStocksDiv.appendChild(this.ownedStockP);
+            }
+
+            // Update owned stocks content or clear it if not owned
+            if (this.isOwned) {
+                // If owned, display the amount of stocks owned
+                this.ownedStockP.innerHTML = 'Ja: ' + this.ownedStocks.find(stock => stock.symbol === symbol).quantity + ' st. (' + this.ownedStocks.find(stock => stock.symbol === symbol).amountInvested + ' $)';
+            } else {
+                // If not owned, display a default message
+                this.ownedStockP.innerHTML = 'Nej.';
+            }
+        } else return;
+    }
+
+
+    // Funktion för att förbereda aktiekursdiagrammet för att visa det på aktiesidan och kontrollera om aktien finns i portföljen.
     this.prepareChart = function (symbol, apiKey, unit) {
         this.charts.initStockChart(symbol, apiKey, unit);
+        this.checkIfStockExistsInPortfolio(symbol);
     }
 
     this.stockBtns = function (name) {
@@ -73,9 +109,9 @@ function StockPage(parent, stockPrice, charts, searchClass) {
         this.stockPage.appendChild(this.buyStockButton);
 
         this.buyStockButton.addEventListener('click', () => {
+            console.log('Buy stock button clicked');
             this.stockPage.style.display = 'none'; // Hide StockPage
             this.searchClass.createBuyDiv(name);
-
         });
     }
 }

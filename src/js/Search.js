@@ -67,8 +67,8 @@ function Search(charts, portfolio) {
     this.searchStockInput.name = 'searchStockInput';
     this.searchBox.appendChild(this.searchStockInput);
 
-    var debounceTimeout;
     // Lyssnar på input-händelsen i sökrutan och skapar en timeout-funktion för att hantera sökningen (debounce) för att undvika överbelastning av API:et med för många förfrågningar på kort tid.
+    var debounceTimeout; // Variabel för att hantera debounce.
     this.searchStockInput.addEventListener('input', () => {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
@@ -334,6 +334,15 @@ function Search(charts, portfolio) {
       this.inputField.value = this.numberOfStocks * currentStockPrice;
     };
 
+    this.showStockPageAfterPurchase = function () {
+      // Hämta stockPageDiv (aktiesidan) från DOM:en om den finns och visa den om du går tillbaka från köpboxen på aktiesidan.
+      var stockPageDiv = document.querySelector('.stockPage');
+      if (stockPageDiv) {
+        stockPageDiv.style.display = 'flex';
+        stockPage.checkIfStockExistsInPortfolio(symbol);
+      } else return;
+    }
+
     // Funktion för att skapa inputfält för att ange belopp att investera och antal aktier att köpa samt knappar för att köpa och gå tillbaka i köpboxen.
     this.setupBuyStockInputs = function (name) {
       this.inputFieldsDiv = document.createElement('div');
@@ -389,10 +398,7 @@ function Search(charts, portfolio) {
         }
 
         // Hämta stockPageDiv (aktiesidan) från DOM:en om den finns och visa den om du går tillbaka från köpboxen på aktiesidan.
-        const stockPageDiv = document.querySelector('.stockPage');
-        if (stockPageDiv) {
-          stockPageDiv.style.display = 'flex';
-        }
+        this.showStockPageAfterPurchase();
 
         // Visa sökresultaten och sökrutan igen när du går tillbaka från köpboxen på söksidan (se showSearchElements-funktionen).
         this.showSearchElements();
@@ -414,7 +420,7 @@ function Search(charts, portfolio) {
         }
       });
 
-      // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen).
+      // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen). Om aktie köps från aktiesidan, visa aktiesidan igen efter köpet (se showStockPageAfterPurchase-funktionen).
       this.buyButton.addEventListener('click', async () => {
         await this.updateInputField(); // Kontrollera att inputfältet uppdaterats med det nya priset innan köpet genomförs.
         this.buyDiv.remove();
@@ -427,6 +433,8 @@ function Search(charts, portfolio) {
         this.revertBuy = null;
         this.searchBox.appendChild(this.buttonsDiv);
         this.showSearchElements();
+        this.showStockPageAfterPurchase();
+        this.createButtons(name, symbol, apiKey);
 
         //Skapa en ny instans av Stock (se Stock.js) med aktiens symbol, namn, aktiepris och antal köpa aktier som argument.
         var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks);
@@ -435,15 +443,15 @@ function Search(charts, portfolio) {
         this.portfolio.addStock(stockObj);
         this.portfolio.getBalance();
         this.updateBalance();
+        stockPage.checkIfStockExistsInPortfolio(symbol);
       });
     };
-
-    // Funktion för att gå till aktiesidan med aktieinformationen när användaren klickar på 'Gå till aktien' i sökresultaten (se showResults-funktionen och createButtons-funktionen).
-    this.goToStockFunc = function (symbol, name, apiKey) {
-      this.searchResultsDiv.remove();
-      this.searchBox.remove();
-      stockPage.createStockPage(name);
-      stockPage.prepareChart(symbol, apiKey, unit = 'week');
-    };
   }
+  // Funktion för att gå till aktiesidan med aktieinformationen när användaren klickar på 'Gå till aktien' i sökresultaten (se showResults-funktionen och createButtons-funktionen).
+  this.goToStockFunc = function (symbol, name, apiKey) {
+    this.searchResultsDiv.remove();
+    this.searchBox.remove();
+    stockPage.createStockPage(symbol, name);
+    stockPage.prepareChart(symbol, apiKey, 'week');
+  };
 }

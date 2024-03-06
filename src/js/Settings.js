@@ -97,7 +97,7 @@ function Settings(parent, detectMode) {
             lightMode.id = 'lightMode';
             modeDiv.appendChild(lightMode);
             lightMode.addEventListener('click', () => {
-                mode.lightMode();
+                mode.lightMode(); // Använder lightMode metoden i DetectMode.js för att ändra till ljus visning.
             });
 
             // Skapar knapp för att ändra till mörk visning och lägger till den i modeDiv.
@@ -107,7 +107,7 @@ function Settings(parent, detectMode) {
             darkMode.id = 'darkMode';
             modeDiv.appendChild(darkMode);
             darkMode.addEventListener('click', () => {
-                mode.darkMode();
+                mode.darkMode(); // Använder darkMode metoden i DetectMode.js för att ändra till mörk visning.
             });
 
             modeDiv.appendChild(closeModeIconElm);

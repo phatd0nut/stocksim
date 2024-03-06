@@ -3,6 +3,10 @@ function Portfolio() {
     this.totalInvested = 0; // Total amount of money invested in stocks
 }
 
+// Metod för att hämta aktier som ägs av användaren från portföljen (stocks) arrayen.
+Portfolio.prototype.getOwnedStocks = function () {
+    return this.stocks;
+};
 
 /// Method to add a stock to the portfolio
 Portfolio.prototype.addStock = function (stock) {
@@ -29,9 +33,9 @@ Portfolio.prototype.addStock = function (stock) {
     // Update the balance
     this.updateBalance(stock);
 
-    console.log('Stock Added:', stock);
-    console.log('Total Invested:', this.totalInvested);
-    console.log('Portfolio Balance:', this.balance);
+    // console.log('Stock Added:', stock);
+    // console.log('Total Invested:', this.totalInvested);
+    // console.log('Portfolio Balance:', this.balance);
 };
 
 // Method to remove a stock from the portfolio
