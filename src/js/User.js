@@ -3,7 +3,7 @@ function User(name, parent, settings) {
   this.settings = settings; // Settings objektet som skickas in från StockApp.js.
   this.name = name; // Användarens namn som skickas in från main.js.
   this.balance = 0;
-  const portfolio = new Portfolio();
+  const portfolio = new Portfolio(this.settings);
   const charts = new Charts();
 
   this.userInterface = function () {
@@ -36,14 +36,12 @@ function User(name, parent, settings) {
       var budget = this.inputBudget.value;
       if (budget !== '') {
         this.balance = parseFloat(this.inputBudget.value);
-        console.log('User Balance:', this.balance); // Log user balance
         this.inputBudget.remove();
         this.setBudgetBtn.remove();
         this.p.remove();
         this.h2UserName.remove();
         portfolio.setBalance(this.balance);
-        console.log('Portfolio Balance:', portfolio.getBalance()); // Log portfolio balance
-        var search = new Search(charts, portfolio);  
+        var search = new Search(charts, portfolio, this.settings);  
         search.createSearchBox();
         this.setupDiv.remove();
       } else {

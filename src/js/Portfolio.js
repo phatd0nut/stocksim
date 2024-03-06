@@ -1,6 +1,10 @@
-function Portfolio() {
+function Portfolio(settings) {
+    this.settings = settings; // Settingsobjektet som skickas in från User.js
     this.stocks = []; // Array to hold the stocks
     this.totalInvested = 0; // Total amount of money invested in stocks
+    this.noStockMsg = null; // Message to display when the portfolio is empty
+    this.isMsgVisible = false; // Flag to check if the no stock message is visible
+    this.fadeTimeout = null; // Timeout for the fade-out animation
 }
 
 // Metod för att hämta aktier som ägs av användaren från portföljen (stocks) arrayen.
@@ -33,19 +37,6 @@ Portfolio.prototype.addStock = function (stock) {
 
     // Update the balance
     this.updateBalance(stock);
-
-    // console.log('Stock Added:', stock);
-    // console.log('Total Invested:', this.totalInvested);
-    // console.log('Portfolio Balance:', this.balance);
-};
-
-// Method to remove a stock from the portfolio
-Portfolio.prototype.removeStock = function (stock) {
-    var index = this.stocks.indexOf(stock);
-    if (index > -1) {
-        this.stocks.splice(index, 1);
-        this.totalInvested -= stock.price * stock.quantity;
-    }
 };
 
 // Method to display the portfolio chart
@@ -53,9 +44,60 @@ Portfolio.prototype.displayChart = function () {
     // Code to generate and display the chart
 };
 
-// Method to sell a stock
-Portfolio.prototype.sellStock = function (stock) {
-    // Code to sell the stock and update the totalInvested
+// Method to display the portfolio
+Portfolio.prototype.showPortfolio = function (container) {
+    // Check if the user has any stocks in the portfolio
+    if (this.stocks.length > 0) {
+        console.log('Displaying portfolio...');
+
+        // Code to display the portfolio content (e.g., table, list, etc.)
+        // Replace this comment with the actual code to show the portfolio content.
+
+    } else {
+        this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
+    }
+};
+
+// Metod för att hantera fade-in och fade-out-effekter samt meddelandets synlighet när portföljen är tom
+Portfolio.prototype.manageMessageVisibility = function (container) {
+    if (!this.noStockMsg) {
+        this.noStockMsg = document.createElement('p');
+        this.noStockMsg.id = 'noStockMsg';
+        this.noStockMsg.innerHTML = 'Lägg till en aktie i portföljen innan du kan öppna portföljen!';
+        container.appendChild(this.noStockMsg);
+        this.fadeInAndOut();
+    } else {
+        this.fadeInAndOut();
+    }
+};
+
+// Metod för att hantera fade-in och fade-out-effekter för meddelandet som visas när portföljen är tom
+Portfolio.prototype.fadeInAndOut = function () {
+    clearTimeout(this.fadeTimeout);
+
+    if (this.isMsgVisible) { // Om meddelandet är synligt ska det försvinna
+        this.noStockMsg.style.opacity = 1;
+        this.fadeTimeout = setTimeout(() => {
+            this.noStockMsg.style.opacity = 0;
+            this.removeMessage();
+        }, 3000);
+        this.isMsgVisible = false;
+    } else { // Om meddelandet inte är synligt ska det visas
+        this.noStockMsg.style.opacity = 1;
+        this.fadeTimeout = setTimeout(() => {
+            this.noStockMsg.style.opacity = 0;
+            this.removeMessage();
+        }, 3000);
+        this.isMsgVisible = true;
+    }
+};
+
+// Metod för att ta bort meddelandet och nollställa referensen
+Portfolio.prototype.removeMessage = function () {
+    setTimeout(() => {
+        this.noStockMsg.remove();
+        this.noStockMsg = null; // Nollställ referensen till meddelandet
+    }, 1000); // Vänta 1 sekund innan meddelandet tas bort
 };
 
 // Method to show the amount of money invested in stocks

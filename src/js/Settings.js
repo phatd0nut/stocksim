@@ -4,7 +4,12 @@ function Settings(parent, detectMode) {
     var overlay = document.createElement('div'); // Skapar en div för att använda som overlay när användaren klickar på inställningsikonen.
     overlay.id = 'overlay';
     parent.appendChild(overlay);
-    var settingsIconElm, closeModeIconElm, closeSettingsIconElm; // Deklarerar variabler för att använda i metoder nedan. Dessa variabler används för att representera ikoner i appen.
+    var settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm; // Deklarerar variabler för att använda i metoder nedan. Dessa variabler används för att representera ikoner i appen.
+
+    // Skapar portföljikonen
+    portfolioIconElm = document.createElement('img');
+    portfolioIconElm.src = '../src/img/portfolio_icon1.png';
+    portfolioIconElm.id = 'portfolioIcon';
 
     // Skapar stängningsikonen för mörkt/ljust läge och lägger till den i appen.
     closeModeIconElm = document.createElement('img');
@@ -30,11 +35,29 @@ function Settings(parent, detectMode) {
     parent.appendChild(closeSettingsIconElm);
     closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
 
-    mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm); // Skickar med settings ikonen och stängningsikonen för mörkt/ljust läge till detectIcons metoden i DetectMode.js för att kunna ändra ikonerna beroende på vilket tema som är satt i användarens webbläsare.
+    // Metod för att skapa portföljikonen och lägga till den i appen.
+    this.addPortfolioIcon = function (parentCont) {
+        var portfolioIconDiv = document.createElement('div');
+        portfolioIconDiv.id = 'portfolioIconDiv';
+        parentCont.appendChild(portfolioIconDiv);
+
+        var goToPortfolioText = document.createElement('p');
+        goToPortfolioText.innerHTML = 'Visa portfölj';
+        goToPortfolioText.id = 'goToPortfolioText';
+        portfolioIconDiv.appendChild(goToPortfolioText);
+
+        portfolioIcon = document.createElement('img');
+        portfolioIcon.src = '../src/img/portfolio_icon1.png';
+        portfolioIcon.id = 'portfolioIcon';
+        portfolioIconDiv.appendChild(portfolioIconElm);
+    }
+
+    mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm); // Skickar med settings ikonen och stängningsikonen för mörkt/ljust läge till detectIcons metoden i DetectMode.js för att kunna ändra ikonerna beroende på vilket tema som är satt i användarens webbläsare.
 
     // Metod för att skapa inställningsfältet och lägga till det i appen.
     this.settingsIcon = function () {
         settingsIconElm.addEventListener('click', () => {
+            overlay.style.display = 'block'; // Visa overlay när användaren klickar på settings ikonen och förhindra användaren från att klicka på andra delar av appen under tiden som settings fältet visas.
             settingsIconElm.classList.remove('show'); // Starta fade out övergång för settings ikonen.
             setTimeout(() => {
                 settingsIconElm.style.visibility = 'hidden';
@@ -46,6 +69,7 @@ function Settings(parent, detectMode) {
 
         // Metod för att stänga inställningsfältet och ta bort det från appen.
         closeSettingsIconElm.addEventListener('click', () => {
+            overlay.style.display = 'none'; // Dölj overlay när användaren klickar på closeSettings ikonen.
             closeSettingsIconElm.classList.remove('show'); // Starta fade out övergång för closeSettings ikonen.
             var settingsBar = document.getElementById('settingsBar');
             // Starta fade out övergång för settings fältet
@@ -81,7 +105,6 @@ function Settings(parent, detectMode) {
         // Eventlyssnare för att visa meny med knappar för att ändra tema när användaren klickar på knappen för att ändra tema.
         adjustMode.addEventListener('click', () => {
             closeSettingsIconElm.classList.remove('show');
-            overlay.style.display = 'block';
             var modeDiv = document.createElement('div'); // Skapar en ny div för att hålla knapparna för att ändra tema.
             modeDiv.id = 'modeDiv';
             settingsBar.appendChild(modeDiv);
@@ -121,7 +144,6 @@ function Settings(parent, detectMode) {
                     modeDiv.remove();
                     closeModeIconElm.remove();
                 }, 200);
-                overlay.style.display = 'none';
             });
         });
 

@@ -1,10 +1,11 @@
-function StockPage(parent, stockPrice, charts, searchClass) {
+function StockPage(parent, stockPrice, charts, searchClass, settings) {
     this.stockPrice = stockPrice;
     this.charts = charts;
     this.parent = parent;
     this.searchClass = searchClass;
+    this.settings = settings;
 
-    this.createStockPage = function (symbol, name) {
+    this.createStockPage = function (name, settings) {
         this.stockPage = document.createElement('div');
         this.stockPage.className = 'stockPage';
         parent.appendChild(this.stockPage);
@@ -40,37 +41,33 @@ function StockPage(parent, stockPrice, charts, searchClass) {
             if (!this.ownedStocksDiv) {
                 console.log('Creating ownedStocksDiv');
                 this.ownedStocksDiv = document.createElement('div');
-                this.ownedStocksDiv.className = 'ownedStocks';
+                this.ownedStocksDiv.id = 'ownedStocks';
                 this.stockPage.appendChild(this.ownedStocksDiv);
 
                 this.ownedStocksHeader = document.createElement('h3');
-                this.ownedStocksHeader.innerHTML = 'Äger aktier:';
+                this.ownedStocksHeader.innerHTML = 'Äger aktier: <span id="ownedStocksInfo"></span>';
                 this.ownedStocksDiv.appendChild(this.ownedStocksHeader);
-
-                // Create the initial ownedStockP element
-                this.ownedStockP = document.createElement('p');
-                this.ownedStocksDiv.appendChild(this.ownedStockP);
             }
 
             // Update owned stocks content or clear it if not owned
+            const ownedStocksInfo = document.getElementById('ownedStocksInfo');
             if (this.isOwned) {
                 // Find the first stock with the specified symbol
                 const ownedStock = this.ownedStocks.find(stock => stock.symbol === symbol);
 
                 if (ownedStock) {
                     // If owned, display the quantity and amountInvested of the first matching stock
-                    this.ownedStockP.innerHTML = `Ja: ${ownedStock.quantity} st. (${ownedStock.amountInvested} $)`;
+                    ownedStocksInfo.innerHTML = `${ownedStock.quantity} st. (${ownedStock.amountInvested} $)`;
                 } else {
-                    // If the stock is not found in owned stocks, display default message
-                    this.ownedStockP.innerHTML = 'Ja: 0 st. (0 $)';
+                    // If not owned, display a default message
+                    ownedStocksInfo.innerHTML = 'Inga.';
                 }
             } else {
                 // If not owned, display a default message
-                this.ownedStockP.innerHTML = 'Nej.';
+                ownedStocksInfo.innerHTML = 'Inga.';
             }
-        } else return;
+        }
     }
-
 
     // Funktion för att förbereda aktiekursdiagrammet för att visa det på aktiesidan och kontrollera om aktien finns i portföljen.
     this.prepareChart = function (symbol, apiKey, unit) {
@@ -121,5 +118,7 @@ function StockPage(parent, stockPrice, charts, searchClass) {
             this.stockPage.style.display = 'none'; // Hide StockPage
             this.searchClass.createBuyDiv(name);
         });
+
+        this.settings.addPortfolioIcon(this.stockPage);
     }
 }

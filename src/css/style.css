@@ -132,7 +132,7 @@ body {
   font-weight: bold;
   font-size: 1.2rem;
   font-family: "Roboto", sans-serif;
-border-radius: 20px;
+  border-radius: 20px;
   flex-wrap: nowrap;
   cursor: pointer;
 }
@@ -160,7 +160,7 @@ border-radius: 20px;
   width: 100%;
 }
 
-.inputFieldsDiv{
+.inputFieldsDiv {
   display: flex;
   align-items: center;
   justify-content: space-evenly;
@@ -175,7 +175,8 @@ border-radius: 20px;
   width: 59%;
 }
 
-#buyButton, #revertBuy {
+#buyButton,
+#revertBuy {
   width: 140px;
   font-size: 0.9rem;
 }
@@ -344,6 +345,44 @@ border-radius: 20px;
   opacity: 0;
   visibility: hidden;
 }
+
+#portfolioIconDiv {
+  position: fixed;
+  top: 85%;
+  display: flex;
+  width: 200px;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: row;
+  cursor: pointer;
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+#portfolioIconDiv:active {
+  background-color: #79a471;
+  color: #ffffff;
+  border-color: #f9ffae;
+}
+
+#goToPortfolioText {
+  font-weight: bold;
+  margin: 0;
+  font-size: 1rem;
+}
+
+#portfolioIcon {
+  width: 45px;
+}
+
+#noStockMsg {
+  position: fixed;
+  top: 78%;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
 
 #settingsIcon.show {
   opacity: 1;

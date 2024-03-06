@@ -1,14 +1,15 @@
 // Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
-function Search(charts, portfolio) {
+function Search(charts, portfolio, settings) {
   this.charts = charts; // En array med diagramdata.
   this.portfolio = portfolio; // Portföljobjektet.
+  this.settings = settings; // Inställningsobjektet.
 
   // Initialisering av variabler och instanser.
   const self = this;
   const apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
   const parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
   const stockPrice = new StockPrice(); // Instans för aktiepris.
-  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self); // Instans för sida med aktieinformation.
+  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self, this.settings); // Instans för sida med aktieinformation.
   var searchValue; // Söksträng.
   var symbol; // Aktiesymbol.
   var currentStockPrice; // Aktiepris.
@@ -66,6 +67,14 @@ function Search(charts, portfolio) {
     this.searchStockInput.className = 'inputBars searchStockInput';
     this.searchStockInput.name = 'searchStockInput';
     this.searchBox.appendChild(this.searchStockInput);
+
+    this.settings.addPortfolioIcon(this.searchBox); // Skapa portföljikonen och lägg till den i appen (se Settings.js).
+    this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
+
+    // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
+    this.portfolioIconDiv.addEventListener('click', () => {
+      this.portfolio.showPortfolio(parentContainer);
+    });
 
     // Lyssnar på input-händelsen i sökrutan och skapar en timeout-funktion för att hantera sökningen (debounce) för att undvika överbelastning av API:et med för många förfrågningar på kort tid.
     var debounceTimeout; // Variabel för att hantera debounce.
@@ -451,7 +460,7 @@ function Search(charts, portfolio) {
   this.goToStockFunc = function (symbol, name, apiKey) {
     this.searchResultsDiv.remove();
     this.searchBox.remove();
-    stockPage.createStockPage(symbol, name);
+    stockPage.createStockPage(name);
     stockPage.prepareChart(symbol, apiKey, 'week');
   };
 }
