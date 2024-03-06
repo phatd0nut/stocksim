@@ -14,14 +14,15 @@ Portfolio.prototype.addStock = function (stock) {
     var existingStock = this.stocks.find(s => s.symbol === stock.symbol);
 
     if (existingStock) {
-        // If it exists, increase the quantity and update the totalInvested
+        // If it exists, increase the quantity and update the totalInvested and amountInvested
         existingStock.quantity += stock.quantity;
-        this.totalInvested += stock.price * stock.quantity;
+        existingStock.amountInvested += stock.amountInvested;
+        this.totalInvested += stock.amountInvested;
     } else {
         // If it doesn't exist, add it to the portfolio and update the totalInvested
         if (this.stocks.length < 10) {
             this.stocks.push(stock);
-            this.totalInvested += stock.price * stock.quantity;
+            this.totalInvested += stock.amountInvested;
         } else {
             console.log("You can't hold more than 10 stocks");
             return;

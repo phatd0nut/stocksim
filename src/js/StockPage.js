@@ -54,8 +54,16 @@ function StockPage(parent, stockPrice, charts, searchClass) {
 
             // Update owned stocks content or clear it if not owned
             if (this.isOwned) {
-                // If owned, display the amount of stocks owned
-                this.ownedStockP.innerHTML = 'Ja: ' + this.ownedStocks.find(stock => stock.symbol === symbol).quantity + ' st. (' + this.ownedStocks.find(stock => stock.symbol === symbol).amountInvested + ' $)';
+                // Find the first stock with the specified symbol
+                const ownedStock = this.ownedStocks.find(stock => stock.symbol === symbol);
+
+                if (ownedStock) {
+                    // If owned, display the quantity and amountInvested of the first matching stock
+                    this.ownedStockP.innerHTML = `Ja: ${ownedStock.quantity} st. (${ownedStock.amountInvested} $)`;
+                } else {
+                    // If the stock is not found in owned stocks, display default message
+                    this.ownedStockP.innerHTML = 'Ja: 0 st. (0 $)';
+                }
             } else {
                 // If not owned, display a default message
                 this.ownedStockP.innerHTML = 'Nej.';
