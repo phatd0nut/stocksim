@@ -9,7 +9,7 @@ function Search(charts, portfolio, settings) {
   const apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
   const parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
   const stockPrice = new StockPrice(); // Instans för aktiepris.
-  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self, this.settings); // Instans för sida med aktieinformation.
+  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self, this.settings, this.portfolio); // Instans för sida med aktieinformation med aktiepris, diagramdata, sökobjekt, inställningsobjekt och portföljobjekt som argument.
   var searchValue; // Söksträng.
   var symbol; // Aktiesymbol.
   var currentStockPrice; // Aktiepris.
@@ -68,6 +68,7 @@ function Search(charts, portfolio, settings) {
     this.searchStockInput.name = 'searchStockInput';
     this.searchBox.appendChild(this.searchStockInput);
 
+    //Skapa portföljikonen och lägg till den på söksidan
     this.settings.addPortfolioIcon(this.searchBox); // Skapa portföljikonen och lägg till den i appen (se Settings.js).
     this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
 

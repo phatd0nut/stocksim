@@ -349,6 +349,8 @@ body {
 #portfolioIconDiv {
   position: fixed;
   top: 85%;
+  left: 50%; 
+  transform: translateX(-50%);
   display: flex;
   width: 200px;
   align-items: center;
@@ -377,6 +379,7 @@ body {
 }
 
 #noStockMsg {
+  margin-bottom: 0px;
   position: fixed;
   top: 78%;
   opacity: 1;
@@ -475,6 +478,15 @@ body {
   #settingsBar,
   #modeDiv {
     height: 50px;
+  }
+
+  #portfolioIconDiv {
+    top: 88%;
+  }
+
+  
+  #noStockMsg {
+    top: 82%;
   }
 }
 

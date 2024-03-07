@@ -63,7 +63,7 @@ Portfolio.prototype.manageMessageVisibility = function (container) {
     if (!this.noStockMsg) {
         this.noStockMsg = document.createElement('p');
         this.noStockMsg.id = 'noStockMsg';
-        this.noStockMsg.innerHTML = 'Lägg till en aktie i portföljen innan du kan öppna portföljen!';
+        this.noStockMsg.innerHTML = 'Du måste äga aktier innan portföljen kan visas!';
         container.appendChild(this.noStockMsg);
         this.fadeInAndOut();
     } else {
@@ -86,7 +86,6 @@ Portfolio.prototype.fadeInAndOut = function () {
         this.noStockMsg.style.opacity = 1;
         this.fadeTimeout = setTimeout(() => {
             this.noStockMsg.style.opacity = 0;
-            this.removeMessage();
         }, 3000);
         this.isMsgVisible = true;
     }

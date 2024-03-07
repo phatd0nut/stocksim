@@ -1,11 +1,12 @@
-function StockPage(parent, stockPrice, charts, searchClass, settings) {
+function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio) {
     this.stockPrice = stockPrice;
     this.charts = charts;
     this.parent = parent;
     this.searchClass = searchClass;
     this.settings = settings;
+    this.portfolio = portfolio;
 
-    this.createStockPage = function (name, settings) {
+    this.createStockPage = function (name) {
         this.stockPage = document.createElement('div');
         this.stockPage.className = 'stockPage';
         parent.appendChild(this.stockPage);
@@ -119,6 +120,14 @@ function StockPage(parent, stockPrice, charts, searchClass, settings) {
             this.searchClass.createBuyDiv(name);
         });
 
+        // Skapar en portföljikon och lägger till den på aktiesidan
         this.settings.addPortfolioIcon(this.stockPage);
+        this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
+
+        // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
+        this.portfolioIconDiv.addEventListener('click', () => {
+            this.portfolio.showPortfolio(this.stockPage);
+        });
+
     }
 }
