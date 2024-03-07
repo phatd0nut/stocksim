@@ -26,13 +26,13 @@ Stock.prototype.setClosingPrice = function () {
     // Skapa ett nytt objekt med stängningspriset och lägg till det i this.historicalPrice arrayen
     var closingPriceObj = {
         date: new Date().toISOString().split('T')[0],
+        name: this.name,
         close: this.priceData.lastClosingPrice,
         change: change,
         changePercent: changePercent,
         label: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
     };
     this.historicalPrice.push(closingPriceObj);
-    console.log(this.historicalPrice);
 
     // Begränsa storleken på this.historicalPrice till 365 priser
     while (this.historicalPrice.length > 365) {

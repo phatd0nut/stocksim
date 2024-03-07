@@ -17,6 +17,7 @@ Portfolio.prototype.getOwnedStocks = function () {
 /// Method to add a stock to the portfolio
 Portfolio.prototype.addStock = function (stock) {
     // Check if the stock already exists in the portfolio
+    console.log(this.stocks);
     var existingStock = this.stocks.find(s => s.symbol === stock.symbol);
 
     if (existingStock) {
@@ -28,7 +29,6 @@ Portfolio.prototype.addStock = function (stock) {
         // If it doesn't exist, add it to the portfolio and update the totalInvested
         if (this.stocks.length < 10) {
             this.stocks.push(stock);
-            console.log(this.stocks);
             this.totalInvested += stock.amountInvested;
         } else {
             console.log("You can't hold more than 10 stocks");
@@ -222,6 +222,5 @@ Portfolio.prototype.setBalance = function (balance) {
 
 // Method to get the balance
 Portfolio.prototype.getBalance = function () {
-    console.log('getBalance:', this.balance);
     return this.balance;
 };

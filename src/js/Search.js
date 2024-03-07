@@ -104,7 +104,7 @@ function Search(charts, portfolio, settings) {
     this.buttonsDiv.appendChild(this.buyStock);
 
     this.buyStock.addEventListener('click', () => {
-      this.buyStockFunc(name);
+      this.buyStockFunc(name, symbol);
     });
 
     this.goToStock = document.createElement('button');
@@ -130,7 +130,6 @@ function Search(charts, portfolio, settings) {
     this.stockItem = this.searchResults.lastChild;
 
     this.stockItem.addEventListener('click', async () => {
-      console.log(symbol);
       await stockPrice.setSymbol(symbol);
       this.createButtons(name, symbol, apiKey);
     });
@@ -148,7 +147,7 @@ function Search(charts, portfolio, settings) {
         this.id = 'clicked';
       });
     });
-}
+  }
 
   // Funktion för att hämta aktiedata från API.
   this.fetchApi = async function (searchValue) {
@@ -232,7 +231,7 @@ function Search(charts, portfolio, settings) {
   }
 
   // Funktion för att köpa aktier och uppdatera saldo och portfölj med köpet (inklusive validering).
-  this.buyStockFunc = async function (name) {
+  this.buyStockFunc = async function (name, symbol) {
     // Dölj sökresultaten
     this.hideSearchElements();
 
@@ -244,10 +243,10 @@ function Search(charts, portfolio, settings) {
 
     // Skapa buyDiv om den inte finns, annars uppdatera stockInfo med aktieinformationen med hjälp av name som argument. Name är aktiens namn som användaren klickade på i sökresultaten (se showResults-funktionen), och name är det som används för att skapa buyDiv och stockInfo för rätt aktie (se createBuyDiv-funktionen).
     if (!this.buyDiv) {
-      this.createBuyDiv(name);
+      this.createBuyDiv(name, symbol);
     } else {
       // Om buyDiv finns, uppdatera stockInfo med aktieinformationen med hjälp av name som argument.
-      this.createStockInfo(name);
+      this.createStockInfo(name, symbol);
     }
   };
 
@@ -266,7 +265,7 @@ function Search(charts, portfolio, settings) {
   };
 
   // Funktion för att skapa köpboxen och visa aktieinformation och köpknappar för användaren att köpa aktier med (inklusive validering).
-  this.createBuyDiv = async function (name) {
+  this.createBuyDiv = async function (name, symbol) {
     // Rensa buyDiv och stockInfo om de finns och sätt dem till null.
     if (this.buyDiv) {
       this.buyDiv.remove();
@@ -283,18 +282,18 @@ function Search(charts, portfolio, settings) {
     parentContainer.appendChild(this.buyDiv);
 
     // Vänta på att aktiepriset hämtas och skapa sedan stockInfo och köpinputs med hjälp av namnet på aktien som användaren klickade på i sökresultaten (se showResults-funktionen) som argument för att skapa rätt köpbox för rätt aktie (se createStockInfo-funktionen).
-    await this.createStockInfo(name);
-    this.setupBuyStockInputs(name);
+    await this.createStockInfo(name, symbol);
+    this.setupBuyStockInputs(name, symbol);
   };
 
   // Funktion för att skapa aktieinformationen och visa den i köpboxen. Name är argumentet som används för att skapa rätt köpbox för rätt aktie (se createBuyDiv-funktionen) och för att hämta rätt aktieinformation (se showResults-funktionen).
-  this.createStockInfo = function (name) {
+  this.createStockInfo = function (name, symbol) {
     this.stockInfo = document.createElement('div');
     this.stockInfo.id = 'stockInfoFromBuyBox';
     var buyHeader = document.createElement('h2');
     var headerPrice = document.createElement('span');
 
-    buyHeader.innerHTML = name;
+    buyHeader.innerHTML = name + ' (' + symbol + ')';
     if (name.length > 15) { // Om aktiens namn är längre än 15 tecken, sätt fontstorleken till 1rem.
       buyHeader.style.fontSize = '1rem';
     }
@@ -359,7 +358,7 @@ function Search(charts, portfolio, settings) {
     }
 
     // Funktion för att skapa inputfält för att ange belopp att investera och antal aktier att köpa samt knappar för att köpa och gå tillbaka i köpboxen.
-    this.setupBuyStockInputs = function (name) {
+    this.setupBuyStockInputs = function (name, symbol) {
       this.inputFieldsDiv = document.createElement('div');
       this.inputFieldsDiv.className = 'inputFieldsDiv';
 
@@ -417,7 +416,7 @@ function Search(charts, portfolio, settings) {
 
         // Visa sökresultaten och sökrutan igen när du går tillbaka från köpboxen på söksidan (se showSearchElements-funktionen).
         this.showSearchElements();
-        this.createButtons(name, symbol, apiKey);
+        this.createButtons(name, symbol);
         this.searchBox.appendChild(this.buttonsDiv);
       });
 
@@ -435,7 +434,6 @@ function Search(charts, portfolio, settings) {
         }
       });
 
-
       // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen). Om aktie köps från aktiesidan, visa aktiesidan igen efter köpet (se showStockPageAfterPurchase-funktionen).
       this.buyButton.addEventListener('click', async () => {
         await this.updateInputField(); // Kontrollera att inputfältet uppdaterats med det nya priset innan köpet genomförs.
@@ -450,14 +448,14 @@ function Search(charts, portfolio, settings) {
         this.searchBox.appendChild(this.buttonsDiv);
         this.showSearchElements();
         this.showStockPageAfterPurchase();
-        this.createButtons(name, symbol, apiKey);
+        this.createButtons(name, symbol); // Länkar rätt knappar till rätt aktie (se createButtons-funktionen).
 
         //Skapa en ny instans av Stock (se Stock.js) med aktiens symbol, namn, aktiepris och antal köpa aktier som argument.
         console.log('Symbol before creating Stock:', symbol);
-var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks);
-console.log('Symbol in Stock object:', stockObj.symbol);
-this.portfolio.addStock(stockObj);
-console.log('Symbol in portfolio after adding Stock:', this.portfolio.getOwnedStocks().find(s => s.symbol === symbol).symbol);
+        var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks);
+        console.log('Symbol in Stock object:', stockObj.symbol);
+        this.portfolio.addStock(stockObj);
+        console.log('Symbol in portfolio after adding Stock:', this.portfolio.getOwnedStocks().find(s => s.symbol === symbol).symbol);
         stockObj.startUpdatingClosingPrice(); // Starta uppdatering av stängningspriset för aktien.
 
         // Lägg till aktien i portföljen och uppdatera saldo och portfölj med köpet (se Portfolio.js).
