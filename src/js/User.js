@@ -3,7 +3,7 @@ function User(name, parent, settings) {
   this.settings = settings; // Settings objektet som skickas in från StockApp.js.
   this.name = name; // Användarens namn som skickas in från main.js.
   this.balance = 0;
-  const portfolio = new Portfolio(this.settings);
+  const portfolio = new Portfolio(this.settings, parent);
   const charts = new Charts();
 
   this.userInterface = function () {

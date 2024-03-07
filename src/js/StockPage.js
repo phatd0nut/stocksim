@@ -58,7 +58,7 @@ function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio)
 
                 if (ownedStock) {
                     // If owned, display the quantity and amountInvested of the first matching stock
-                    ownedStocksInfo.innerHTML = `${ownedStock.quantity} st. (${ownedStock.amountInvested} $)`;
+                    ownedStocksInfo.innerHTML = `${ownedStock.quantity} st. (${ownedStock.amountInvested.toFixed(2)} USD$)`;
                 } else {
                     // If not owned, display a default message
                     ownedStocksInfo.innerHTML = 'Inga.';

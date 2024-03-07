@@ -31,7 +31,7 @@ function Charts() {
         this.updatePrice = function () {
             this.stockPrice.getRealTimePrice().then(realTimePrice => {
                 if (realTimePrice) {
-                    this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + realTimePrice + '$</b>';
+                    this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + realTimePrice + '  USD$</b>';
                 } else {
                     this.stockPrice.lastClosingPrice().then(closingPrices => {
                         // Use either todaysClosingPrice or lastClosingPrice

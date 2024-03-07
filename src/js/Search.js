@@ -74,7 +74,7 @@ function Search(charts, portfolio, settings) {
 
     // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
     this.portfolioIconDiv.addEventListener('click', () => {
-      this.portfolio.showPortfolio(parentContainer);
+      this.portfolio.showPortfolio(this.searchBox);
     });
 
     // Lyssnar på input-händelsen i sökrutan och skapar en timeout-funktion för att hantera sökningen (debounce) för att undvika överbelastning av API:et med för många förfrågningar på kort tid.
@@ -125,8 +125,13 @@ function Search(charts, portfolio, settings) {
     this.stockItem.innerHTML = `(${symbol}) ${name}  <span id="stockRegion">${exchangeShortName}</span>`;
     this.searchResults.appendChild(this.stockItem);
 
-    this.stockItem.addEventListener('click', () => {
-      stockPrice.setSymbol(symbol);
+    // Rensa alla tidigare händelsehanterare
+    this.stockItem.replaceWith(this.stockItem.cloneNode(true));
+    this.stockItem = this.searchResults.lastChild;
+
+    this.stockItem.addEventListener('click', async () => {
+      console.log(symbol);
+      await stockPrice.setSymbol(symbol);
       this.createButtons(name, symbol, apiKey);
     });
 
@@ -143,7 +148,7 @@ function Search(charts, portfolio, settings) {
         this.id = 'clicked';
       });
     });
-  }
+}
 
   // Funktion för att hämta aktiedata från API.
   this.fetchApi = async function (searchValue) {
@@ -430,6 +435,7 @@ function Search(charts, portfolio, settings) {
         }
       });
 
+
       // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen). Om aktie köps från aktiesidan, visa aktiesidan igen efter köpet (se showStockPageAfterPurchase-funktionen).
       this.buyButton.addEventListener('click', async () => {
         await this.updateInputField(); // Kontrollera att inputfältet uppdaterats med det nya priset innan köpet genomförs.
@@ -447,11 +453,16 @@ function Search(charts, portfolio, settings) {
         this.createButtons(name, symbol, apiKey);
 
         //Skapa en ny instans av Stock (se Stock.js) med aktiens symbol, namn, aktiepris och antal köpa aktier som argument.
-        var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks);
+        console.log('Symbol before creating Stock:', symbol);
+var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks);
+console.log('Symbol in Stock object:', stockObj.symbol);
+this.portfolio.addStock(stockObj);
+console.log('Symbol in portfolio after adding Stock:', this.portfolio.getOwnedStocks().find(s => s.symbol === symbol).symbol);
+        stockObj.startUpdatingClosingPrice(); // Starta uppdatering av stängningspriset för aktien.
 
         // Lägg till aktien i portföljen och uppdatera saldo och portfölj med köpet (se Portfolio.js).
         this.portfolio.addStock(stockObj);
-        this.portfolio.getBalance();
+        console.log('this.portfolio.balance after update:', this.portfolio.getBalance());
         this.updateBalance();
         stockPage.checkIfStockExistsInPortfolio(symbol);
       });

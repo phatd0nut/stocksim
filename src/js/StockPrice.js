@@ -24,6 +24,7 @@ StockPrice.prototype.getRealTimePrice = function () {
 
 StockPrice.prototype.getHistoricalData = function () {
     var priceApiUrl = 'https://financialmodelingprep.com/api/v3/historical-price-full/' + this.symbol + '?from=' + this.startDateStr + '&to=' + new Date().toISOString().split('T')[0] + '&apikey=' + this.apiKey;
+    console.log(priceApiUrl);
     return fetch(priceApiUrl)
         .then(function (response) {
             return response.json();
@@ -94,6 +95,7 @@ StockPrice.prototype.logPrices = function () {
 };
 
 StockPrice.prototype.setSymbol = function (symbol) {
+    console.log(symbol);
     this.symbol = symbol;
 };
 

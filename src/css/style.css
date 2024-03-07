@@ -346,6 +346,14 @@ body {
   visibility: hidden;
 }
 
+#portfolioDiv {
+  position: relative;
+  top: 10%;
+  width: 330px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 #portfolioIconDiv {
   position: fixed;
   top: 85%;
@@ -379,11 +387,19 @@ body {
 }
 
 #noStockMsg {
+  opacity: 0;
+  transition: opacity 1s ease;
   margin-bottom: 0px;
   position: fixed;
   top: 78%;
+}
+
+#noStockMsg.show {
   opacity: 1;
-  transition: opacity 1s ease;
+}
+
+#noStockMsg.hide {
+  opacity: 0;
 }
 
 
