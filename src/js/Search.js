@@ -91,11 +91,18 @@ function Search(charts, portfolio, settings) {
       if (this.searchStockInput.value.trim() === '') {
         // Skapa ett nytt p-element
         messageElement = document.createElement('p');
-        messageElement.className = 'messageElement';
+        messageElement.id = 'suggestionMsg';
+        messageElement.className = 'hide'; // Lägg till 'hide' klassen initialt
         messageElement.innerHTML = 'Inga idéer om vilka aktier att köpa? Prova Microsoft eller Tesla!';
 
         // Lägg till p-elementet till searchBox
         this.searchBox.appendChild(messageElement);
+
+        // Sätt en timeout för att visa meddelandet efter 5 sekunder
+        setTimeout(() => {
+          messageElement.classList.remove('hide'); // Ta bort 'hide' klassen
+          messageElement.classList.add('show'); // Lägg till 'show' klassen
+        }, 5000);
         messageShown = true; // Sätt flaggan till true när meddelandet visas
       }
     }, 5000); // Visa meddelandet efter 5 sekunder om användaren inte skriver något i sökrutan (debounce).
@@ -104,10 +111,16 @@ function Search(charts, portfolio, settings) {
       clearTimeout(debounceTimeout); // Rensa debounce timeout när användaren börjar skriva
       clearTimeout(messageTimeout); // Rensa meddelandets timeout när användaren börjar skriva
 
-      // Ta bort meddelandet när användaren börjar skriva
-      messageElement = document.querySelector('.messageElement');
+      // Fade ut meddelandet när användaren börjar skriva
+      messageElement = document.querySelector('#suggestionMsg');
       if (messageElement) {
-        messageElement.remove();
+        messageElement.classList.remove('show'); // Ta bort 'show' klassen
+        messageElement.classList.add('hide'); // Lägg till 'hide' klassen
+
+        // Ta bort meddelandet från DOM efter det har faded ut
+        setTimeout(() => {
+          messageElement.remove();
+        }, 200); // 1000 ms är tiden det tar för meddelandet att fade ut
       }
 
       debounceTimeout = setTimeout(() => {
@@ -128,7 +141,7 @@ function Search(charts, portfolio, settings) {
               if (this.searchStockInput.value.trim() === '') {
                 // Skapa ett nytt p-element
                 messageElement = document.createElement('p');
-                messageElement.className = 'messageElement';
+                messageElement.id = 'suggestionMsg';
                 messageElement.innerHTML = 'Inga idéer om vilka aktier att köpa? Prova Microsoft eller Tesla!';
 
                 // Lägg till p-elementet till searchBox
@@ -137,7 +150,6 @@ function Search(charts, portfolio, settings) {
               }
             }, 5000); // Visa meddelandet efter 5 sekunder om användaren inte skriver något i sökrutan (debounce).
           }
-
           return;
         }
 
@@ -372,31 +384,31 @@ function Search(charts, portfolio, settings) {
     // Hämta realtidspriset (5 försök) för aktien och uppdatera sedan inputfältet med det nya priset (inklusive validering) och visa det i köpboxen. Om det inte går att hämta realtidspriset, hämta det senaste stängningspriset istället. Om det inte går att hämta det senaste stängningspriset, visa ett felmeddelande.
     this.retryGetRealTimePrice = async function () {
       for (let i = 0; i < 5; i++) {
-          try {
-              const realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
-              if (realTimePrice) {
-                  currentStockPrice = realTimePrice; // Sparar det realtida priset.
-                  headerPrice.innerHTML = realTimePrice + '$';
-                  this.updateInputField();
-                  return;
-              } else {
-                  console.error(`Attempt ${i + 1} failed. Retrying...`);
-              }
-          } catch (error) {
-              console.error(`Attempt ${i + 1} failed. Retrying...`);
+        try {
+          const realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
+          if (realTimePrice) {
+            currentStockPrice = realTimePrice; // Sparar det realtida priset.
+            headerPrice.innerHTML = realTimePrice + '$';
+            this.updateInputField();
+            return;
+          } else {
+            console.error(`Attempt ${i + 1} failed. Retrying...`);
           }
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed. Retrying...`);
+        }
       }
       console.error('Error getting real-time price after 5 attempts. Falling back to last closing price.');
       try {
-          const closingPriceData = await stockPrice.lastClosingPrice(); // Hämtar det senaste stängningspriset
-          const closingPrice = closingPriceData.lastClosingPrice;
-          currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
-          headerPrice.innerHTML = closingPrice + '$';
-          this.updateInputField();
+        const closingPriceData = await stockPrice.lastClosingPrice(); // Hämtar det senaste stängningspriset
+        const closingPrice = closingPriceData.lastClosingPrice;
+        currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
+        headerPrice.innerHTML = closingPrice + '$';
+        this.updateInputField();
       } catch (error) {
-          console.error('Error getting last closing price:', error);
+        console.error('Error getting last closing price:', error);
       }
-  };
+    };
     this.retryGetRealTimePrice();
 
     // Funktion för att uppdatera inputfältet med det nya priset (inklusive validering) och visa det i köpboxen när användaren ändrar antalet aktier att köpa.

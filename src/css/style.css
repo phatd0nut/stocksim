@@ -68,6 +68,16 @@ body {
   text-align: center;
 }
 
+#suggestionMsg.show {
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+#suggestionMsg.hide {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
 .searchResults {
   position: relative;
   padding-left: 0;
