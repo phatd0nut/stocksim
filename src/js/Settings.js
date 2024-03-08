@@ -35,6 +35,35 @@ function Settings(parent, detectMode) {
     parent.appendChild(closeSettingsIconElm);
     closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
 
+    this.getCookie = function (name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+    
+    // Lägg till denna metod för att läsa in temat från cookien när en instans av klassen skapas
+    this.loadThemeFromCookie = function () {
+        var theme = this.getCookie("theme");
+        mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm);
+
+        if (theme == "light") {
+            mode.lightMode(theme);
+        } else if (theme == "dark") {
+            mode.darkMode(theme);
+        }
+    
+        // Update icons based on the loaded theme
+        mode.updateIcons(theme);
+    }
+    
+    // Call the detect method after loading the theme from the cookie
+    this.loadThemeFromCookie();
+
     // Metod för att skapa portföljikonen och lägga till den i appen.
     this.addPortfolioIcon = function (parentCont) {
         var portfolioIconDiv = document.createElement('div');
@@ -102,6 +131,22 @@ function Settings(parent, detectMode) {
         adjustMode.id = 'adjustMode';
         settingsBar.appendChild(adjustMode);
 
+        // Skapar knapp för att rensa cookies och lägger till den i settingsBar.
+        var clearCookies = document.createElement('button');
+        clearCookies.innerHTML = 'Rensa cookies';
+        clearCookies.className = 'buttons';
+        clearCookies.id = 'clearCookies';
+        settingsBar.appendChild(clearCookies);
+        clearCookies.addEventListener('click', () => {
+            var cookies = document.cookie.split("; ");
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                var eqPos = cookie.indexOf("=");
+                var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+            }
+        });
+
         // Eventlyssnare för att visa meny med knappar för att ändra tema när användaren klickar på knappen för att ändra tema.
         adjustMode.addEventListener('click', () => {
             closeSettingsIconElm.classList.remove('show');
@@ -120,7 +165,8 @@ function Settings(parent, detectMode) {
             lightMode.id = 'lightMode';
             modeDiv.appendChild(lightMode);
             lightMode.addEventListener('click', () => {
-                mode.lightMode(); // Använder lightMode metoden i DetectMode.js för att ändra till ljus visning.
+                mode.lightMode('light'); // Använder lightMode metoden i DetectMode.js för att ändra till ljus visning.
+                document.cookie = "theme=light; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/"; // Sparar temat i en cookie
             });
 
             // Skapar knapp för att ändra till mörk visning och lägger till den i modeDiv.
@@ -130,7 +176,8 @@ function Settings(parent, detectMode) {
             darkMode.id = 'darkMode';
             modeDiv.appendChild(darkMode);
             darkMode.addEventListener('click', () => {
-                mode.darkMode(); // Använder darkMode metoden i DetectMode.js för att ändra till mörk visning.
+                mode.darkMode('dark'); // Använder darkMode metoden i DetectMode.js för att ändra till mörk visning.
+                document.cookie = "theme=dark; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/"; // Sparar temat i en cookie
             });
 
             modeDiv.appendChild(closeModeIconElm);
@@ -146,13 +193,6 @@ function Settings(parent, detectMode) {
                 }, 200);
             });
         });
-
-        // Skapar knapp för att rensa användare och lägger till den i settings fältet.
-        var clearCookies = document.createElement('button');
-        clearCookies.innerHTML = 'Rensa användare';
-        clearCookies.className = 'buttons';
-        clearCookies.id = 'clearCookies';
-        settingsBar.appendChild(clearCookies);
     }
 
     // Metod för att ta bort ikoner från appen när användaren har skapat en användare och satt budget. Metoden används av CreateUser.js klassen.

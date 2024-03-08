@@ -1,8 +1,8 @@
 // Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
-function Search(charts, portfolio, settings) {
-  this.charts = charts; // En array med diagramdata.
-  this.portfolio = portfolio; // Portföljobjektet.
-  this.settings = settings; // Inställningsobjektet.
+function Search() {
+  this.charts = null;
+  this.portfolio = null;
+  this.settings = null;
 
   // Initialisering av variabler och instanser.
   const self = this;
@@ -20,6 +20,18 @@ function Search(charts, portfolio, settings) {
 
   stockPrice.setApiKey(apiKey); // Sätt API-nyckel för aktieprisobjektet.
   stockPrice.setStartDate(this.startDateSearchStr); // Sätt startdatum för aktieprisobjektet.
+
+  this.setCharts = function (charts) {
+    this.charts = charts;
+  }
+
+  this.setPortfolio = function (portfolio) {
+    this.portfolio = portfolio;
+  }
+
+  this.setSettings = function (settings) {
+    this.settings = settings;
+  }
 
   // Funktion för att skapa sökresultatboxen.
   this.resultsBox = function (searchBox) {
@@ -41,7 +53,7 @@ function Search(charts, portfolio, settings) {
   }
 
   // Funktion för att skapa sökrutan och visa saldo.
-  this.createSearchBox = function () {
+  this.createSearchBox = function (charts, portfolio, settings) {
     this.searchBox = document.createElement('div');
     this.searchBox.className = 'searchBox';
     parentContainer.appendChild(this.searchBox);

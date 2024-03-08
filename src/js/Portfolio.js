@@ -196,7 +196,9 @@ this.stockDiv.addEventListener('click', () => {
         this.parent.appendChild(this.portfolioDiv);
 
     } else {
-        this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
+        if (this.balance > 0) {
+            this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
+        }
     }
 };
 

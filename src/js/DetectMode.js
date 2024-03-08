@@ -1,4 +1,4 @@
-function DetectMode(container) {
+function DetectMode(container, callback) {
     this.container = container;
 
     this.detectIcons = function (settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm) {
@@ -6,43 +6,47 @@ function DetectMode(container) {
         this.closeModeIconElm = closeModeIconElm;
         this.closeSettingsIconElm = closeSettingsIconElm;
         this.portfolioIconElm = portfolioIconElm;
+
+        // Call the callback to indicate that the icons are ready
+        if (typeof callback === 'function') {
+            callback();
+        }
     }
-    
-    this.updateIcons = function () {
+
+    this.updateIcons = function (theme) {
         var mode = this.container.getAttribute('data-mode');
-        if (mode === 'light') {
+        if (mode === 'light' && theme === 'light') {
             this.settingsIconElm.src = '../src/img/settings_icon_1.png';
             this.closeModeIconElm.src = '../src/img/close_icon_1.png';
             this.closeSettingsIconElm.src = '../src/img/close_icon_1.png';
             this.portfolioIconElm.src = '../src/img/portfolio_icon1.png';
-        } else if (mode === 'dark') {
+        } else if (mode === 'dark' && theme === 'dark') {
             this.settingsIconElm.src = '../src/img/settings_icon_2.png';
             this.closeModeIconElm.src = '../src/img/close_icon_2.png';
             this.closeSettingsIconElm.src = '../src/img/close_icon_2.png';
             this.portfolioIconElm.src = '../src/img/portfolio_icon2.png';
         }
     }
-    
-    this.lightMode = function () {
+
+    this.lightMode = function (theme) {
         this.container.style.backgroundColor = '#278664';
         this.container.setAttribute('data-mode', 'light');
         document.querySelector('meta[name="theme-color"]').setAttribute('content', '#278664');
-        this.updateIcons();
+        this.updateIcons(theme);
     }
-    
-    this.darkMode = function () {
+
+    this.darkMode = function (theme) {
         this.container.style.backgroundColor = '#4e594a';
         this.container.setAttribute('data-mode', 'dark');
         document.querySelector('meta[name="theme-color"]').setAttribute('content', '#4e594a');
-        this.updateIcons();
+        this.updateIcons(theme);
     }
-    
+
     this.detect = function () {
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            this.darkMode();
+            this.darkMode('dark');
         } else {
-            this.lightMode();
+            this.lightMode('light');
         }
-        this.updateIcons();
     }
 }
