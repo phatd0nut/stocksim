@@ -77,14 +77,80 @@ function Search(charts, portfolio, settings) {
       this.portfolio.showPortfolio(this.searchBox);
     });
 
-    // Lyssnar på input-händelsen i sökrutan och skapar en timeout-funktion för att hantera sökningen (debounce) för att undvika överbelastning av API:et med för många förfrågningar på kort tid.
+    // Lägg till en flagga för att spåra om ett anrop pågår eller inte. Om ett anrop pågår, ignorera det nya anropet. Detta för att undvika överbelastning då användaren skriver in söksträngar. En hel aktielista laddas in från API:et och det kan ta tid att hämta den och om flera anrop görs samtidigt leder det till att appen låser sig.
+    var isFetching = false;
+
     var debounceTimeout; // Variabel för att hantera debounce.
+    var messageTimeout; // Variabel för att hantera meddelandets timeout. Detta används för att visa ett meddelande om vilka aktier som kan köpas om användaren inte skriver något i sökrutan.
+    var messageShown = false; // Flagga för att kontrollera om meddelandet har visats.
+    var messageElement; // Variabel för att skapa meddelandet.
+
+    // Sätt en initial timeout när sidan laddas
+    messageTimeout = setTimeout(() => {
+      // Kontrollera att söksträngen är tom
+      if (this.searchStockInput.value.trim() === '') {
+        // Skapa ett nytt p-element
+        messageElement = document.createElement('p');
+        messageElement.className = 'messageElement';
+        messageElement.innerHTML = 'Inga idéer om vilka aktier att köpa? Prova Microsoft eller Tesla!';
+
+        // Lägg till p-elementet till searchBox
+        this.searchBox.appendChild(messageElement);
+        messageShown = true; // Sätt flaggan till true när meddelandet visas
+      }
+    }, 5000); // Visa meddelandet efter 5 sekunder om användaren inte skriver något i sökrutan (debounce).
+
     this.searchStockInput.addEventListener('input', () => {
-      clearTimeout(debounceTimeout);
+      clearTimeout(debounceTimeout); // Rensa debounce timeout när användaren börjar skriva
+      clearTimeout(messageTimeout); // Rensa meddelandets timeout när användaren börjar skriva
+
+      // Ta bort meddelandet när användaren börjar skriva
+      messageElement = document.querySelector('.messageElement');
+      if (messageElement) {
+        messageElement.remove();
+      }
+
       debounceTimeout = setTimeout(() => {
+        // Om ett anrop redan pågår, ignorerar vi det nya anropet
+        if (isFetching) {
+          return;
+        }
+
         searchValue = this.searchStockInput.value;
+        // Kontrollera att söksträngen inte är tom
+        if (searchValue.trim() === '') {
+          this.searchResultsDiv.innerHTML = '';
+
+          // Sätt en timeout för att visa meddelandet efter 2 sekunder bara om det inte har visats tidigare
+          if (!messageShown) {
+            messageTimeout = setTimeout(() => {
+              // Kontrollera igen att söksträngen fortfarande är tom
+              if (this.searchStockInput.value.trim() === '') {
+                // Skapa ett nytt p-element
+                messageElement = document.createElement('p');
+                messageElement.className = 'messageElement';
+                messageElement.innerHTML = 'Inga idéer om vilka aktier att köpa? Prova Microsoft eller Tesla!';
+
+                // Lägg till p-elementet till searchBox
+                this.searchBox.appendChild(messageElement);
+                messageShown = true; // Sätt flaggan till true när meddelandet visas
+              }
+            }, 5000); // Visa meddelandet efter 5 sekunder om användaren inte skriver något i sökrutan (debounce).
+          }
+
+          return;
+        }
+
         this.resultsBox(this.searchBox);
-        this.fetchApi(searchValue);
+
+        // Sätt flaggan till true när anropet startar
+        isFetching = true;
+
+        this.fetchApi(searchValue)
+          .finally(() => {
+            // Sätt flaggan till false när anropet är klart
+            isFetching = false;
+          });
       }, 600); // 600 ms timeout för att hantera sökningen (debounce).
     });
   }
@@ -306,26 +372,31 @@ function Search(charts, portfolio, settings) {
     // Hämta realtidspriset (5 försök) för aktien och uppdatera sedan inputfältet med det nya priset (inklusive validering) och visa det i köpboxen. Om det inte går att hämta realtidspriset, hämta det senaste stängningspriset istället. Om det inte går att hämta det senaste stängningspriset, visa ett felmeddelande.
     this.retryGetRealTimePrice = async function () {
       for (let i = 0; i < 5; i++) {
-        try {
-          const realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
-          if (realTimePrice) {
-            currentStockPrice = realTimePrice; // Sparar det realtida priset.
-            headerPrice.innerHTML = realTimePrice + '$';
-            this.updateInputField();
-            return;
-          } else {
-            console.error(`Attempt ${i + 1} failed. Retrying...`);
+          try {
+              const realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
+              if (realTimePrice) {
+                  currentStockPrice = realTimePrice; // Sparar det realtida priset.
+                  headerPrice.innerHTML = realTimePrice + '$';
+                  this.updateInputField();
+                  return;
+              } else {
+                  console.error(`Attempt ${i + 1} failed. Retrying...`);
+              }
+          } catch (error) {
+              console.error(`Attempt ${i + 1} failed. Retrying...`);
           }
-        } catch (error) {
-          console.error(`Attempt ${i + 1} failed. Retrying...`);
-        }
       }
       console.error('Error getting real-time price after 5 attempts. Falling back to last closing price.');
-      const closingPrice = await stockPrice.lastClosingPrice(); // Hämtar det senaste stängningspriset
-      currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
-      headerPrice.innerHTML = closingPrice + '$';
-      this.updateInputField();
-    };
+      try {
+          const closingPriceData = await stockPrice.lastClosingPrice(); // Hämtar det senaste stängningspriset
+          const closingPrice = closingPriceData.lastClosingPrice;
+          currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
+          headerPrice.innerHTML = closingPrice + '$';
+          this.updateInputField();
+      } catch (error) {
+          console.error('Error getting last closing price:', error);
+      }
+  };
     this.retryGetRealTimePrice();
 
     // Funktion för att uppdatera inputfältet med det nya priset (inklusive validering) och visa det i köpboxen när användaren ändrar antalet aktier att köpa.
@@ -450,19 +521,13 @@ function Search(charts, portfolio, settings) {
         this.showStockPageAfterPurchase();
         this.createButtons(name, symbol); // Länkar rätt knappar till rätt aktie (se createButtons-funktionen).
 
-        //Skapa en ny instans av Stock (se Stock.js) med aktiens symbol, namn, aktiepris och antal köpa aktier som argument.
-        console.log('Symbol before creating Stock:', symbol);
-        var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks);
-        console.log('Symbol in Stock object:', stockObj.symbol);
-        this.portfolio.addStock(stockObj);
-        console.log('Symbol in portfolio after adding Stock:', this.portfolio.getOwnedStocks().find(s => s.symbol === symbol).symbol);
+
+        var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks); // Skapa ett nytt Stock-objekt med aktiepris, aktiesymbol, aktienamn, aktiepris och antal aktier som argument (se Stock.js).
+        this.portfolio.addStock(stockObj); // Lägg till aktien i portföljen (se Portfolio.js).
         stockObj.startUpdatingClosingPrice(); // Starta uppdatering av stängningspriset för aktien.
 
-        // Lägg till aktien i portföljen och uppdatera saldo och portfölj med köpet (se Portfolio.js).
-        this.portfolio.addStock(stockObj);
-        console.log('this.portfolio.balance after update:', this.portfolio.getBalance());
-        this.updateBalance();
-        stockPage.checkIfStockExistsInPortfolio(symbol);
+        this.updateBalance(); // Uppdatera saldo och visa det i sökrutan.
+        stockPage.checkIfStockExistsInPortfolio(symbol); // Kontrollera om aktien redan finns i portföljen och uppdatera portföljen med köpet (se StockPage.js).
       });
     };
   }

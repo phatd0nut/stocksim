@@ -376,6 +376,52 @@ body {
   border-color: #f9ffae;
 }
 
+#stockHolderDiv {
+  padding: 5px;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: #4e594a white;
+  -webkit-overflow-scrolling: touch;
+  height: 200px;
+}
+
+.stocksDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: max-height 0.5s ease-in-out;
+  margin-bottom: 10px;
+}
+
+.stocksDiv:nth-child(odd) {
+  background-color: #79a471;
+}
+
+.stocksDiv:nth-child(even) {
+  background-color: #f9ffae;
+  color: #4e594a;
+}
+
+.info1, .info2 {
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.info2 {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-in-out;
+}
+
+.info2 p {
+  margin-top: 0;
+}
+
 #goToPortfolioText {
   font-weight: bold;
   margin: 0;

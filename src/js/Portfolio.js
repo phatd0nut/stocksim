@@ -17,7 +17,6 @@ Portfolio.prototype.getOwnedStocks = function () {
 /// Method to add a stock to the portfolio
 Portfolio.prototype.addStock = function (stock) {
     // Check if the stock already exists in the portfolio
-    console.log(this.stocks);
     var existingStock = this.stocks.find(s => s.symbol === stock.symbol);
 
     if (existingStock) {
@@ -31,7 +30,7 @@ Portfolio.prototype.addStock = function (stock) {
             this.stocks.push(stock);
             this.totalInvested += stock.amountInvested;
         } else {
-            console.log("You can't hold more than 10 stocks");
+            alert("Du kan inte äga fler än 10 olika aktier i din portfölj!");
             return;
         }
     }
@@ -97,48 +96,105 @@ Portfolio.prototype.showPortfolio = function (container) {
         this.portfolioDiv.id = 'portfolioDiv';
 
         // Calculate total invested and number of different stocks
-        var totalInvested = this.stocks.reduce((total, stock) => total + stock.amountInvested, 0);
-        totalInvested = parseFloat(totalInvested.toFixed(2));
-        var numberOfStocks = this.stocks.length;
+        this.totalInvested = this.stocks.reduce((total, stock) => total + stock.amountInvested, 0);
+        this.totalInvested = parseFloat(this.totalInvested.toFixed(2));
+        this.numberOfStocks = this.stocks.length;
 
-        var h2 = document.createElement('h2');
-        h2.id = 'portfolioHeader';
-        h2.innerHTML = 'Min Portfölj';
-        this.portfolioDiv.appendChild(h2);
+        this.h2 = document.createElement('h2');
+        this.h2.id = 'portfolioHeader';
+        this.h2.innerHTML = 'Min Portfölj';
+        this.portfolioDiv.appendChild(this.h2);
 
         // Create and append total invested and number of stocks
-        var totalInvestedP = document.createElement('p');
-        totalInvestedP.textContent = 'Totalt investerat: ' + totalInvested + ' USD$';
-        this.portfolioDiv.appendChild(totalInvestedP);
+        this.totalInvestedP = document.createElement('p');
+        this.totalInvestedP.textContent = 'Totalt investerat: ' + this.totalInvested + ' USD$';
+        this.portfolioDiv.appendChild(this.totalInvestedP);
 
-        var numberOfStocksP = document.createElement('p');
-        numberOfStocksP.textContent = 'Antal olika aktier: ' + numberOfStocks + ' st.';
-        this.portfolioDiv.appendChild(numberOfStocksP);
+        this.numberOfStocksP = document.createElement('p');
+        this.numberOfStocksP.textContent = 'Antal olika aktier: ' + this.numberOfStocks + ' st.';
+        this.portfolioDiv.appendChild(this.numberOfStocksP);
 
-        // Loop through the stocks and create a div for each one
+        // Create a new div to hold all the stockDiv elements
+        this.stockHolderDiv = document.createElement('div');
+        this.stockHolderDiv.id = 'stockHolderDiv';
+
         this.stocks.forEach(stock => {
-            var stockDiv = document.createElement('div');
-            stockDiv.class = 'stocksDiv';
+            this.stockDiv = document.createElement('div');
+            this.stockDiv.className = 'stocksDiv';
 
-            var individualStock = document.createElement('p');
-            individualStock.innerHTML = '(' + stock.symbol + ') ' + stock.name + ' ' + stock.quantity + ' st.';
-            stockDiv.appendChild(individualStock);
+            // Create a div for the symbol, name and profitOrLoss
+            this.infoDiv = document.createElement('div');
+            this.infoDiv.className = 'info1';
 
-            var amountInvested = document.createElement('p');
-            amountInvested.innerHTML = 'Investerat belopp: ' + stock.amountInvested;
-            stockDiv.appendChild(amountInvested);
+            this.individualStock = document.createElement('p');
+            this.individualStock.innerHTML = '(<b>' + stock.symbol + '</b>) ' + stock.name;
+            this.infoDiv.appendChild(this.individualStock);
 
             // Logic to calculate and display profit or loss
-            var profitOrLoss = document.createElement('p');
-            var difference = stock.price * stock.quantity - stock.amountInvested;
-            profitOrLoss.innerHTML = difference >= 0 ? 'Vinst: ' + difference : 'Förlust: ' + Math.abs(difference);
-            stockDiv.appendChild(profitOrLoss);
+            this.profitOrLoss = document.createElement('p');
+            // Get the initial price and the latest closing price
+            this.initialPrice = stock.price;
+            this.latestClosingPrice = 'N/A';
+            // Check if there is more than one closing price
+            if (stock.historicalPrice && stock.historicalPrice.length > 1) {
+                this.latestClosingPrice = stock.historicalPrice[stock.historicalPrice.length - 1].close;
+                // Calculate the change in percent
+                this.changePercent = ((this.latestClosingPrice - this.initialPrice) / this.initialPrice) * 100;
+                this.profitOrLoss.innerHTML = this.changePercent >= 0 ? '+' + this.changePercent.toFixed(2) + '<b>%</b>' : '-' + Math.abs(this.changePercent.toFixed(2)) + '<b>%</b>';
+            } else {
+                this.profitOrLoss.innerHTML = '<b>0%</b>';
+            }
+            this.infoDiv.appendChild(this.profitOrLoss);
 
-            this.portfolioDiv.appendChild(stockDiv);
+            this.stockDiv.appendChild(this.infoDiv);
+
+            // Create a div for the quantity and amountInvested
+            var detailsDiv = document.createElement('div');
+            detailsDiv.className = 'info2';
+            detailsDiv.style.maxHeight = '0px'; // Hide initially
+
+            this.amountInvested = document.createElement('p');
+            this.amountInvested.innerHTML = 'Investerat: ' + stock.amountInvested + ' USD$';
+            detailsDiv.appendChild(this.amountInvested);
+
+            this.quantity = document.createElement('p');
+            this.quantity.innerHTML = '(' + stock.quantity + ' st.)';
+            detailsDiv.appendChild(this.quantity);
+
+            this.stockDiv.appendChild(detailsDiv);
+
+// Add a flag to track if the element is expanding
+let isExpanding = false;
+
+// Add click event listener to the stockDiv
+this.stockDiv.addEventListener('click', () => {
+    if (isExpanding) {
+        // If the element is still expanding, finish the expansion immediately and collapse it
+        detailsDiv.style.transition = 'none';
+        detailsDiv.style.maxHeight = '500px';
+        // Use setTimeout to allow the browser to update the max-height
+        setTimeout(() => {
+            detailsDiv.style.transition = 'max-height 0.2s ease-in-out';
+            detailsDiv.style.maxHeight = '0px';
+        }, 0);
+        isExpanding = false;
+    } else if (detailsDiv.style.maxHeight !== '0px') {
+        detailsDiv.style.maxHeight = '0px';
+    } else {
+        detailsDiv.style.maxHeight = '500px'; // Or any other value that is enough to show the content
+        isExpanding = true;
+    }
+});
+
+            this.stockHolderDiv.appendChild(this.stockDiv);
         });
+
+        // Append the stockHolderDiv to the portfolioDiv
+        this.portfolioDiv.appendChild(this.stockHolderDiv);
 
         // Append the portfolio div to the parent
         this.parent.appendChild(this.portfolioDiv);
+
     } else {
         this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
     }
@@ -199,8 +255,8 @@ Portfolio.prototype.updateBalance = function (newStock) {
         return this.balance;
     }
 
-// Calculate the amount spent on the new stock
-var spentOnNewStock = parseFloat(newStock.price * newStock.quantity);
+    // Calculate the amount spent on the new stock
+    var spentOnNewStock = parseFloat(newStock.price * newStock.quantity);
 
     // Check if the balance will go negative
     if (this.balance - spentOnNewStock < 0) {

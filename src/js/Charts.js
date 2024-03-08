@@ -34,13 +34,16 @@ function Charts() {
                     this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + realTimePrice + '  USD$</b>';
                 } else {
                     this.stockPrice.lastClosingPrice().then(closingPrices => {
-                        // Use either todaysClosingPrice or lastClosingPrice
-                        this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + (closingPrices.todaysClosingPrice !== 'N/A' ? closingPrices.todaysClosingPrice : closingPrices.lastClosingPrice) + '$</b>';
+                        const price = closingPrices.lastClosingPrice;
+                        if (price) {
+                            this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + price + '  USD$</b>';
+                        } else {
+                            console.error('Error: both realTimePrice and lastClosingPrice are undefined');
+                        }
                     });
                 }
             });
         }
-
         this.updatePrice();
 
         this.stockPrice.getHistoricalData(this.startDateStr).then((historicalData) => {

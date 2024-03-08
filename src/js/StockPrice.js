@@ -24,7 +24,6 @@ StockPrice.prototype.getRealTimePrice = function () {
 
 StockPrice.prototype.getHistoricalData = function () {
     var priceApiUrl = 'https://financialmodelingprep.com/api/v3/historical-price-full/' + this.symbol + '?from=' + this.startDateStr + '&to=' + new Date().toISOString().split('T')[0] + '&apikey=' + this.apiKey;
-    console.log(priceApiUrl);
     return fetch(priceApiUrl)
         .then(function (response) {
             return response.json();
@@ -38,7 +37,9 @@ StockPrice.prototype.getHistoricalData = function () {
 };
 
 StockPrice.prototype.lastClosingPrice = function () {
-    var priceApiUrl2 = 'https://financialmodelingprep.com/api/v3/historical-price-full/' + this.symbol + '?from=' + this.startDateStr + '&to=' + new Date().toISOString().split('T')[0] + '&apikey=' + this.apiKey;
+    var fiveDaysAgo = new Date(Date.now() - 864e5 * 5).toISOString().split('T')[0];
+    var priceApiUrl2 = 'https://financialmodelingprep.com/api/v3/historical-price-full/' + this.symbol + '?from=' + fiveDaysAgo + '&to=' + new Date().toISOString().split('T')[0] + '&apikey=' + this.apiKey;
+    console.log(priceApiUrl2);
 
     return fetch(priceApiUrl2)
         .then(function (response) {
@@ -49,34 +50,17 @@ StockPrice.prototype.lastClosingPrice = function () {
                 throw new Error('No historical data available for this stock');
             }
 
-            var todaysDate = new Date().toISOString().split('T')[0];
-            var todaysData = data.historical.find(function (item) {
-                return item.date === todaysDate;
+            var lastClosingPriceData = data.historical.find(function (item) {
+                return item.close !== 'N/A';
             });
 
-            var daysAgo = 1;
-            var lastClosingPriceData;
-
-            while (!lastClosingPriceData && daysAgo <= data.historical.length) {
-                var date = new Date(Date.now() - 864e5 * daysAgo).toISOString().split('T')[0];
-                var dataForDate = data.historical.find(function (item) {
-                    return item.date === date;
-                });
-                if (dataForDate && dataForDate.close !== 'N/A') {
-                    lastClosingPriceData = dataForDate;
-                }
-                daysAgo++;
-            }
-
-            if (!todaysData && !lastClosingPriceData) {
+            if (!lastClosingPriceData) {
                 throw new Error('No data available for the specified dates');
             }
 
-            var todaysClosingPrice = todaysData ? todaysData.close : 'N/A';
-            var lastClosingPrice = lastClosingPriceData ? lastClosingPriceData.close : 'N/A';
+            var lastClosingPrice = lastClosingPriceData.close;
 
             return {
-                todaysClosingPrice: todaysClosingPrice,
                 lastClosingPrice: lastClosingPrice,
             };
         });
@@ -95,7 +79,6 @@ StockPrice.prototype.logPrices = function () {
 };
 
 StockPrice.prototype.setSymbol = function (symbol) {
-    console.log(symbol);
     this.symbol = symbol;
 };
 
