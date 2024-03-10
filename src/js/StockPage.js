@@ -1,12 +1,17 @@
-function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio) {
+function StockPage(parent, stockPrice, searchClass, goBack) {
     this.stockPrice = stockPrice;
-    this.charts = charts;
     this.parent = parent;
-    this.searchClass = searchClass;
-    this.settings = settings;
-    this.portfolio = portfolio;
+    this.searchClass = searchClass; // Referens till Search-klassen (Previous för GoBack-klassen)
+    this.settings = null;
+    this.portfolio = null;
+    this.name = null;
+    this.symbol = null;
+    this.apiKey = null,
 
-    this.createStockPage = function (name) {
+    this.createStockPage = function (name, symbol) {
+        this.name = name;
+        this.symbol = symbol;
+
         this.stockPage = document.createElement('div');
         this.stockPage.className = 'stockPage';
         parent.appendChild(this.stockPage);
@@ -29,7 +34,8 @@ function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio)
         this.stockInfo.appendChild(this.stockChart);
 
         this.charts.stockChartSetters(this.stockPrice, this.stockPriceP, this.stockChart);
-        this.stockBtns(name);
+        this.stockBtns(name, symbol);
+        this.return();
     }
 
     // Kollar om aktien finns i portföljen och skapar en div för att visa aktier som ägs av användaren.
@@ -38,45 +44,50 @@ function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio)
         this.isOwned = this.ownedStocks.some(stock => stock.symbol === symbol);
 
         if (this.stockPage) {
-            // Check if the ownedStocksDiv already exists
-            if (!this.ownedStocksDiv) {
-                console.log('Creating ownedStocksDiv');
-                this.ownedStocksDiv = document.createElement('div');
-                this.ownedStocksDiv.id = 'ownedStocks';
-                this.stockPage.appendChild(this.ownedStocksDiv);
-
-                this.ownedStocksHeader = document.createElement('h3');
-                this.ownedStocksHeader.innerHTML = 'Äger aktier: <span id="ownedStocksInfo"></span>';
-                this.ownedStocksDiv.appendChild(this.ownedStocksHeader);
+            // Remove the old ownedStocksDiv if it exists
+            if (this.ownedStocksDiv) {
+                this.ownedStocksDiv.remove();
             }
 
-            // Update owned stocks content or clear it if not owned
-            const ownedStocksInfo = document.getElementById('ownedStocksInfo');
-            if (this.isOwned) {
-                // Find the first stock with the specified symbol
-                const ownedStock = this.ownedStocks.find(stock => stock.symbol === symbol);
+            // Always create a new ownedStocksDiv
+            this.ownedStocksDiv = document.createElement('div');
+            this.ownedStocksDiv.id = 'ownedStocks';
+            this.stockPage.appendChild(this.ownedStocksDiv);
 
-                if (ownedStock) {
-                    // If owned, display the quantity and amountInvested of the first matching stock
-                    ownedStocksInfo.innerHTML = `${ownedStock.quantity} st. (${ownedStock.amountInvested.toFixed(2)} USD$)`;
+            this.ownedStocksHeader = document.createElement('h3');
+            this.ownedStocksHeader.innerHTML = 'Äger aktier: <span id="ownedStocksInfo"></span>';
+            this.ownedStocksDiv.appendChild(this.ownedStocksHeader);
+
+            // Update owned stocks content or clear it if not owned
+            var ownedStocksInfo = document.getElementById('ownedStocksInfo');
+            if (ownedStocksInfo) {
+                if (this.isOwned) {
+                    // Find the first stock with the specified symbol
+                    var ownedStock = this.ownedStocks.find(stock => stock.symbol === symbol);
+
+                    if (ownedStock) {
+                        // If owned, display the quantity and amountInvested of the first matching stock
+                        ownedStocksInfo.innerHTML = `${ownedStock.quantity} st. (${ownedStock.amountInvested.toFixed(2)} USD$)`;
+                    } else {
+                        // If not owned, display a default message
+                        ownedStocksInfo.innerHTML = 'Inga.';
+                    }
                 } else {
                     // If not owned, display a default message
                     ownedStocksInfo.innerHTML = 'Inga.';
                 }
-            } else {
-                // If not owned, display a default message
-                ownedStocksInfo.innerHTML = 'Inga.';
             }
         }
     }
 
     // Funktion för att förbereda aktiekursdiagrammet för att visa det på aktiesidan och kontrollera om aktien finns i portföljen.
     this.prepareChart = function (symbol, apiKey, unit) {
+        this.apiKey = apiKey;
         this.charts.initStockChart(symbol, apiKey, unit);
         this.checkIfStockExistsInPortfolio(symbol);
     }
 
-    this.stockBtns = function (name) {
+    this.stockBtns = function (name, symbol) {
         this.changeTimeFrameDiv = document.createElement('div');
         this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
         this.stockPage.appendChild(this.changeTimeFrameDiv);
@@ -117,7 +128,7 @@ function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio)
         this.buyStockButton.addEventListener('click', () => {
             console.log('Buy stock button clicked');
             this.stockPage.style.display = 'none'; // Hide StockPage
-            this.searchClass.createBuyDiv(name);
+            this.searchClass.createBuyDiv(name, symbol);
         });
 
         // Skapar en portföljikon och lägger till den på aktiesidan
@@ -126,8 +137,45 @@ function StockPage(parent, stockPrice, charts, searchClass, settings, portfolio)
 
         // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
         this.portfolioIconDiv.addEventListener('click', () => {
-            this.portfolio.showPortfolio(this.stockPage);
+            this.previousPage = 'stockPage';
+            this.portfolio.showPortfolio(this.stockPage, this.previousPage, goBack, this);
         });
+    }
 
+    this.getCharts = function () {
+        return this.charts;
+    }
+
+    this.getPortfolio = function () {
+        return this.portfolio;
+    }
+
+    this.getSearchClass = function () {
+        return this.searchClass;
+    }
+
+    this.getSettings = function () {
+        return this.settings;
+    }
+
+    this.setCharts = function (charts) {
+        this.charts = charts;
+    }
+
+    this.setPortfolio = function (portfolio) {
+        this.portfolio = portfolio;
+    }
+
+    this.setSearchClass = function (searchClass) {
+        this.searchClass = searchClass;
+    }
+
+    this.setSettings = function (settings) {
+        this.settings = settings;
+    }
+
+    this.return = function () {
+        console.log(searchClass);
+        goBack.createGoBack(searchClass, 'createSearchBox', this.stockPage)
     }
 }

@@ -1,11 +1,18 @@
 // Klass för att skapa en ny användare och sätta budget för användaren. Användarens namn och budget sätts här och används sedan i hela programmet för att visa användarens namn och budget i olika delar av programmet.
-function User(name, parent, settings) {
+function User(name, parent, settings, goBack, previous) {
   this.settings = settings; // Settings objektet som skickas in från StockApp.js.
   this.name = name; // Användarens namn som skickas in från main.js.
   this.balance = 0;
   var portfolio = new Portfolio(this.settings, parent);
   var charts = new Charts();
-  var search = new Search();
+  var search = new Search(goBack, this);
+  this.previous = previous;
+
+  this.initSearch = function () {
+    search.setCharts(charts);
+    search.setPortfolio(portfolio);
+    search.setSettings(this.settings);
+  }
 
   // Om användarens namn finns, visa portföljen
   if (this.name) {
@@ -18,28 +25,16 @@ function User(name, parent, settings) {
     document.cookie = `balance=${this.balance}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
   }
 
-  this.userInterface = function () {
-    this.setupDiv = document.createElement('div');
-    this.setupDiv.className = 'setupDiv';
-    parent.appendChild(this.setupDiv);
+  this.setupDiv = document.createElement('div');
+  this.setupDiv.className = 'setupDiv';
+  parent.appendChild(this.setupDiv);
 
-    var nameCookie = document.cookie.split('; ').find(row => row.startsWith('username='));
-var balanceCookie = document.cookie.split('; ').find(row => row.startsWith('balance='));
-if (nameCookie && balanceCookie) {
-  this.name = nameCookie.split('=')[1];
-  this.balance = parseFloat(balanceCookie.split('=')[1]);
-  if (this.balance > 0) {
-    portfolio.setBalance(this.balance);
-    search.setCharts(charts);
-    search.setPortfolio(portfolio);
-    search.setSettings(this.settings);
-    search.createSearchBox();
-
-    if (this.setupDiv) {
-      this.setupDiv.parentNode.removeChild(this.setupDiv);
+  this.userInterface = function (recreateSearchBox = true) {
+    if (!this.setupDiv.parentNode) {
+      parent.appendChild(this.setupDiv);
     }
-  }
-}
+
+    this.return();
 
     this.h2UserName = document.createElement('h2');
     this.h2UserName.innerHTML = 'Hej ' + this.name + '!';
@@ -62,6 +57,18 @@ if (nameCookie && balanceCookie) {
     this.setBudgetBtn.innerHTML = 'Spara';
     this.setupDiv.appendChild(this.setBudgetBtn);
 
+    var nameCookie = document.cookie.split('; ').find(row => row.startsWith('username='));
+    var balanceCookie = document.cookie.split('; ').find(row => row.startsWith('balance='));
+    if (nameCookie && balanceCookie) {
+      this.name = nameCookie.split('=')[1];
+      this.balance = parseFloat(balanceCookie.split('=')[1]);
+      if (this.balance > 0) {
+        portfolio.setBalance(this.balance);
+        // Set the value of the input field to the user's balance
+        this.inputBudget.value = this.balance;
+      }
+    }
+
     this.setBudgetBtn.addEventListener('click', () => {
       var budget = this.inputBudget.value;
       if (budget !== '' && parseFloat(budget) > 0) {
@@ -72,14 +79,16 @@ if (nameCookie && balanceCookie) {
         this.p.remove();
         this.h2UserName.remove();
         portfolio.setBalance(this.balance);
-        search.setCharts(charts);
-        search.setPortfolio(portfolio);
-        search.setSettings(this.settings);
+        this.initSearch();
         search.createSearchBox();
         this.setupDiv.remove();
       } else {
         this.p.innerHTML = 'Belopp saknas eller är 0, försök igen';
       }
     });
+  }
+
+  this.return = function () {
+    goBack.createGoBack(this.previous, 'createUserBox', this.setupDiv); // Specify the unique method for User class
   }
 }

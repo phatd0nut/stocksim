@@ -356,7 +356,7 @@ body {
   visibility: hidden;
 }
 
-#portfolioDiv {
+.portfolioDiv {
   position: relative;
   top: 10%;
   width: 330px;
@@ -436,6 +436,12 @@ body {
   font-weight: bold;
   margin: 0;
   font-size: 1rem;
+}
+
+#goBack {
+  position: fixed;
+  top: 15%;
+  background-color: black;
 }
 
 #portfolioIcon {

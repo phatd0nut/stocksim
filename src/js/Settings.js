@@ -15,7 +15,6 @@ function Settings(parent, detectMode) {
     closeModeIconElm = document.createElement('img');
     closeModeIconElm.src = '../src/img/close_icon_1.png';
     closeModeIconElm.id = 'closeModeIcon';
-    parent.appendChild(closeModeIconElm);
 
     // Skapar inställningsikonen och lägger till den i appen.
     settingsIconElm = document.createElement('img');
@@ -32,7 +31,6 @@ function Settings(parent, detectMode) {
     closeSettingsIconElm = document.createElement('img');
     closeSettingsIconElm.src = '../src/img/close_icon_1.png';
     closeSettingsIconElm.id = 'closeSettingsIcon';
-    parent.appendChild(closeSettingsIconElm);
     closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
 
     this.getCookie = function (name) {
@@ -86,6 +84,8 @@ function Settings(parent, detectMode) {
     // Metod för att skapa inställningsfältet och lägga till det i appen.
     this.settingsIcon = function () {
         settingsIconElm.addEventListener('click', () => {
+            this.createSettingsBar();
+            parent.appendChild(closeSettingsIconElm);
             overlay.style.display = 'block'; // Visa overlay när användaren klickar på settings ikonen och förhindra användaren från att klicka på andra delar av appen under tiden som settings fältet visas.
             settingsIconElm.classList.remove('show'); // Starta fade out övergång för settings ikonen.
             setTimeout(() => {
@@ -93,7 +93,6 @@ function Settings(parent, detectMode) {
                 closeSettingsIconElm.style.visibility = 'visible';
                 closeSettingsIconElm.classList.add('show'); // Fade in closeSettings ikonen.
             }, 200); // Längden på övergången.
-            this.createSettingsBar();
         });
 
         // Metod för att stänga inställningsfältet och ta bort det från appen.
@@ -108,6 +107,7 @@ function Settings(parent, detectMode) {
                 closeSettingsIconElm.style.visibility = 'hidden';
                 settingsIconElm.style.visibility = 'visible';
                 settingsIconElm.classList.add('show'); // Fade in settings ikonen.
+                closeSettingsIconElm.remove();
                 settingsBar.remove();
             }, 500); // Längden på övergången.
         });
@@ -149,7 +149,9 @@ function Settings(parent, detectMode) {
 
         // Eventlyssnare för att visa meny med knappar för att ändra tema när användaren klickar på knappen för att ändra tema.
         adjustMode.addEventListener('click', () => {
+            parent.appendChild(closeModeIconElm);
             closeSettingsIconElm.classList.remove('show');
+            closeSettingsIconElm.remove();
             var modeDiv = document.createElement('div'); // Skapar en ny div för att hålla knapparna för att ändra tema.
             modeDiv.id = 'modeDiv';
             settingsBar.appendChild(modeDiv);
@@ -184,6 +186,7 @@ function Settings(parent, detectMode) {
 
             // Eventlyssnare för att stänga modeDiv menyn.
             closeModeIconElm.addEventListener('click', () => {
+                parent.appendChild(closeSettingsIconElm);
                 closeSettingsIconElm.classList.add('show');
                 modeDiv.classList.remove('show');
                 setTimeout(() => {
@@ -198,8 +201,6 @@ function Settings(parent, detectMode) {
     // Metod för att ta bort ikoner från appen när användaren har skapat en användare och satt budget. Metoden används av CreateUser.js klassen.
     this.removeIcons = function () {
         settingsIconElm.remove();
-        closeSettingsIconElm.remove();
-        closeModeIconElm.remove();
     }
 
     // Metod för att hämta inställningsikonerna för att kunna använda den i CreateUser.js för att appenda dem till rätt ställe i appen.

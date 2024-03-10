@@ -1,37 +1,22 @@
 // Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
-function Search() {
+function Search(goBack, previous) {
+  this.previous = previous;
   this.charts = null;
   this.portfolio = null;
   this.settings = null;
-
-  // Initialisering av variabler och instanser.
-  const self = this;
-  const apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
-  const parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
-  const stockPrice = new StockPrice(); // Instans för aktiepris.
-  const stockPage = new StockPage(parentContainer, stockPrice, this.charts, self, this.settings, this.portfolio); // Instans för sida med aktieinformation med aktiepris, diagramdata, sökobjekt, inställningsobjekt och portföljobjekt som argument.
+  var apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
+  var parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
+  var stockPrice = new StockPrice(); // Instans för aktiepris.
   var searchValue; // Söksträng.
   var symbol; // Aktiesymbol.
   var currentStockPrice; // Aktiepris.
-
+  var stockPage = new StockPage(parentContainer, stockPrice, this, goBack); // Instans för sida med aktieinformation med aktiepris, diagramdata, sökobjekt, inställningsobjekt och portföljobjekt som argument.
 
   var startDateSearch = new Date(); // Instans av Date-objekt för att sätta startdatum för sökningen.
   this.startDateSearchStr = startDateSearch.toISOString().split('T')[0]; // Sätter startdatum för sökningen till dagens datum.
 
   stockPrice.setApiKey(apiKey); // Sätt API-nyckel för aktieprisobjektet.
   stockPrice.setStartDate(this.startDateSearchStr); // Sätt startdatum för aktieprisobjektet.
-
-  this.setCharts = function (charts) {
-    this.charts = charts;
-  }
-
-  this.setPortfolio = function (portfolio) {
-    this.portfolio = portfolio;
-  }
-
-  this.setSettings = function (settings) {
-    this.settings = settings;
-  }
 
   // Funktion för att skapa sökresultatboxen.
   this.resultsBox = function (searchBox) {
@@ -53,7 +38,7 @@ function Search() {
   }
 
   // Funktion för att skapa sökrutan och visa saldo.
-  this.createSearchBox = function (charts, portfolio, settings) {
+  this.createSearchBox = function () {
     this.searchBox = document.createElement('div');
     this.searchBox.className = 'searchBox';
     parentContainer.appendChild(this.searchBox);
@@ -86,7 +71,8 @@ function Search() {
 
     // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
     this.portfolioIconDiv.addEventListener('click', () => {
-      this.portfolio.showPortfolio(this.searchBox);
+      this.previousPage = 'search';
+      this.portfolio.showPortfolio(this.searchBox, this.previousPage, goBack, this);
     });
 
     // Lägg till en flagga för att spåra om ett anrop pågår eller inte. Om ett anrop pågår, ignorera det nya anropet. Detta för att undvika överbelastning då användaren skriver in söksträngar. En hel aktielista laddas in från API:et och det kan ta tid att hämta den och om flera anrop görs samtidigt leder det till att appen låser sig.
@@ -131,7 +117,9 @@ function Search() {
 
         // Ta bort meddelandet från DOM efter det har faded ut
         setTimeout(() => {
-          messageElement.remove();
+          if (messageElement) {
+            messageElement.remove();
+          }
         }, 200); // 1000 ms är tiden det tar för meddelandet att fade ut
       }
 
@@ -177,6 +165,7 @@ function Search() {
           });
       }, 600); // 600 ms timeout för att hantera sökningen (debounce).
     });
+    this.return();
   }
 
   // Funktion för att skapa knappar för köp och knapp för att gå till aktiesidan.
@@ -555,11 +544,31 @@ function Search() {
       });
     };
   }
+
   // Funktion för att gå till aktiesidan med aktieinformationen när användaren klickar på 'Gå till aktien' i sökresultaten (se showResults-funktionen och createButtons-funktionen).
   this.goToStockFunc = function (symbol, name, apiKey) {
     this.searchResultsDiv.remove();
     this.searchBox.remove();
-    stockPage.createStockPage(name);
+    stockPage.createStockPage(name, symbol);
     stockPage.prepareChart(symbol, apiKey, 'week');
   };
+
+  this.setCharts = function (charts) {
+    this.charts = charts;
+    stockPage.setCharts(charts);
+  }
+
+  this.setPortfolio = function (portfolio) {
+    this.portfolio = portfolio;
+    stockPage.setPortfolio(portfolio);
+  }
+
+  this.setSettings = function (settings) {
+    this.settings = settings;
+    stockPage.setSettings(settings);
+  }
+
+  this.return = function () {
+    goBack.createGoBack(this.previous, 'userInterface', this.searchBox, false);
+  }
 }

@@ -85,7 +85,7 @@ Portfolio.prototype.displayChart = function () {
 };
 
 // Method to display the portfolio
-Portfolio.prototype.showPortfolio = function (container) {
+Portfolio.prototype.showPortfolio = function (container, previousReference, goBack, previous) {
     // Check if the user has any stocks in the portfolio
     if (this.stocks.length > 0) {
         // Remove the container
@@ -93,7 +93,7 @@ Portfolio.prototype.showPortfolio = function (container) {
 
         // Create a new div for the portfolio
         this.portfolioDiv = document.createElement('div');
-        this.portfolioDiv.id = 'portfolioDiv';
+        this.portfolioDiv.className = 'portfolioDiv';
 
         // Calculate total invested and number of different stocks
         this.totalInvested = this.stocks.reduce((total, stock) => total + stock.amountInvested, 0);
@@ -163,28 +163,28 @@ Portfolio.prototype.showPortfolio = function (container) {
 
             this.stockDiv.appendChild(detailsDiv);
 
-// Add a flag to track if the element is expanding
-let isExpanding = false;
+            // Add a flag to track if the element is expanding
+            let isExpanding = false;
 
-// Add click event listener to the stockDiv
-this.stockDiv.addEventListener('click', () => {
-    if (isExpanding) {
-        // If the element is still expanding, finish the expansion immediately and collapse it
-        detailsDiv.style.transition = 'none';
-        detailsDiv.style.maxHeight = '500px';
-        // Use setTimeout to allow the browser to update the max-height
-        setTimeout(() => {
-            detailsDiv.style.transition = 'max-height 0.2s ease-in-out';
-            detailsDiv.style.maxHeight = '0px';
-        }, 0);
-        isExpanding = false;
-    } else if (detailsDiv.style.maxHeight !== '0px') {
-        detailsDiv.style.maxHeight = '0px';
-    } else {
-        detailsDiv.style.maxHeight = '500px'; // Or any other value that is enough to show the content
-        isExpanding = true;
-    }
-});
+            // Add click event listener to the stockDiv
+            this.stockDiv.addEventListener('click', () => {
+                if (isExpanding) {
+                    // If the element is still expanding, finish the expansion immediately and collapse it
+                    detailsDiv.style.transition = 'none';
+                    detailsDiv.style.maxHeight = '500px';
+                    // Use setTimeout to allow the browser to update the max-height
+                    setTimeout(() => {
+                        detailsDiv.style.transition = 'max-height 0.2s ease-in-out';
+                        detailsDiv.style.maxHeight = '0px';
+                    }, 0);
+                    isExpanding = false;
+                } else if (detailsDiv.style.maxHeight !== '0px') {
+                    detailsDiv.style.maxHeight = '0px';
+                } else {
+                    detailsDiv.style.maxHeight = '500px'; // Or any other value that is enough to show the content
+                    isExpanding = true;
+                }
+            });
 
             this.stockHolderDiv.appendChild(this.stockDiv);
         });
@@ -194,7 +194,7 @@ this.stockDiv.addEventListener('click', () => {
 
         // Append the portfolio div to the parent
         this.parent.appendChild(this.portfolioDiv);
-
+        this.return(previous, previousReference, goBack);
     } else {
         if (this.balance > 0) {
             this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
@@ -262,7 +262,7 @@ Portfolio.prototype.updateBalance = function (newStock) {
 
     // Check if the balance will go negative
     if (this.balance - spentOnNewStock < 0) {
-        console.error('Insufficient balance to buy this stock');
+        alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
         return;
     }
 
@@ -281,4 +281,19 @@ Portfolio.prototype.setBalance = function (balance) {
 // Method to get the balance
 Portfolio.prototype.getBalance = function () {
     return this.balance;
+};
+
+Portfolio.prototype.return = function (previous, previousReference, goBack) {
+    console.log(previous.apiKey);
+    if (previousReference === 'search') {
+        goBack.createGoBack(previous, 'createSearchBox', this.portfolioDiv);
+    } else if (previousReference === 'stockPage') {
+        goBack.createGoBack(previous, 'createStockPage', this.portfolioDiv, previous.name, previous.symbol).then(() => {
+            // The Promise has resolved, so the new page has been created
+            // Now you can prepare the chart if the function exists
+            if (typeof previous.prepareChart === 'function') {
+                previous.prepareChart(previous.symbol, previous.apiKey, 'week');
+            }
+        });
+    }
 };
