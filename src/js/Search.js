@@ -48,8 +48,6 @@ function Search(goBack, previous, settings, charts, portfolio) {
     this.h2.className = 'h2search';
     this.searchBox.appendChild(this.h2);
 
-    this.updateBalance(this.searchBox);
-
     this.searchStockInput = document.createElement('input');
     this.searchStockInput.type = 'text';
     this.searchStockInput.placeholder = 'Sök aktie här';
@@ -161,23 +159,26 @@ function Search(goBack, previous, settings, charts, portfolio) {
   }
 
   this.setSearchBox = function () {
+    console.log('Setting search box');
     this.searchBoxDiv = document.createElement('div');
     this.searchBoxDiv.className = 'searchBox';
+
+    this.updateBalance();
     return this.searchBoxDiv;
   };
 
-  this.updateBalance = function (searchBox) {
-    // Update balance and display it in the search box using the portfolio object (see Portfolio.js).
-    this.searchBox = searchBox; // Use the existing searchBox if no new one is provided
+  this.updateBalance = function () {
     this.balance = this.portfolio.getBalance();
 
     if (!this.balanceText) {
-      this.balanceText = document.createElement('p');
-      this.balanceText.className = 'searchBalance';
-      this.searchBox.appendChild(this.balanceText);
+        this.balanceText = document.createElement('p');
+        this.balanceText.className = 'searchBalance';
+        this.searchBoxDiv.appendChild(this.balanceText); // Use the stored reference
     }
     this.balanceText.innerHTML = 'Saldo: <b>' + this.balance + ' USD$</b>';
-  };
+
+    console.log(this.balanceText);
+};
 
   // Funktion för att skapa knappar för köp och knapp för att gå till aktiesidan.
   this.createButtons = (name, symbol, apiKey) => {
@@ -550,7 +551,7 @@ function Search(goBack, previous, settings, charts, portfolio) {
         this.portfolio.addStock(stockObj); // Lägg till aktien i portföljen (se Portfolio.js).
         stockObj.startUpdatingClosingPrice(); // Starta uppdatering av stängningspriset för aktien.
 
-        this.updateBalance(this.setSearchBox()); // Uppdatera saldo och visa det i sökrutan.
+        this.updateBalance(); // Uppdatera saldo och visa det i sökrutan.
         stockPage.checkIfStockExistsInPortfolio(symbol); // Kontrollera om aktien redan finns i portföljen och uppdatera portföljen med köpet (se StockPage.js).
       });
     };

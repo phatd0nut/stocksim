@@ -11,7 +11,6 @@ function Portfolio(settings, parent) {
 
 Portfolio.prototype.initSearchClass = function (searchClass) {
     this.searchClass = searchClass;
-    console.log(this.searchClass);
 };
 
 // Metod för att hämta aktier som ägs av användaren från portföljen (stocks) arrayen.
@@ -141,7 +140,6 @@ Portfolio.prototype.settingsBtn = async function (container) {
         if (this.portfolioDiv) {
             this.portfolioDiv.remove();
             backToSearchDiv.remove();
-            this.searchClass.updateBalance(this.searchClass.setSearchBox());
             this.searchClass.createSearchBox();
         }
     });
