@@ -45,8 +45,10 @@ function DetectMode(container, callback) {
     this.detect = function () {
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             this.darkMode('dark');
+            document.cookie = "theme=dark; path=/";
         } else {
             this.lightMode('light');
+            document.cookie = "theme=light; path=/";
         }
     }
 }

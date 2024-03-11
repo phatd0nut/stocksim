@@ -1,9 +1,10 @@
 // Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
-function Search(goBack, previous) {
+function Search(goBack, previous, settings, charts, portfolio) {
   this.previous = previous;
-  this.charts = null;
-  this.portfolio = null;
-  this.settings = null;
+  this.charts = charts;
+  this.portfolio = portfolio;
+  this.portfolio.initSearchClass(this);
+  this.settings = settings;
   var apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
   var parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
   var stockPrice = new StockPrice(); // Instans för aktiepris.
@@ -39,8 +40,7 @@ function Search(goBack, previous) {
 
   // Funktion för att skapa sökrutan och visa saldo.
   this.createSearchBox = function () {
-    this.searchBox = document.createElement('div');
-    this.searchBox.className = 'searchBox';
+    this.searchBox = this.setSearchBox();
     parentContainer.appendChild(this.searchBox);
 
     this.h2 = document.createElement('h2');
@@ -48,15 +48,7 @@ function Search(goBack, previous) {
     this.h2.className = 'h2search';
     this.searchBox.appendChild(this.h2);
 
-    this.balanceText = document.createElement('p');
-    this.balanceText.className = 'searchBalance';
-    this.updateBalance = function () {
-      // Uppdatera saldo och visa det i sökrutan med hjälp av portföljobjektet (se Portfolio.js).
-      this.balance = this.portfolio.getBalance();
-      this.balanceText.innerHTML = 'Ditt saldo: <b>' + this.balance + '$</b>';
-    }
-    this.searchBox.appendChild(this.balanceText);
-    this.updateBalance();
+    this.updateBalance(this.searchBox);
 
     this.searchStockInput = document.createElement('input');
     this.searchStockInput.type = 'text';
@@ -65,8 +57,8 @@ function Search(goBack, previous) {
     this.searchStockInput.name = 'searchStockInput';
     this.searchBox.appendChild(this.searchStockInput);
 
-    //Skapa portföljikonen och lägg till den på söksidan
-    this.settings.addPortfolioIcon(this.searchBox); // Skapa portföljikonen och lägg till den i appen (se Settings.js).
+    //Skapa portföljikonen och lägg till den på söksidan    
+    this.settings.addPortfolioIcon(this.searchBox); // Skapa portföljikonen och lägg till den i appen (se Settings.js).;
     this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
 
     // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
@@ -167,6 +159,25 @@ function Search(goBack, previous) {
     });
     this.return();
   }
+
+  this.setSearchBox = function () {
+    this.searchBoxDiv = document.createElement('div');
+    this.searchBoxDiv.className = 'searchBox';
+    return this.searchBoxDiv;
+  };
+
+  this.updateBalance = function (searchBox) {
+    // Update balance and display it in the search box using the portfolio object (see Portfolio.js).
+    this.searchBox = searchBox; // Use the existing searchBox if no new one is provided
+    this.balance = this.portfolio.getBalance();
+
+    if (!this.balanceText) {
+      this.balanceText = document.createElement('p');
+      this.balanceText.className = 'searchBalance';
+      this.searchBox.appendChild(this.balanceText);
+    }
+    this.balanceText.innerHTML = 'Saldo: <b>' + this.balance + ' USD$</b>';
+  };
 
   // Funktion för att skapa knappar för köp och knapp för att gå till aktiesidan.
   this.createButtons = (name, symbol, apiKey) => {
@@ -539,7 +550,7 @@ function Search(goBack, previous) {
         this.portfolio.addStock(stockObj); // Lägg till aktien i portföljen (se Portfolio.js).
         stockObj.startUpdatingClosingPrice(); // Starta uppdatering av stängningspriset för aktien.
 
-        this.updateBalance(); // Uppdatera saldo och visa det i sökrutan.
+        this.updateBalance(this.setSearchBox()); // Uppdatera saldo och visa det i sökrutan.
         stockPage.checkIfStockExistsInPortfolio(symbol); // Kontrollera om aktien redan finns i portföljen och uppdatera portföljen med köpet (se StockPage.js).
       });
     };

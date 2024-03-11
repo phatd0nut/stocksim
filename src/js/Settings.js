@@ -6,7 +6,8 @@ function Settings(parent, detectMode) {
     parent.appendChild(overlay);
     var settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm; // Deklarerar variabler för att använda i metoder nedan. Dessa variabler används för att representera ikoner i appen.
 
-    // Skapar portföljikonen
+    this.createIcons = function () {
+        // Skapar portföljikonen
     portfolioIconElm = document.createElement('img');
     portfolioIconElm.src = '../src/img/portfolio_icon1.png';
     portfolioIconElm.id = 'portfolioIcon';
@@ -32,6 +33,7 @@ function Settings(parent, detectMode) {
     closeSettingsIconElm.src = '../src/img/close_icon_1.png';
     closeSettingsIconElm.id = 'closeSettingsIcon';
     closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
+    }
 
     this.getCookie = function (name) {
         var nameEQ = name + "=";
@@ -58,9 +60,10 @@ function Settings(parent, detectMode) {
         // Update icons based on the loaded theme
         mode.updateIcons(theme);
     }
-    
-    // Call the detect method after loading the theme from the cookie
+
+    this.createIcons();
     this.loadThemeFromCookie();
+
 
     // Metod för att skapa portföljikonen och lägga till den i appen.
     this.addPortfolioIcon = function (parentCont) {
@@ -140,10 +143,32 @@ function Settings(parent, detectMode) {
         clearCookies.addEventListener('click', () => {
             var cookies = document.cookie.split("; ");
             for (var i = 0; i < cookies.length; i++) {
+                overlay.style.zIndex = '3';
                 var cookie = cookies[i];
                 var eqPos = cookie.indexOf("=");
                 var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
                 document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+
+                var clearCookieMessage = document.createElement('p');
+                clearCookieMessage.innerHTML = 'Vänta medan din användare rensas...';
+                clearCookieMessage.id = 'clearCookiesMessage';
+
+                var clearCookiesGif = document.createElement('img');
+                clearCookiesGif.src = '../src/img/sedel_1.gif';
+                clearCookiesGif.id = 'clearCookiesGif';
+
+                var div = document.createElement('div');
+                div.id = 'clearCookiesDiv';
+                div.appendChild(clearCookieMessage);
+                div.appendChild(clearCookiesGif);
+                div.style.zIndex = '4';
+
+                settingsBar.appendChild(div);
+
+                setTimeout(() => {
+                    href = window;
+                    href.location.reload();
+                }, 3000);
             }
         });
 

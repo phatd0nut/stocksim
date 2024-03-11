@@ -3,9 +3,9 @@ function User(name, parent, settings, goBack, previous) {
   this.settings = settings; // Settings objektet som skickas in från StockApp.js.
   this.name = name; // Användarens namn som skickas in från main.js.
   this.balance = 0;
-  var portfolio = new Portfolio(this.settings, parent);
   var charts = new Charts();
-  var search = new Search(goBack, this);
+  var portfolio = new Portfolio(this.settings, parent);
+  var search = new Search(goBack, this, this.settings, charts, portfolio);
   this.previous = previous;
 
   this.initSearch = function () {
@@ -14,12 +14,6 @@ function User(name, parent, settings, goBack, previous) {
     search.setSettings(this.settings);
   }
 
-  // Om användarens namn finns, visa portföljen
-  if (this.name) {
-    portfolio.showPortfolio(parent); // Du behöver ange rätt container här
-  }
-
-  // Kollar om användaren redan har en cookie med sitt namn och budget. Om användaren har en cookie så sätts användarens namn och budget till det värdet som finns i cookien.
   this.setCookies = function () {
     document.cookie = `username=${this.name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
     document.cookie = `balance=${this.balance}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
@@ -32,6 +26,11 @@ function User(name, parent, settings, goBack, previous) {
   this.userInterface = function (recreateSearchBox = true) {
     if (!this.setupDiv.parentNode) {
       parent.appendChild(this.setupDiv);
+    }
+
+    // Om användarens namn finns, visa portföljen
+    if (this.name) {
+      portfolio.showPortfolio(parent); // Du behöver ange rätt container här
     }
 
     this.return();

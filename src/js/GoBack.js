@@ -10,7 +10,6 @@ function GoBack(parentContainer) {
     this.goBack.innerHTML = 'Tillbaka';
 
     this.createGoBack = function (current, method, element, ...args) {
-        console.log('createGoBack called');
         // Append the goBack element to the parent container
         this.parentContainer.appendChild(this.goBack);
 
@@ -53,7 +52,6 @@ function GoBack(parentContainer) {
 
             // Add the current page to the history stack
             this.history.push({ page: current, method: method, element: element, args: args });
-            console.log('History:', this.history);
         });
     };
 }

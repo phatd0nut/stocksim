@@ -7,7 +7,12 @@ function Portfolio(settings, parent) {
     this.isMsgVisible = false; // Flag to check if the no stock message is visible
     this.fadeTimeout = null; // Timeout for the fade-out animation
     this.balance = 0; // Add this line to initialize the balance
-}
+};
+
+Portfolio.prototype.initSearchClass = function (searchClass) {
+    this.searchClass = searchClass;
+    console.log(this.searchClass);
+};
 
 // Metod för att hämta aktier som ägs av användaren från portföljen (stocks) arrayen.
 Portfolio.prototype.getOwnedStocks = function () {
@@ -39,6 +44,12 @@ Portfolio.prototype.addStock = function (stock) {
 
     // Update the balance
     this.updateBalance(stock);
+
+    // Save a cookie for the stock without an expiration date
+    document.cookie = `${stock.symbol}=${JSON.stringify(stock)};path=/`;
+
+    // Save the entire stocks array as a cookie
+    document.cookie = `stocks=${JSON.stringify(this.stocks)};path=/`;
 };
 
 Portfolio.prototype.calculateTotalInvestedOverTime = function () {
@@ -84,12 +95,79 @@ Portfolio.prototype.displayChart = function () {
     // Code to generate and display the chart
 };
 
+Portfolio.prototype.getCookie = function (name) {
+    var cookieArr = document.cookie.split(";");
+    for (var i = 0; i < cookieArr.length; i++) {
+        var cookiePair = cookieArr[i].split("=");
+        if (name == cookiePair[0].trim()) {
+            return decodeURIComponent(cookiePair[1]);
+        }
+    }
+    return null;
+}
+
+Portfolio.prototype.removeVisibleDivs = function () {
+    var classes = ['setupDiv', 'searchBox', 'createUserDiv', 'searchBox'];
+    classes.forEach((className) => {
+        var elements = document.querySelectorAll('.' + className);
+        elements.forEach((element) => {
+            element.remove();
+        });
+    });
+};
+
+Portfolio.prototype.settingsBtn = async function (container) {
+    await this.settings.loadThemeFromCookie();
+    this.settings.createIcons();
+    this.settings.settingsIcon();
+    this.settings.getSettingsIconElm();
+
+    var backToSearchDiv = document.createElement('div');
+    backToSearchDiv.id = 'backToSearchDiv';
+    container.appendChild(backToSearchDiv);
+
+    var backToSearchIcon = document.createElement('img');
+    backToSearchIcon.src = '../src/img/search_1.png';
+    backToSearchIcon.id = 'backToSearchIcon';
+    backToSearchDiv.appendChild(backToSearchIcon);
+
+    var backToSearchP = document.createElement('p');
+    backToSearchP.id = 'backToSearchP';
+    backToSearchP.textContent = 'Sök aktier';
+    backToSearchDiv.appendChild(backToSearchP);
+
+    backToSearchDiv.addEventListener('click', () => {
+        this.settings.removeIcons();
+        if (this.portfolioDiv) {
+            this.portfolioDiv.remove();
+            backToSearchDiv.remove();
+            this.searchClass.updateBalance(this.searchClass.setSearchBox());
+            this.searchClass.createSearchBox();
+        }
+    });
+};
+
+
 // Method to display the portfolio
 Portfolio.prototype.showPortfolio = function (container, previousReference, goBack, previous) {
-    // Check if the user has any stocks in the portfolio
-    if (this.stocks.length > 0) {
-        // Remove the container
-        container.remove();
+    // Check if the user has any stocks in the portfolio or in the cookies
+    var stocksInCookies = this.getCookie('stocks');
+    if (this.stocks.length > 0 || (stocksInCookies && JSON.parse(stocksInCookies).length > 0)) {
+        if (stocksInCookies) {
+            var stocksFromCookies = JSON.parse(stocksInCookies);
+            // Merge this.stocks and stocksFromCookies
+            var mergedStocks = this.stocks.concat(stocksFromCookies);
+            // Filter out duplicates
+            this.stocks = mergedStocks.filter((stock, index, self) =>
+                index === self.findIndex((t) => (
+                    t.symbol === stock.symbol
+                ))
+            );
+        }
+
+        // Remove visible elements
+        this.removeVisibleDivs();
+        this.settingsBtn(container, previous);
 
         // Create a new div for the portfolio
         this.portfolioDiv = document.createElement('div');
@@ -208,12 +286,20 @@ Portfolio.prototype.manageMessageVisibility = function (container) {
         this.noStockMsg = document.createElement('p');
         this.noStockMsg.id = 'noStockMsg';
         this.noStockMsg.innerHTML = 'Du måste äga aktier innan portföljen kan visas!';
-        container.appendChild(this.noStockMsg);
-        this.fadeInAndOut();
-    } else {
+        
+        // Kontrollera om container är definierad innan du använder appendChild
+        if (container) {
+            container.appendChild(this.noStockMsg);
+        }
+    }
+
+    // Kontrollera om fadeInAndOut redan körs eller inte
+    if (!this.animationInProgress) {
         this.fadeInAndOut();
     }
 };
+
+
 // Metod för att visa meddelandet om inga aktier med en fade-in och fade-out-effekt
 Portfolio.prototype.fadeInAndOut = function () {
     if (this.animationInProgress) {
@@ -221,13 +307,6 @@ Portfolio.prototype.fadeInAndOut = function () {
     }
 
     this.animationInProgress = true; // Sätter flaggan till true för att indikera att en animation pågår
-
-    if (!this.noStockMsg) {
-        this.noStockMsg = document.createElement('p');
-        this.noStockMsg.id = 'noStockMsg';
-        this.noStockMsg.innerHTML = 'Du måste äga aktier innan portföljen kan visas!';
-        container.appendChild(this.noStockMsg);
-    }
 
     // Trigga en reflow för att starta en ny animation. En reflow är en process där webbläsaren beräknar layouten för elementen på sidan för att uppdatera dem, och därmed starta en ny CSS-animation.
     this.noStockMsg.offsetWidth;
@@ -271,6 +350,8 @@ Portfolio.prototype.updateBalance = function (newStock) {
 
     // Round the final result to 2 decimal places
     this.balance = parseFloat(this.balance.toFixed(2));
+
+    document.cookie = `balance=${this.balance};path=/`;  // Save the balance as a cookie
 };
 
 // Method to set the balance
@@ -280,20 +361,30 @@ Portfolio.prototype.setBalance = function (balance) {
 
 // Method to get the balance
 Portfolio.prototype.getBalance = function () {
-    return this.balance;
+    // Try to retrieve the balance from the cookie
+    var balanceFromCookie = parseFloat(this.getCookie('balance'));
+
+    // If the balance is not found in the cookie, return the current balance
+    if (isNaN(balanceFromCookie)) {
+        return this.balance;
+    }
+
+    return balanceFromCookie;
 };
 
 Portfolio.prototype.return = function (previous, previousReference, goBack) {
-    console.log(previous.apiKey);
     if (previousReference === 'search') {
-        goBack.createGoBack(previous, 'createSearchBox', this.portfolioDiv);
+        goBack.createGoBack(previous, 'createSearchBox', this.portfolioDiv).then(() => {
+            // The Promise has resolved, so the new page has been created
+            // Now you can prepare the chart
+            var settingsIcon = document.querySelector('#settingsIcon');
+            settingsIcon.remove();
+        });
     } else if (previousReference === 'stockPage') {
         goBack.createGoBack(previous, 'createStockPage', this.portfolioDiv, previous.name, previous.symbol).then(() => {
             // The Promise has resolved, so the new page has been created
-            // Now you can prepare the chart if the function exists
-            if (typeof previous.prepareChart === 'function') {
-                previous.prepareChart(previous.symbol, previous.apiKey, 'week');
-            }
+            // Now you can prepare the chart
+            previous.prepareChart(previous.symbol, previous.apiKey, 'week');
         });
     }
 };
