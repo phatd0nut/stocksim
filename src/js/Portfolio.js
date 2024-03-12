@@ -11,7 +11,6 @@ function Portfolio(parent, settings) {
 
 Portfolio.prototype.initSearchClass = function (searchClass) {
     this.searchClass = searchClass;
-    console.log(this.searchClass);
     return this.searchClass;
 };
 
@@ -108,20 +107,22 @@ Portfolio.prototype.getCookie = function (name) {
 }
 
 Portfolio.prototype.removeVisibleDivs = function () {
-    var classes = ['setupDiv', 'searchBox', 'createUserDiv', 'searchBox'];
+
+    var classes = ['.setupDiv', '.searchBox', '.createUserDiv', '.stockPage'];
+    var elements = [];
     classes.forEach((className) => {
-        var elements = document.querySelectorAll('.' + className);
-        elements.forEach((element) => {
-            element.remove();
-        });
+        var element = document.querySelector(className);
+        if (element) {
+            elements.push(element);
+        }
+    });
+    elements.forEach((element) => {
+        element.remove();
     });
 };
 
-Portfolio.prototype.settingsBtn = async function (container) {
+Portfolio.prototype.returnBtn = async function (container) {
     await this.settings.loadThemeFromCookie();
-    this.settings.createIcons();
-    this.settings.settingsIcon();
-    this.settings.getSettingsIconElm();
 
     var backToSearchDiv = document.createElement('div');
     backToSearchDiv.id = 'backToSearchDiv';
@@ -143,14 +144,13 @@ Portfolio.prototype.settingsBtn = async function (container) {
             this.portfolioDiv.remove();
             backToSearchDiv.remove();
             this.searchClass.createSearchBox();
-             this.searchClass.setSearchBox();
         }
     });
 };
 
 
 // Method to display the portfolio
-Portfolio.prototype.showPortfolio = function (container) {
+Portfolio.prototype.showPortfolio = function () {
     // Check if the user has any stocks in the portfolio or in the cookies
     var stocksInCookies = this.getCookie('stocks');
     if (this.stocks.length > 0 || (stocksInCookies && JSON.parse(stocksInCookies).length > 0)) {
@@ -172,11 +172,12 @@ Portfolio.prototype.showPortfolio = function (container) {
             this.portfolioDiv.className = 'portfolioDiv';
             // Remove visible elements
             this.removeVisibleDivs();
-            this.settingsBtn(this.portfolioDiv);
-        }  else {
+            this.returnBtn(this.portfolioDiv);
+        } else {
             // Clear the previous content
+            this.removeVisibleDivs();
             this.portfolioDiv.innerHTML = '';
-            this.settingsBtn(this.portfolioDiv);
+            this.returnBtn(this.portfolioDiv);
         }
 
         // Calculate total invested and number of different stocks
@@ -279,9 +280,7 @@ Portfolio.prototype.showPortfolio = function (container) {
         // Append the portfolio div to the parent
         this.parent.appendChild(this.portfolioDiv);
     } else {
-        if (this.balance > 0) {
-            this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
-        }
+        return
     }
 };
 
@@ -336,28 +335,32 @@ Portfolio.prototype.showInvestedMoney = function () {
 
 // Method to update the balance after a stock purchase
 Portfolio.prototype.updateBalance = function (newStock) {
+    // Read the balance from cookies
+    this.balance = parseFloat(document.cookie.replace(/(?:(?:^|.*;\s*)balance\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
+  
     // If newStock is not defined, return the current balance
     if (!newStock) {
-        return this.balance;
+      return this.balance;
     }
-
+  
     // Calculate the amount spent on the new stock
     var spentOnNewStock = parseFloat(newStock.price * newStock.quantity);
-
+  
     // Check if the balance will go negative
     if (this.balance - spentOnNewStock < 0) {
-        alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
-        return;
+      alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
+      return;
     }
-
+  
     // Subtract the amount spent on the new stock from the balance
     this.balance -= spentOnNewStock;
-
+  
     // Round the final result to 2 decimal places
     this.balance = parseFloat(this.balance.toFixed(2));
-
-    document.cookie = `balance=${this.balance};path=/`;  // Save the balance as a cookie
-};
+  
+    // Save the updated balance as a cookie
+    document.cookie = `balance=${this.balance};path=/`;
+  };
 
 // Method to set the balance
 Portfolio.prototype.setBalance = function (balance) {

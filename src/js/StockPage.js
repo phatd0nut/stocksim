@@ -1,4 +1,5 @@
-function StockPage(parent, stockPrice, settings) {
+function StockPage(parent, stockPrice, settings, searchClass) {
+    this.searchClass = searchClass;
     this.stockPrice = stockPrice;
     this.parent = parent;
     this.settings = settings;
@@ -8,16 +9,10 @@ function StockPage(parent, stockPrice, settings) {
 
     this.setCharts = function (charts) {
         this.charts = charts;
-        console.log(this.charts);
     }
 
     this.setPortfolio = function (portfolio) {
         this.portfolio = portfolio;
-    }
-
-    this.setSearchClass = function (searchClass) {
-        this.searchClass = searchClass;
-        console.log(this.searchClass);
     }
 
     this.createStockPage = function (name, symbol) {
@@ -100,7 +95,6 @@ function StockPage(parent, stockPrice, settings) {
     }
 
     this.stockBtns = function (name, symbol) {
-        console.log(this.settings);
         this.changeTimeFrameDiv = document.createElement('div');
         this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
         this.stockPage.appendChild(this.changeTimeFrameDiv);
@@ -139,20 +133,9 @@ function StockPage(parent, stockPrice, settings) {
         this.stockPage.appendChild(this.buyStockButton);
 
         this.buyStockButton.addEventListener('click', () => {
-            console.log('Buy stock button clicked');
             console.log(this.searchClass);
             this.stockPage.style.display = 'none'; // Hide StockPage
             this.searchClass.createBuyDiv(name, symbol);
-        });
-
-        // Skapar en portföljikon och lägger till den på aktiesidan
-        this.settings.addPortfolioIcon(this.stockPage);
-        this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
-
-        // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
-        this.portfolioIconDiv.addEventListener('click', () => {
-            this.stockPage.remove();
-            this.portfolio.showPortfolio(this.stockPage);
         });
     }
 
@@ -166,14 +149,5 @@ function StockPage(parent, stockPrice, settings) {
 
     this.getSearchClass = function () {
         return this.searchClass;
-        console.log(this.searchClass);
     }
-
-    // this.getSettings = function () {
-    //     return this.settings;
-    // }
-
-    // this.setSettings = function (settings) {
-    //     this.settings = settings;
-    // }
 }

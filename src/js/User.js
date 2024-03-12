@@ -23,10 +23,6 @@ function User(name, parent, settings, portfolio, searchClass) {
       parent.appendChild(this.setupDiv);
     }
 
-    if (!this.setupDiv.parentNode) {
-      parent.appendChild(this.setupDiv);
-    }
-
     this.h2UserName = document.createElement('h2');
     this.h2UserName.innerHTML = 'Hej ' + this.name + '!';
     this.h2UserName.className = 'h2UserName';

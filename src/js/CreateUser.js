@@ -13,14 +13,13 @@ function CreateUser(container, settings) {
     if (document.cookie.includes('username') && document.cookie.includes('stocks')) {
       this.portfolio.showPortfolio(this.parentContainer); // Du behöver ange rätt container här
     } else {
-
       this.createUserDiv = document.createElement('div');
       this.createUserDiv.className = 'createUserDiv';
-
-      if (!this.parentContainer.contains(this.settings.getSettingsIconElm())) {
-        this.parentContainer.appendChild(this.settings.getSettingsIconElm());
-      }
-      this.parentContainer.insertBefore(this.createUserDiv, this.settings.getSettingsIconElm());
+      this.parentContainer.appendChild(this.createUserDiv);
+      this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
+      this.portfolioIconDiv.addEventListener('click', () => {
+        this.portfolio.manageMessageVisibility(this.parentContainer);
+      });
 
       this.h2 = document.createElement('h2');
       this.h2.innerHTML = 'Fyll i ditt namn för att fortsätta';
@@ -46,7 +45,6 @@ function CreateUser(container, settings) {
           var createNewU = new User(name, this.parentContainer, this.settings, this.portfolio, this.search);
           createNewU.initSearch();
           document.cookie = `username=${name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`; // Spara namnet i en cookie
-          this.settings.removeIcons();
           this.createUserDiv.remove();
           createNewU.userInterface();
         }

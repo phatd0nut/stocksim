@@ -8,7 +8,9 @@ function Search(settings, charts) {
   var searchValue; // Söksträng.
   var symbol; // Aktiesymbol.
   var currentStockPrice; // Aktiepris.
-  var stockPage = new StockPage(parentContainer, stockPrice, settings); // Instans för sida med aktieinformation med aktiepris, diagramdata, sökobjekt, inställningsobjekt och portföljobjekt som argument.
+  var stockPage = new StockPage(parentContainer, stockPrice, settings, this); // Instans för sida med aktieinformation med aktiepris, diagramdata, sökobjekt, inställningsobjekt och portföljobjekt som argument.
+  var messageTimeout = null; // Variabel för att hantera timeout på förslagsmeddelande.
+  var debounceTimeout = null; // Variabel för att hantera debounce på sökning.
 
   var startDateSearch = new Date(); // Instans av Date-objekt för att sätta startdatum för sökningen.
   this.startDateSearchStr = startDateSearch.toISOString().split('T')[0]; // Sätter startdatum för sökningen till dagens datum.
@@ -36,7 +38,6 @@ function Search(settings, charts) {
   }
 
   this.setCharts = function () {
-    console.log(this.charts);
     stockPage.setCharts(this.charts);
   }
   this.setCharts();
@@ -47,20 +48,21 @@ function Search(settings, charts) {
   }
 
   this.setThis = function () {
-    stockPage.setSearchClass(this);
     this.portfolio.initSearchClass(this);
   }
 
   this.setSearchBox = function () {
+    if (this.balanceText && !document.body.contains(this.balanceText)) {
+      this.balanceText = null;
+    }
+
     this.searchBoxDiv = document.createElement('div');
     this.searchBoxDiv.className = 'searchBox';
 
     this.updateBalance();
     return this.searchBoxDiv;
   };
-
   this.updateBalance = function () {
-    console.trace();
     this.balance = this.portfolio.getBalance();
 
     if (!this.balanceText) {
@@ -69,12 +71,17 @@ function Search(settings, charts) {
       this.searchBoxDiv.appendChild(this.balanceText); // Use the stored reference
     }
     this.balanceText.innerHTML = 'Saldo: <b>' + this.balance + ' USD$</b>';
-
-    console.log(this.balanceText);
   };
 
   // Funktion för att skapa sökrutan och visa saldo.
   this.createSearchBox = function () {
+    // Rensa befintliga timeouts
+    if (messageTimeout) {
+      clearTimeout(messageTimeout);
+    }
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
     this.searchBox = this.setSearchBox();
     parentContainer.appendChild(this.searchBox);
 
@@ -90,21 +97,24 @@ function Search(settings, charts) {
     this.searchStockInput.name = 'searchStockInput';
     this.searchBox.appendChild(this.searchStockInput);
 
-    //Skapa portföljikonen och lägg till den på söksidan    
-    this.settings.addPortfolioIcon(this.searchBox); // Skapa portföljikonen och lägg till den i appen (se Settings.js).;
-    this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
-
-    // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
-    this.portfolioIconDiv.addEventListener('click', () => {
-      this.searchBox.remove();
-      this.portfolio.showPortfolio(parentContainer);
-    });
+    this.settingsHolder = document.querySelector('#settingsHolder');
+    if (this.settingsHolder) {
+      this.settingsHolder.innerHTML = '';
+      this.settings.initIcons();
+      this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
+      // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
+      this.portfolioIconDiv.addEventListener('click', () => {
+        if (document.cookie.includes('stocks')) {
+          this.searchBox.remove();
+          this.portfolio.showPortfolio(parentContainer);
+        } else {
+          this.portfolio.manageMessageVisibility(parentContainer);
+        }
+      });
+    }
 
     // Lägg till en flagga för att spåra om ett anrop pågår eller inte. Om ett anrop pågår, ignorera det nya anropet. Detta för att undvika överbelastning då användaren skriver in söksträngar. En hel aktielista laddas in från API:et och det kan ta tid att hämta den och om flera anrop görs samtidigt leder det till att appen låser sig.
     var isFetching = false;
-
-    var debounceTimeout; // Variabel för att hantera debounce.
-    var messageTimeout; // Variabel för att hantera meddelandets timeout. Detta används för att visa ett meddelande om vilka aktier som kan köpas om användaren inte skriver något i sökrutan.
     var messageShown = false; // Flagga för att kontrollera om meddelandet har visats.
     var messageElement; // Variabel för att skapa meddelandet.
 
@@ -121,7 +131,7 @@ function Search(settings, charts) {
         let messageElement = document.createElement('p');
         messageElement.id = 'suggestionMsg';
         messageElement.className = 'hide'; // Lägg till 'hide' klassen initialt
-        messageElement.innerHTML = 'Inga idéer om vilka aktier att köpa? Prova Microsoft eller Tesla!';
+        messageElement.innerHTML = 'Inga idéer? Prova Microsoft eller Tesla!';
 
         // Lägg till p-elementet i searchBox
         this.searchBox.appendChild(messageElement);
@@ -150,7 +160,7 @@ function Search(settings, charts) {
           if (messageElement) {
             messageElement.remove();
           }
-        }, 200); // 1000 ms är tiden det tar för meddelandet att fade ut
+        }, 200); // 200 ms är tiden det tar för meddelandet att fade ut
       }
 
       debounceTimeout = setTimeout(() => {
@@ -192,6 +202,8 @@ function Search(settings, charts) {
           .finally(() => {
             // Sätt flaggan till false när anropet är klart
             isFetching = false;
+            // Sätt overflow-y till auto när API-svaret har inkommit
+            this.searchResultsDiv.style.overflowY = 'auto';
           });
       }, 600); // 600 ms timeout för att hantera sökningen (debounce).
     });
@@ -212,7 +224,6 @@ function Search(settings, charts) {
     this.buttonsDiv.appendChild(this.buyStock);
 
     this.buyStock.addEventListener('click', () => {
-
       this.buyStockFunc(name, symbol);
     });
 

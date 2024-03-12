@@ -5,12 +5,23 @@ function Settings(parent, detectMode) {
     overlay.id = 'overlay';
     parent.appendChild(overlay);
     var settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm; // Deklarerar variabler för att använda i metoder nedan. Dessa variabler används för att representera ikoner i appen.
+    var settingsHolder = document.createElement('div');
+    settingsHolder.id = 'settingsHolder';
+    parent.appendChild(settingsHolder);
 
     this.createIcons = function () {
-        // Skapar portföljikonen
+        var portfolioIconDiv = document.createElement('div');
+        portfolioIconDiv.id = 'portfolioIconDiv';
+
+        var goToPortfolioText = document.createElement('p');
+        goToPortfolioText.innerHTML = 'Visa portfölj';
+        goToPortfolioText.id = 'goToPortfolioText';
+        portfolioIconDiv.appendChild(goToPortfolioText);
+
         portfolioIconElm = document.createElement('img');
         portfolioIconElm.src = '../src/img/portfolio_icon1.png';
         portfolioIconElm.id = 'portfolioIcon';
+        portfolioIconDiv.appendChild(portfolioIconElm);
 
         // Skapar stängningsikonen för mörkt/ljust läge och lägger till den i appen.
         closeModeIconElm = document.createElement('img');
@@ -21,11 +32,14 @@ function Settings(parent, detectMode) {
         settingsIconElm = document.createElement('img');
         settingsIconElm.src = '../src/img/settings_icon_1.png';
         settingsIconElm.id = 'settingsIcon';
-        parent.appendChild(settingsIconElm);
+        settingsHolder.appendChild(settingsIconElm);
+        settingsHolder.appendChild(portfolioIconDiv);
+        
 
         settingsIconElm.style.visibility = 'visible'; // Visar settings ikonen initialt.
         setTimeout(() => {
             settingsIconElm.classList.add('show'); // För att få en fade in effekt på settings ikonen.
+            portfolioIconDiv.classList.add('show'); // För att få en fade in effekt på portfolio ikonen.
         }, 0);
 
         // Skapar stängningsikonen för inställningsfältet och lägger till den i appen.
@@ -61,26 +75,22 @@ function Settings(parent, detectMode) {
         mode.updateIcons(theme);
     }
 
-    this.createIcons();
-    this.loadThemeFromCookie();
-
-
     // Metod för att skapa portföljikonen och lägga till den i appen.
-    this.addPortfolioIcon = function (parentCont) {
-        var portfolioIconDiv = document.createElement('div');
-        portfolioIconDiv.id = 'portfolioIconDiv';
-        parentCont.appendChild(portfolioIconDiv);
+    // this.addPortfolioIcon = function () {
+    //     var portfolioIconDiv = document.createElement('div');
+    //     portfolioIconDiv.id = 'portfolioIconDiv';
+    //     settingsHolder.appendChild(portfolioIconDiv);
 
-        var goToPortfolioText = document.createElement('p');
-        goToPortfolioText.innerHTML = 'Visa portfölj';
-        goToPortfolioText.id = 'goToPortfolioText';
-        portfolioIconDiv.appendChild(goToPortfolioText);
+    //     var goToPortfolioText = document.createElement('p');
+    //     goToPortfolioText.innerHTML = 'Visa portfölj';
+    //     goToPortfolioText.id = 'goToPortfolioText';
+    //     portfolioIconDiv.appendChild(goToPortfolioText);
 
-        portfolioIcon = document.createElement('img');
-        portfolioIcon.src = '../src/img/portfolio_icon1.png';
-        portfolioIcon.id = 'portfolioIcon';
-        portfolioIconDiv.appendChild(portfolioIconElm);
-    }
+    //     portfolioIcon = document.createElement('img');
+    //     portfolioIcon.src = '../src/img/portfolio_icon1.png';
+    //     portfolioIcon.id = 'portfolioIcon';
+    //     portfolioIconDiv.appendChild(portfolioIconElm);
+    // }
 
     mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm); // Skickar med settings ikonen och stängningsikonen för mörkt/ljust läge till detectIcons metoden i DetectMode.js för att kunna ändra ikonerna beroende på vilket tema som är satt i användarens webbläsare.
 
@@ -91,8 +101,10 @@ function Settings(parent, detectMode) {
             parent.appendChild(closeSettingsIconElm);
             overlay.style.display = 'block'; // Visa overlay när användaren klickar på settings ikonen och förhindra användaren från att klicka på andra delar av appen under tiden som settings fältet visas.
             settingsIconElm.classList.remove('show'); // Starta fade out övergång för settings ikonen.
+            portfolioIconDiv.classList.remove('show'); // Starta fade out övergång för portfolio ikonen.
             setTimeout(() => {
                 settingsIconElm.style.visibility = 'hidden';
+                portfolioIconDiv.style.visibility = 'hidden';
                 closeSettingsIconElm.style.visibility = 'visible';
                 closeSettingsIconElm.classList.add('show'); // Fade in closeSettings ikonen.
             }, 200); // Längden på övergången.
@@ -110,6 +122,8 @@ function Settings(parent, detectMode) {
                 closeSettingsIconElm.style.visibility = 'hidden';
                 settingsIconElm.style.visibility = 'visible';
                 settingsIconElm.classList.add('show'); // Fade in settings ikonen.
+                portfolioIconDiv.style.visibility = 'visible';
+                portfolioIconDiv.classList.add('show'); // Fade in portfolio ikonen.
                 closeSettingsIconElm.remove();
                 settingsBar.remove();
             }, 500); // Längden på övergången.
@@ -143,6 +157,7 @@ function Settings(parent, detectMode) {
         clearCookies.addEventListener('click', () => {
             var cookies = document.cookie.split("; ");
             for (var i = 0; i < cookies.length; i++) {
+                closeSettingsIconElm.remove();
                 overlay.style.zIndex = '3';
                 var cookie = cookies[i];
                 var eqPos = cookie.indexOf("=");
@@ -226,10 +241,23 @@ function Settings(parent, detectMode) {
     // Metod för att ta bort ikoner från appen när användaren har skapat en användare och satt budget. Metoden används av CreateUser.js klassen.
     this.removeIcons = function () {
         settingsIconElm.remove();
+        portfolioIconDiv.remove();
     }
 
     // Metod för att hämta inställningsikonerna för att kunna använda den i CreateUser.js för att appenda dem till rätt ställe i appen.
     this.getSettingsIconElm = function () {
         return settingsIconElm;
     }
+
+    this.initIcons = function () {
+        this.createIcons();
+        this.settingsIcon();
+        this.loadThemeFromCookie();
+    };
 }
+
+/*
+settingsIcon
+portfolioIconDiv
+
+*/
