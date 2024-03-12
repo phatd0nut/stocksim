@@ -1,17 +1,14 @@
 // Klass för att skapa en ny användare och sätta budget för användaren. Användarens namn och budget sätts här och används sedan i hela programmet för att visa användarens namn och budget i olika delar av programmet.
-function User(name, parent, settings, goBack, previous) {
+function User(name, parent, settings, portfolio, searchClass) {
   this.settings = settings; // Settings objektet som skickas in från StockApp.js.
   this.name = name; // Användarens namn som skickas in från main.js.
   this.balance = 0;
-  var charts = new Charts();
-  var portfolio = new Portfolio(this.settings, parent);
-  var search = new Search(goBack, this, this.settings, charts, portfolio);
-  this.previous = previous;
+  var portfolio = portfolio;
+  var search = searchClass;
 
   this.initSearch = function () {
-    search.setCharts(charts);
     search.setPortfolio(portfolio);
-    search.setSettings(this.settings);
+    search.setThis();
   }
 
   this.setCookies = function () {
@@ -19,21 +16,16 @@ function User(name, parent, settings, goBack, previous) {
     document.cookie = `balance=${this.balance}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
   }
 
-  this.setupDiv = document.createElement('div');
-  this.setupDiv.className = 'setupDiv';
-  parent.appendChild(this.setupDiv);
-
-  this.userInterface = function (recreateSearchBox = true) {
-    if (!this.setupDiv.parentNode) {
+  this.userInterface = function () {
+    if (!this.setupDiv) {
+      this.setupDiv = document.createElement('div');
+      this.setupDiv.className = 'setupDiv';
       parent.appendChild(this.setupDiv);
     }
 
-    // Om användarens namn finns, visa portföljen
-    if (this.name) {
-      portfolio.showPortfolio(parent); // Du behöver ange rätt container här
+    if (!this.setupDiv.parentNode) {
+      parent.appendChild(this.setupDiv);
     }
-
-    this.return();
 
     this.h2UserName = document.createElement('h2');
     this.h2UserName.innerHTML = 'Hej ' + this.name + '!';
@@ -85,9 +77,5 @@ function User(name, parent, settings, goBack, previous) {
         this.p.innerHTML = 'Belopp saknas eller är 0, försök igen';
       }
     });
-  }
-
-  this.return = function () {
-    goBack.createGoBack(this.previous, 'createUserBox', this.setupDiv); // Specify the unique method for User class
   }
 }

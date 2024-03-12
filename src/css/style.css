@@ -198,7 +198,6 @@ body {
 }
 
 .stockPage {
-  margin-top: 10%;
   display: flex;
   flex-direction: column;
 }
@@ -359,13 +358,18 @@ body {
 }
 
 .portfolioDiv {
+  display: flex;
+  flex-direction: column;
   position: relative;
-  top: 10%;
   width: 330px;
   padding-left: 5px;
   padding-right: 5px;
 }
 
+.portfolioDiv p {
+  margin: 0;
+  padding: 5px;
+}
 #portfolioIconDiv {
   position: fixed;
   top: 85%;
@@ -380,6 +384,12 @@ body {
   border: 1px solid #ffffff;
   border-radius: 20px;
   padding: 10px;
+}
+
+#portfolioHeader{
+  margin: 0;
+  margin-bottom: 10px;
+  padding-left: 5px;
 }
 
 #portfolioIconDiv:active {
@@ -407,6 +417,8 @@ body {
   margin-bottom: 10px;
 }
 
+
+
 .stocksDiv:nth-child(odd) {
   background-color: #79a471;
 }
@@ -414,6 +426,10 @@ body {
 .stocksDiv:nth-child(even) {
   background-color: #f9ffae;
   color: #4e594a;
+}
+
+.info1 {
+  margin-top: 10px;
 }
 
 .info1,
@@ -426,6 +442,7 @@ body {
 }
 
 .info2 {
+  margin-bottom: 10px;
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.5s ease-in-out;
@@ -457,7 +474,7 @@ body {
 
 #goBack {
   position: fixed;
-  top: 15%;
+  top: 19%;
   background-color: black;
 }
 
@@ -500,8 +517,9 @@ body {
 }
 
 #backToSearchDiv {
-  position: fixed;
-  top: 16%;
+  position: relative;
+  margin: auto;
+  margin-bottom: 30px;
   display: flex;
   align-items: center;
   flex-direction: row;

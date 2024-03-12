@@ -1,4 +1,4 @@
-function DetectMode(container, callback) {
+function DetectMode(container) {
     this.container = container;
 
     this.detectIcons = function (settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm) {
@@ -6,11 +6,6 @@ function DetectMode(container, callback) {
         this.closeModeIconElm = closeModeIconElm;
         this.closeSettingsIconElm = closeSettingsIconElm;
         this.portfolioIconElm = portfolioIconElm;
-
-        // Call the callback to indicate that the icons are ready
-        if (typeof callback === 'function') {
-            callback();
-        }
     }
 
     this.updateIcons = function (theme) {
@@ -43,7 +38,15 @@ function DetectMode(container, callback) {
     }
 
     this.detect = function () {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        var themeCookie = document.cookie.split('; ').find(row => row.startsWith('theme='));
+        if (themeCookie) {
+            var theme = themeCookie.split('=')[1];
+            if (theme === 'dark') {
+                this.darkMode('dark');
+            } else {
+                this.lightMode('light');
+            }
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             this.darkMode('dark');
             document.cookie = "theme=dark; path=/";
         } else {

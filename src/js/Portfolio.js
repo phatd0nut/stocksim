@@ -1,4 +1,4 @@
-function Portfolio(settings, parent) {
+function Portfolio(parent, settings) {
     this.settings = settings; // Settingsobjektet som skickas in från User.js
     this.parent = parent; // Referens till förälder containern (.container) som skickas in från User.js
     this.stocks = []; // Array to hold the stocks
@@ -11,6 +11,8 @@ function Portfolio(settings, parent) {
 
 Portfolio.prototype.initSearchClass = function (searchClass) {
     this.searchClass = searchClass;
+    console.log(this.searchClass);
+    return this.searchClass;
 };
 
 // Metod för att hämta aktier som ägs av användaren från portföljen (stocks) arrayen.
@@ -123,7 +125,7 @@ Portfolio.prototype.settingsBtn = async function (container) {
 
     var backToSearchDiv = document.createElement('div');
     backToSearchDiv.id = 'backToSearchDiv';
-    container.appendChild(backToSearchDiv);
+    container.insertBefore(backToSearchDiv, container.firstChild);
 
     var backToSearchIcon = document.createElement('img');
     backToSearchIcon.src = '../src/img/search_1.png';
@@ -141,13 +143,14 @@ Portfolio.prototype.settingsBtn = async function (container) {
             this.portfolioDiv.remove();
             backToSearchDiv.remove();
             this.searchClass.createSearchBox();
+             this.searchClass.setSearchBox();
         }
     });
 };
 
 
 // Method to display the portfolio
-Portfolio.prototype.showPortfolio = function (container, previousReference, goBack, previous) {
+Portfolio.prototype.showPortfolio = function (container) {
     // Check if the user has any stocks in the portfolio or in the cookies
     var stocksInCookies = this.getCookie('stocks');
     if (this.stocks.length > 0 || (stocksInCookies && JSON.parse(stocksInCookies).length > 0)) {
@@ -163,13 +166,18 @@ Portfolio.prototype.showPortfolio = function (container, previousReference, goBa
             );
         }
 
-        // Remove visible elements
-        this.removeVisibleDivs();
-        this.settingsBtn(container, previous);
-
-        // Create a new div for the portfolio
-        this.portfolioDiv = document.createElement('div');
-        this.portfolioDiv.className = 'portfolioDiv';
+        // Create a new div for the portfolio if it doesn't exist
+        if (!this.portfolioDiv) {
+            this.portfolioDiv = document.createElement('div');
+            this.portfolioDiv.className = 'portfolioDiv';
+            // Remove visible elements
+            this.removeVisibleDivs();
+            this.settingsBtn(this.portfolioDiv);
+        }  else {
+            // Clear the previous content
+            this.portfolioDiv.innerHTML = '';
+            this.settingsBtn(this.portfolioDiv);
+        }
 
         // Calculate total invested and number of different stocks
         this.totalInvested = this.stocks.reduce((total, stock) => total + stock.amountInvested, 0);
@@ -270,7 +278,6 @@ Portfolio.prototype.showPortfolio = function (container, previousReference, goBa
 
         // Append the portfolio div to the parent
         this.parent.appendChild(this.portfolioDiv);
-        this.return(previous, previousReference, goBack);
     } else {
         if (this.balance > 0) {
             this.manageMessageVisibility(container); // Visa meddelande om portföljen är tom
@@ -284,7 +291,7 @@ Portfolio.prototype.manageMessageVisibility = function (container) {
         this.noStockMsg = document.createElement('p');
         this.noStockMsg.id = 'noStockMsg';
         this.noStockMsg.innerHTML = 'Du måste äga aktier innan portföljen kan visas!';
-        
+
         // Kontrollera om container är definierad innan du använder appendChild
         if (container) {
             container.appendChild(this.noStockMsg);
@@ -368,21 +375,4 @@ Portfolio.prototype.getBalance = function () {
     }
 
     return balanceFromCookie;
-};
-
-Portfolio.prototype.return = function (previous, previousReference, goBack) {
-    if (previousReference === 'search') {
-        goBack.createGoBack(previous, 'createSearchBox', this.portfolioDiv).then(() => {
-            // The Promise has resolved, so the new page has been created
-            // Now you can prepare the chart
-            var settingsIcon = document.querySelector('#settingsIcon');
-            settingsIcon.remove();
-        });
-    } else if (previousReference === 'stockPage') {
-        goBack.createGoBack(previous, 'createStockPage', this.portfolioDiv, previous.name, previous.symbol).then(() => {
-            // The Promise has resolved, so the new page has been created
-            // Now you can prepare the chart
-            previous.prepareChart(previous.symbol, previous.apiKey, 'week');
-        });
-    }
 };

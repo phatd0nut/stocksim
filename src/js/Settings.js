@@ -8,31 +8,31 @@ function Settings(parent, detectMode) {
 
     this.createIcons = function () {
         // Skapar portföljikonen
-    portfolioIconElm = document.createElement('img');
-    portfolioIconElm.src = '../src/img/portfolio_icon1.png';
-    portfolioIconElm.id = 'portfolioIcon';
+        portfolioIconElm = document.createElement('img');
+        portfolioIconElm.src = '../src/img/portfolio_icon1.png';
+        portfolioIconElm.id = 'portfolioIcon';
 
-    // Skapar stängningsikonen för mörkt/ljust läge och lägger till den i appen.
-    closeModeIconElm = document.createElement('img');
-    closeModeIconElm.src = '../src/img/close_icon_1.png';
-    closeModeIconElm.id = 'closeModeIcon';
+        // Skapar stängningsikonen för mörkt/ljust läge och lägger till den i appen.
+        closeModeIconElm = document.createElement('img');
+        closeModeIconElm.src = '../src/img/close_icon_1.png';
+        closeModeIconElm.id = 'closeModeIcon';
 
-    // Skapar inställningsikonen och lägger till den i appen.
-    settingsIconElm = document.createElement('img');
-    settingsIconElm.src = '../src/img/settings_icon_1.png';
-    settingsIconElm.id = 'settingsIcon';
-    parent.appendChild(settingsIconElm);
+        // Skapar inställningsikonen och lägger till den i appen.
+        settingsIconElm = document.createElement('img');
+        settingsIconElm.src = '../src/img/settings_icon_1.png';
+        settingsIconElm.id = 'settingsIcon';
+        parent.appendChild(settingsIconElm);
 
-    settingsIconElm.style.visibility = 'visible'; // Visar settings ikonen initialt.
-    setTimeout(() => {
-        settingsIconElm.classList.add('show'); // För att få en fade in effekt på settings ikonen.
-    }, 0);
+        settingsIconElm.style.visibility = 'visible'; // Visar settings ikonen initialt.
+        setTimeout(() => {
+            settingsIconElm.classList.add('show'); // För att få en fade in effekt på settings ikonen.
+        }, 0);
 
-    // Skapar stängningsikonen för inställningsfältet och lägger till den i appen.
-    closeSettingsIconElm = document.createElement('img');
-    closeSettingsIconElm.src = '../src/img/close_icon_1.png';
-    closeSettingsIconElm.id = 'closeSettingsIcon';
-    closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
+        // Skapar stängningsikonen för inställningsfältet och lägger till den i appen.
+        closeSettingsIconElm = document.createElement('img');
+        closeSettingsIconElm.src = '../src/img/close_icon_1.png';
+        closeSettingsIconElm.id = 'closeSettingsIcon';
+        closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
     }
 
     this.getCookie = function (name) {
@@ -45,7 +45,7 @@ function Settings(parent, detectMode) {
         }
         return null;
     }
-    
+
     // Lägg till denna metod för att läsa in temat från cookien när en instans av klassen skapas
     this.loadThemeFromCookie = function () {
         var theme = this.getCookie("theme");
@@ -56,7 +56,7 @@ function Settings(parent, detectMode) {
         } else if (theme == "dark") {
             mode.darkMode(theme);
         }
-    
+
         // Update icons based on the loaded theme
         mode.updateIcons(theme);
     }

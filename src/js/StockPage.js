@@ -1,12 +1,24 @@
-function StockPage(parent, stockPrice, searchClass, goBack) {
+function StockPage(parent, stockPrice, settings) {
     this.stockPrice = stockPrice;
     this.parent = parent;
-    this.searchClass = searchClass; // Referens till Search-klassen (Previous för GoBack-klassen)
-    this.settings = null;
-    this.portfolio = null;
+    this.settings = settings;
     this.name = null;
     this.symbol = null;
     this.apiKey = null,
+
+    this.setCharts = function (charts) {
+        this.charts = charts;
+        console.log(this.charts);
+    }
+
+    this.setPortfolio = function (portfolio) {
+        this.portfolio = portfolio;
+    }
+
+    this.setSearchClass = function (searchClass) {
+        this.searchClass = searchClass;
+        console.log(this.searchClass);
+    }
 
     this.createStockPage = function (name, symbol) {
         this.name = name;
@@ -35,12 +47,12 @@ function StockPage(parent, stockPrice, searchClass, goBack) {
 
         this.charts.stockChartSetters(this.stockPrice, this.stockPriceP, this.stockChart);
         this.stockBtns(name, symbol);
-        this.return();
     }
 
     // Kollar om aktien finns i portföljen och skapar en div för att visa aktier som ägs av användaren.
     this.checkIfStockExistsInPortfolio = function (symbol) {
-        this.ownedStocks = this.searchClass.portfolio.getOwnedStocks();
+        this.portfolio = this.getPortfolio();
+        this.ownedStocks = this.portfolio.getOwnedStocks();
         this.isOwned = this.ownedStocks.some(stock => stock.symbol === symbol);
 
         if (this.stockPage) {
@@ -88,6 +100,7 @@ function StockPage(parent, stockPrice, searchClass, goBack) {
     }
 
     this.stockBtns = function (name, symbol) {
+        console.log(this.settings);
         this.changeTimeFrameDiv = document.createElement('div');
         this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
         this.stockPage.appendChild(this.changeTimeFrameDiv);
@@ -127,6 +140,7 @@ function StockPage(parent, stockPrice, searchClass, goBack) {
 
         this.buyStockButton.addEventListener('click', () => {
             console.log('Buy stock button clicked');
+            console.log(this.searchClass);
             this.stockPage.style.display = 'none'; // Hide StockPage
             this.searchClass.createBuyDiv(name, symbol);
         });
@@ -137,8 +151,8 @@ function StockPage(parent, stockPrice, searchClass, goBack) {
 
         // Lyssnar på klickhändelsen för att visa portföljen när användaren klickar på portföljikonen.
         this.portfolioIconDiv.addEventListener('click', () => {
-            this.previousPage = 'stockPage';
-            this.portfolio.showPortfolio(this.stockPage, this.previousPage, goBack, this);
+            this.stockPage.remove();
+            this.portfolio.showPortfolio(this.stockPage);
         });
     }
 
@@ -152,30 +166,14 @@ function StockPage(parent, stockPrice, searchClass, goBack) {
 
     this.getSearchClass = function () {
         return this.searchClass;
+        console.log(this.searchClass);
     }
 
-    this.getSettings = function () {
-        return this.settings;
-    }
+    // this.getSettings = function () {
+    //     return this.settings;
+    // }
 
-    this.setCharts = function (charts) {
-        this.charts = charts;
-    }
-
-    this.setPortfolio = function (portfolio) {
-        this.portfolio = portfolio;
-    }
-
-    this.setSearchClass = function (searchClass) {
-        this.searchClass = searchClass;
-    }
-
-    this.setSettings = function (settings) {
-        this.settings = settings;
-    }
-
-    this.return = function () {
-        console.log(searchClass);
-        goBack.createGoBack(searchClass, 'createSearchBox', this.stockPage)
-    }
+    // this.setSettings = function (settings) {
+    //     this.settings = settings;
+    // }
 }

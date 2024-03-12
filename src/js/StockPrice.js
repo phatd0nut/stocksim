@@ -39,7 +39,6 @@ StockPrice.prototype.getHistoricalData = function () {
 StockPrice.prototype.lastClosingPrice = function () {
     var fiveDaysAgo = new Date(Date.now() - 864e5 * 5).toISOString().split('T')[0];
     var priceApiUrl2 = 'https://financialmodelingprep.com/api/v3/historical-price-full/' + this.symbol + '?from=' + fiveDaysAgo + '&to=' + new Date().toISOString().split('T')[0] + '&apikey=' + this.apiKey;
-    console.log(priceApiUrl2);
 
     return fetch(priceApiUrl2)
         .then(function (response) {
