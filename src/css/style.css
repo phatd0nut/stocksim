@@ -191,6 +191,16 @@ body {
   font-size: 0.9rem;
 }
 
+#buyButton {
+  background-color: #f9ffae;
+  animation: glow 5s infinite;
+}
+
+#buyButton:active {
+  background-color: #4e594a;
+
+}
+
 .buyStock,
 .goToStock {
   width: 140px;
@@ -503,12 +513,6 @@ body {
   font-size: 1rem;
 }
 
-#goBack {
-  position: fixed;
-  top: 19%;
-  background-color: black;
-}
-
 #noStockMsg {
   opacity: 0;
   transition: opacity 1s ease;
@@ -553,7 +557,12 @@ body {
   cursor: pointer;
 }
 
-#backToSearchIcon {
+#goBackToSearch {
+  width: 45px;
+  cursor: pointer;
+}
+
+#goBackToSearch2 {
   width: 60px;
 }
 

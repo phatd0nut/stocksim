@@ -19,8 +19,17 @@ Portfolio.prototype.getOwnedStocks = function () {
     return this.stocks;
 };
 
-/// Method to add a stock to the portfolio
+// Method to add a stock to the portfolio
 Portfolio.prototype.addStock = function (stock) {
+    // Calculate the amount that would be spent on the new stock
+    var spentOnNewStock = parseFloat(stock.price * stock.quantity);
+
+    // Check if the balance will go negative
+    if (this.getBalance() - spentOnNewStock < 0) {
+        alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
+        return;
+    }
+
     // Check if the stock already exists in the portfolio
     var existingStock = this.stocks.find(s => s.symbol === stock.symbol);
 
@@ -56,7 +65,6 @@ Portfolio.prototype.calculateTotalInvestedOverTime = function () {
     // Skapa en ny array för att lagra det totala värdet av portföljen för varje dag
     this.totalValueOverTime = [];
 
-    // För varje dag...
     for (let i = 0; i < 365; i++) {
         // Återställ det totala värdet av portföljen för den dagen
         var totalValue = 0;
@@ -88,11 +96,6 @@ Portfolio.prototype.updateTotalInvested = function () {
 
     // Round the final result
     this.totalInvested = parseFloat(this.totalInvested.toFixed(2));
-};
-
-// Method to display the portfolio chart
-Portfolio.prototype.displayChart = function () {
-    // Code to generate and display the chart
 };
 
 Portfolio.prototype.getCookie = function (name) {
@@ -128,10 +131,14 @@ Portfolio.prototype.returnBtn = async function (container) {
     backToSearchDiv.id = 'backToSearchDiv';
     container.insertBefore(backToSearchDiv, container.firstChild);
 
-    var backToSearchIcon = document.createElement('img');
-    backToSearchIcon.src = '../src/img/search_1.png';
-    backToSearchIcon.id = 'backToSearchIcon';
-    backToSearchDiv.appendChild(backToSearchIcon);
+    var goBackToSearch2 = document.createElement('img');
+    goBackToSearch2.id = 'goBackToSearch2';
+    if (document.querySelector('.container[data-mode="dark"]')) {
+        goBackToSearch2.src = '../src/img/search_2.png';
+    } else {
+        goBackToSearch2.src = '../src/img/search_1.png';
+    }
+    backToSearchDiv.appendChild(goBackToSearch2);
 
     var backToSearchP = document.createElement('p');
     backToSearchP.id = 'backToSearchP';
@@ -172,6 +179,7 @@ Portfolio.prototype.showPortfolio = function () {
             this.portfolioDiv.className = 'portfolioDiv';
             // Remove visible elements
             this.removeVisibleDivs();
+            this.settings.removePortfolioIcon();
             this.returnBtn(this.portfolioDiv);
         } else {
             // Clear the previous content
@@ -212,7 +220,9 @@ Portfolio.prototype.showPortfolio = function () {
             this.infoDiv.className = 'info1';
 
             this.individualStock = document.createElement('p');
-            this.individualStock.innerHTML = '(<b>' + stock.symbol + '</b>) ' + stock.name;
+            var fontSize = stock.name.length > 20 ? '0.85rem' : '1rem';
+            this.individualStock.innerHTML = '<b>(' + stock.symbol + ')</b> ' + '<span id="stockNameSpan" style="font-size: ' + fontSize + '">' + stock.name + '</span>';
+            
             this.infoDiv.appendChild(this.individualStock);
 
             // Logic to calculate and display profit or loss
@@ -337,30 +347,30 @@ Portfolio.prototype.showInvestedMoney = function () {
 Portfolio.prototype.updateBalance = function (newStock) {
     // Read the balance from cookies
     this.balance = parseFloat(document.cookie.replace(/(?:(?:^|.*;\s*)balance\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
-  
+
     // If newStock is not defined, return the current balance
     if (!newStock) {
-      return this.balance;
+        return this.balance;
     }
-  
+
     // Calculate the amount spent on the new stock
     var spentOnNewStock = parseFloat(newStock.price * newStock.quantity);
-  
-    // Check if the balance will go negative
+
+/*
     if (this.balance - spentOnNewStock < 0) {
-      alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
-      return;
+        alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
+        return;
     }
-  
+*/
     // Subtract the amount spent on the new stock from the balance
     this.balance -= spentOnNewStock;
-  
+
     // Round the final result to 2 decimal places
     this.balance = parseFloat(this.balance.toFixed(2));
-  
+
     // Save the updated balance as a cookie
     document.cookie = `balance=${this.balance};path=/`;
-  };
+};
 
 // Method to set the balance
 Portfolio.prototype.setBalance = function (balance) {

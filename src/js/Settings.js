@@ -8,9 +8,10 @@ function Settings(parent, detectMode) {
     var settingsHolder = document.createElement('div');
     settingsHolder.id = 'settingsHolder';
     parent.appendChild(settingsHolder);
+    var portfolioIconDiv;
 
     this.createIcons = function () {
-        var portfolioIconDiv = document.createElement('div');
+        portfolioIconDiv = document.createElement('div');
         portfolioIconDiv.id = 'portfolioIconDiv';
 
         var goToPortfolioText = document.createElement('p');
@@ -101,7 +102,9 @@ function Settings(parent, detectMode) {
             parent.appendChild(closeSettingsIconElm);
             overlay.style.display = 'block'; // Visa overlay när användaren klickar på settings ikonen och förhindra användaren från att klicka på andra delar av appen under tiden som settings fältet visas.
             settingsIconElm.classList.remove('show'); // Starta fade out övergång för settings ikonen.
-            portfolioIconDiv.classList.remove('show'); // Starta fade out övergång för portfolio ikonen.
+            if (portfolioIconDiv) {
+                portfolioIconDiv.classList.remove('show'); // Starta fade out övergång för portfolio ikonen.
+            }
             setTimeout(() => {
                 settingsIconElm.style.visibility = 'hidden';
                 portfolioIconDiv.style.visibility = 'hidden';
@@ -254,10 +257,8 @@ function Settings(parent, detectMode) {
         this.settingsIcon();
         this.loadThemeFromCookie();
     };
+
+    this.removePortfolioIcon = function () {
+        portfolioIconDiv.remove();
+    }
 }
-
-/*
-settingsIcon
-portfolioIconDiv
-
-*/

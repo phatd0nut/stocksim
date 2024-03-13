@@ -40,6 +40,24 @@ function StockPage(parent, stockPrice, settings, searchClass) {
         this.stockChart.className = 'stockChart';
         this.stockInfo.appendChild(this.stockChart);
 
+        this.settingsIcon = document.getElementById('settingsIcon');
+        this.settingsIcon.remove();
+        this.portfolioIconDiv = document.getElementById('portfolioIconDiv');
+        this.settingsHolder = document.getElementById('settingsHolder');
+        this.goBackToSearch = document.createElement('img');
+        this.goBackToSearch.id = 'goBackToSearch';
+        if (document.querySelector('.container[data-mode="dark"]')) {
+            this.goBackToSearch.src = '../src/img/go_back_2.png';
+        } else {
+            this.goBackToSearch.src = '../src/img/go_back_1.png';
+        }
+
+        this.goBackToSearch.addEventListener('click', () => {
+            this.stockPage.remove();
+            this.searchClass.createSearchBox();
+        });
+        this.settingsHolder.insertBefore(this.goBackToSearch, this.portfolioIconDiv);
+
         this.charts.stockChartSetters(this.stockPrice, this.stockPriceP, this.stockChart);
         this.stockBtns(name, symbol);
     }
