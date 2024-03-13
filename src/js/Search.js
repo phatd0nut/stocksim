@@ -408,8 +408,8 @@ function Search(settings, charts) {
 
   // Funktion för att skapa aktieinformationen och visa den i köpboxen. Name är argumentet som används för att skapa rätt köpbox för rätt aktie (se createBuyDiv-funktionen) och för att hämta rätt aktieinformation (se showResults-funktionen).
   this.createStockInfo = function (name, symbol) {
-    this.stockInfo = document.createElement('div');
-    this.stockInfo.id = 'stockInfoFromBuyBox';
+    var headerHolder = document.createElement('div');
+    headerHolder.id = 'headerHolder';
     var buyHeader = document.createElement('h2');
     var headerPrice = document.createElement('span');
 
@@ -417,18 +417,21 @@ function Search(settings, charts) {
     if (name.length > 15) { // Om aktiens namn är längre än 15 tecken, sätt fontstorleken till 1rem.
       buyHeader.style.fontSize = '1rem';
     }
+    
     headerPrice.id = 'headerPrice';
     buyHeader.id = 'buyHeader';
-    this.buyDiv.appendChild(this.stockInfo);
-    this.stockInfo.appendChild(buyHeader);
-    this.stockInfo.appendChild(headerPrice);
+    this.buyDiv.appendChild(headerHolder);
+    headerHolder.appendChild(buyHeader);
+    headerHolder.appendChild(headerPrice);
+
 
     // Hämta realtidspriset (5 försök) för aktien och uppdatera sedan inputfältet med det nya priset (inklusive validering) och visa det i köpboxen. Om det inte går att hämta realtidspriset, hämta det senaste stängningspriset istället. Om det inte går att hämta det senaste stängningspriset, visa ett felmeddelande.
     this.retryGetRealTimePrice = async function () {
       for (let i = 0; i < 5; i++) {
         try {
-          const realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
+          let realTimePrice = await stockPrice.getRealTimePrice(); // Hämtar det realtida priset.
           if (realTimePrice) {
+            realTimePrice = parseFloat(realTimePrice).toFixed(2); // Begränsar till 2 decimaler
             currentStockPrice = realTimePrice; // Sparar det realtida priset.
             headerPrice.innerHTML = realTimePrice + '$';
             this.updateInputField();
@@ -443,7 +446,8 @@ function Search(settings, charts) {
       console.error('Error getting real-time price after 5 attempts. Falling back to last closing price.');
       try {
         const closingPriceData = await stockPrice.lastClosingPrice(); // Hämtar det senaste stängningspriset
-        const closingPrice = closingPriceData.lastClosingPrice;
+        let closingPrice = closingPriceData.lastClosingPrice;
+        closingPrice = parseFloat(closingPrice).toFixed(2); // Begränsar till 2 decimaler
         currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
         headerPrice.innerHTML = closingPrice + '$';
         this.updateInputField();

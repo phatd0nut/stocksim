@@ -203,6 +203,10 @@ function Settings(parent, detectMode) {
                 modeDiv.classList.add('show'); // Fade in modeDiv.
             }, 0);
 
+            var stockDiv = document.querySelectorAll('.stocksDiv');
+            var stockHolderDiv = document.querySelector('#stockHolderDiv');
+            var goBackToSearch2 = document.getElementById('goBackToSearch2');
+
             // Skapar knapp för att ändra till ljus visning och lägger till den i modeDiv.
             var lightMode = document.createElement('button');
             lightMode.innerHTML = 'Ljus visning';
@@ -211,6 +215,15 @@ function Settings(parent, detectMode) {
             modeDiv.appendChild(lightMode);
             lightMode.addEventListener('click', () => {
                 mode.lightMode('light'); // Använder lightMode metoden i DetectMode.js för att ändra till ljus visning.
+
+                if (stockDiv && stockHolderDiv) {
+                    stockDiv.forEach(div => {
+                        div.style.backgroundColor = '#278664';
+                    });
+                    stockHolderDiv.style.backgroundColor = '#ffffff';
+                    goBackToSearch2.src = '../src/img/search_1.png';
+                }
+
                 document.cookie = "theme=light; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/"; // Sparar temat i en cookie
             });
 
@@ -222,6 +235,16 @@ function Settings(parent, detectMode) {
             modeDiv.appendChild(darkMode);
             darkMode.addEventListener('click', () => {
                 mode.darkMode('dark'); // Använder darkMode metoden i DetectMode.js för att ändra till mörk visning.
+
+                if (stockDiv && stockHolderDiv) {
+                    stockDiv.forEach(div => {
+                        div.style.backgroundColor = '#4e594a';
+                    });
+                    stockHolderDiv.style.backgroundColor = '#f9ffae';
+                    console.log(goBackToSearch2);
+                    goBackToSearch2.src = '../src/img/search_2.png';
+                }
+
                 document.cookie = "theme=dark; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/"; // Sparar temat i en cookie
             });
 

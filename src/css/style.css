@@ -243,6 +243,7 @@ body {
 }
 
 .buyDiv {
+  border-radius: 10px;
   position: relative;
   width: 343.2px;
   height: 150px;
@@ -251,14 +252,15 @@ body {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  top: 10%;
+  top: 5%;
 }
 
-#stockInfoFromBuyBox {
+#headerHolder {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding-bottom: 4%;
 }
 
 #buyHeader {
@@ -275,10 +277,11 @@ body {
   color: #4e594a;
   font-weight: bold;
   padding: 5px;
+  margin-right: 15px;
   border-radius: 10px;
   font-size: 1.4rem;
   align-self: flex-end;
-  margin-right: 15px;
+
 }
 
 @keyframes glow {
@@ -441,12 +444,16 @@ body {
 }
 
 #stockHolderDiv {
+  margin-top: 2%;
   padding: 5px;
   overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: #4e594a white;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   height: 200px;
+  background-color: #ffffff;
+  border-radius: 10px;
 }
 
 .stocksDiv {
@@ -457,15 +464,6 @@ body {
   cursor: pointer;
   transition: max-height 0.5s ease-in-out;
   margin-bottom: 10px;
-}
-
-.stocksDiv:nth-child(odd) {
-  background-color: #79a471;
-}
-
-.stocksDiv:nth-child(even) {
-  background-color: #f9ffae;
-  color: #4e594a;
 }
 
 .info1 {

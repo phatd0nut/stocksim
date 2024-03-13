@@ -215,6 +215,14 @@ Portfolio.prototype.showPortfolio = function () {
             this.stockDiv = document.createElement('div');
             this.stockDiv.className = 'stocksDiv';
 
+            if (document.querySelector('.container[data-mode="dark"]')) {
+                this.stockDiv.style.backgroundColor = '#4e594a';
+                this.stockHolderDiv.style.backgroundColor = '#f9ffae';
+            } else if (document.querySelector('.container[data-mode="light"]')) {
+                this.stockDiv.style.backgroundColor = '#278664';
+                this.stockHolderDiv.style.backgroundColor = '#ffffff';
+            }
+
             // Create a div for the symbol, name and profitOrLoss
             this.infoDiv = document.createElement('div');
             this.infoDiv.className = 'info1';
@@ -222,7 +230,7 @@ Portfolio.prototype.showPortfolio = function () {
             this.individualStock = document.createElement('p');
             var fontSize = stock.name.length > 20 ? '0.85rem' : '1rem';
             this.individualStock.innerHTML = '<b>(' + stock.symbol + ')</b> ' + '<span id="stockNameSpan" style="font-size: ' + fontSize + '">' + stock.name + '</span>';
-            
+
             this.infoDiv.appendChild(this.individualStock);
 
             // Logic to calculate and display profit or loss
@@ -356,12 +364,12 @@ Portfolio.prototype.updateBalance = function (newStock) {
     // Calculate the amount spent on the new stock
     var spentOnNewStock = parseFloat(newStock.price * newStock.quantity);
 
-/*
-    if (this.balance - spentOnNewStock < 0) {
-        alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
-        return;
-    }
-*/
+    /*
+        if (this.balance - spentOnNewStock < 0) {
+            alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
+            return;
+        }
+    */
     // Subtract the amount spent on the new stock from the balance
     this.balance -= spentOnNewStock;
 
