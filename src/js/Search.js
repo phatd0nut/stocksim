@@ -1,7 +1,6 @@
 // Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
 function Search(settings, charts) {
   this.charts = charts;
-  console.log(this.charts);
   this.settings = settings; // Instans av Settings-klassen.
   var apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
   var parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
@@ -45,11 +44,8 @@ function Search(settings, charts) {
 
   this.setPortfolio = function (portfolio) {
     this.portfolio = portfolio;
+    this.portfolio.initPriceClass(stockPrice);
     stockPage.setPortfolio(portfolio);
-  }
-
-  this.setThis = function () {
-    this.portfolio.initSearchClass(this);
   }
 
   this.setSearchBox = function () {
@@ -475,7 +471,7 @@ function Search(settings, charts) {
       }
 
       // Uppdatera inputfältet med det nya priset (antal aktier * aktiepris) och visa det i köpboxen.
-      this.inputField.value = this.numberOfStocks * currentStockPrice;
+      this.inputField.value = (this.numberOfStocks * currentStockPrice).toFixed(2);
     };
 
     this.showStockPageAfterPurchase = function () {
@@ -583,7 +579,6 @@ function Search(settings, charts) {
 
         var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks); // Skapa ett nytt Stock-objekt med aktiepris, aktiesymbol, aktienamn, aktiepris och antal aktier som argument (se Stock.js).
         this.portfolio.addStock(stockObj); // Lägg till aktien i portföljen (se Portfolio.js).
-        stockObj.startUpdatingClosingPrice(); // Starta uppdatering av stängningspriset för aktien.
 
         this.updateBalance(); // Uppdatera saldo och visa det i sökrutan.
         stockPage.checkIfStockExistsInPortfolio(symbol, this.portfolio); // Kontrollera om aktien redan finns i portföljen och uppdatera portföljen med köpet (se StockPage.js).

@@ -7,6 +7,27 @@ function Portfolio(parent, settings) {
     this.isMsgVisible = false; // Flag to check if the no stock message is visible
     this.fadeTimeout = null; // Timeout for the fade-out animation
     this.balance = 0; // Add this line to initialize the balance
+
+    this.getOwnedStocks(); // Hämta aktier som ägs av användaren från cookies
+    setInterval(() => this.updateStocksPerformance(), 15 * 60 * 1000); // Uppdatera aktiernas utveckling var 15:e minut
+};
+
+Portfolio.prototype.initLS = function () {
+    var storedTotalValue = localStorage.getItem('totalValue');
+    var storedTotalValueChangePercentage = localStorage.getItem('totalValueChangePercentage');
+    var storedRealTimePriceArr = localStorage.getItem('realTimePriceArr');
+    
+    if (storedRealTimePriceArr) {
+        this.realTimePriceArr = JSON.parse(storedRealTimePriceArr);
+    }
+
+    if (storedTotalValue) {
+        this.totalValue = JSON.parse(storedTotalValue);
+    }
+
+    if (storedTotalValueChangePercentage) {
+        this.totalValueChangePercentage = JSON.parse(storedTotalValueChangePercentage);
+    }
 };
 
 Portfolio.prototype.initSearchClass = function (searchClass) {
@@ -14,8 +35,18 @@ Portfolio.prototype.initSearchClass = function (searchClass) {
     return this.searchClass;
 };
 
+Portfolio.prototype.initPriceClass = function (priceClass) {
+    this.priceClass = priceClass;
+    return this.priceClass;
+}
+
 // Metod för att hämta aktier som ägs av användaren från portföljen (stocks) arrayen.
 Portfolio.prototype.getOwnedStocks = function () {
+    var stocksInCookies = this.getCookie('stocks');
+    if (stocksInCookies) {
+        this.stocks = JSON.parse(stocksInCookies);
+    }
+    // Always return this.stocks, whether it's been updated or not
     return this.stocks;
 };
 
@@ -59,43 +90,78 @@ Portfolio.prototype.addStock = function (stock) {
 
     // Save the entire stocks array as a cookie
     document.cookie = `stocks=${JSON.stringify(this.stocks)};path=/`;
+
+    // Update the stocks performance after adding a new stock
+    this.updateStocksPerformance();
 };
 
-Portfolio.prototype.calculateTotalInvestedOverTime = function () {
-    // Skapa en ny array för att lagra det totala värdet av portföljen för varje dag
-    this.totalValueOverTime = [];
-
-    for (let i = 0; i < 365; i++) {
-        // Återställ det totala värdet av portföljen för den dagen
-        var totalValue = 0;
-
-        // Beräkna det totala värdet av portföljen för den dagen
-        this.stocks.forEach(stock => {
-            if (stock.historicalPrice[i]) {
-                totalValue += stock.historicalPrice[i].close * stock.quantity;
-            }
-        });
-
-        // Lägg till det totala värdet av portföljen för den dagen i arrayen
-        this.totalValueOverTime.push({
-            date: this.stocks[0].historicalPrice[i].date,
-            totalValue: totalValue,
-        });
-    }
-}
-
-Portfolio.prototype.updateTotalInvested = function () {
-    // Reset totalInvested
-    this.totalInvested = 0;
+// Method to update the total value of the portfolio
+Portfolio.prototype.updatePortfolioValue = function () {
+    // Initialize the total value to 0
+    this.totalValue = 0;
+    this.totalValueChangePercentage = 0;
 
     // Iterate over all stocks
-    for (let i = 0; i < this.stocks.length; i++) {
-        // Add the current value of the stock to totalInvested
-        this.totalInvested += this.stocks[i].currentPrice * this.stocks[i].quantity;
+    for (var i = 0; i < this.stocks.length; i++) {
+        var stock = this.stocks[i];
+
+        // Add the current value of the stock to the total value
+        this.totalValue += stock.price * stock.quantity;
     }
 
-    // Round the final result
-    this.totalInvested = parseFloat(this.totalInvested.toFixed(2));
+    // Round the final result to 2 decimal places
+    this.totalValue = parseFloat(this.totalValue.toFixed(2));
+
+    // Calculate the percentage change in the total value
+    if (this.totalInvested) {
+        if (this.totalValue > this.totalInvested) {
+            this.totalValueChangePercentage = "+ " + ((this.totalValue - this.totalInvested) / this.totalInvested * 100).toFixed(2) + "%";
+            console.log(this.totalValueChangePercentage);
+        } else if (this.totalValue < this.totalInvested) {
+            this.totalValueChangePercentage = "- " + Math.abs((this.totalValue - this.totalInvested) / this.totalInvested * 100).toFixed(2) + "%";
+            console.log(this.totalValueChangePercentage);
+        } else {
+            this.totalValueChangePercentage = "0%";
+            console.log(this.totalValueChangePercentage);
+        }
+    } else {
+        this.totalValueChangePercentage = "0%";
+    }
+
+    // Save the totalValue and totalValueChangePercentage in localStorage
+    localStorage.setItem('totalValue', JSON.stringify(this.totalValue));
+    localStorage.setItem('totalValueChangePercentage', JSON.stringify(this.totalValueChangePercentage));
+};
+
+Portfolio.prototype.updateStocksPerformance = async function () {
+    this.realTimePriceArr = [];
+    var priceChangePercentage;
+
+    // Iterera över alla aktier
+    for (var i = 0; i < this.stocks.length; i++) {
+        var stock = this.stocks[i];
+
+        this.priceClass.setSymbol(stock.symbol);
+
+        // Hämta det senaste realtidspriset (med en 15 minuters fördröjning) baserat på aktiesymbolen
+        var currentPrice = await this.priceClass.getRealTimePrice();
+
+        // Jämför realtidspriset med det initiala priset
+        if (currentPrice > stock.price) {
+            priceChangePercentage = "+ " + ((currentPrice - stock.price) / stock.price * 100).toFixed(2) + "%";
+            this.realTimePriceArr.push(priceChangePercentage);
+        } else if (currentPrice < stock.price) {
+            priceChangePercentage = "-" + " " + Math.abs((currentPrice - stock.price) / stock.price * 100).toFixed(2) + "%";
+            this.realTimePriceArr.push(priceChangePercentage);
+        } else {
+            priceChangePercentage = 0 + "%";
+            this.realTimePriceArr.push(priceChangePercentage);
+        }
+
+        // Save the realTimePriceArr in localStorage
+        localStorage.setItem('realTimePriceArr', JSON.stringify(this.realTimePriceArr));
+    }
+    this.updatePortfolioValue();
 };
 
 Portfolio.prototype.getCookie = function (name) {
@@ -110,7 +176,6 @@ Portfolio.prototype.getCookie = function (name) {
 }
 
 Portfolio.prototype.removeVisibleDivs = function () {
-
     var classes = ['.setupDiv', '.searchBox', '.createUserDiv', '.stockPage'];
     var elements = [];
     classes.forEach((className) => {
@@ -198,105 +263,102 @@ Portfolio.prototype.showPortfolio = function () {
         this.h2.innerHTML = 'Min Portfölj';
         this.portfolioDiv.appendChild(this.h2);
 
-        // Create and append total invested and number of stocks
-        this.totalInvestedP = document.createElement('p');
-        this.totalInvestedP.textContent = 'Totalt investerat: ' + this.totalInvested + ' USD$';
-        this.portfolioDiv.appendChild(this.totalInvestedP);
+        this.updateStocksPerformance().then(() => {
+            // Create and append total invested
+            this.totalInvestedP = document.createElement('p');
+            this.totalInvestedP.textContent = 'Totalt investerat: ' + this.totalInvested + ' USD$ (' + this.totalValueChangePercentage + ' förändring)';
+            this.portfolioDiv.appendChild(this.totalInvestedP);
 
-        this.numberOfStocksP = document.createElement('p');
-        this.numberOfStocksP.textContent = 'Antal olika aktier: ' + this.numberOfStocks + ' st.';
-        this.portfolioDiv.appendChild(this.numberOfStocksP);
+            this.numberOfStocksP = document.createElement('p');
+            this.numberOfStocksP.textContent = 'Antal olika aktier: ' + this.numberOfStocks + ' st.';
+            this.portfolioDiv.appendChild(this.numberOfStocksP);
 
-        // Create a new div to hold all the stockDiv elements
-        this.stockHolderDiv = document.createElement('div');
-        this.stockHolderDiv.id = 'stockHolderDiv';
 
-        this.stocks.forEach(stock => {
-            this.stockDiv = document.createElement('div');
-            this.stockDiv.className = 'stocksDiv';
+            // Create a new div to hold all the stockDiv elements
+            this.stockHolderDiv = document.createElement('div');
+            this.stockHolderDiv.id = 'stockHolderDiv';
 
-            if (document.querySelector('.container[data-mode="dark"]')) {
-                this.stockDiv.style.backgroundColor = '#4e594a';
-                this.stockHolderDiv.style.backgroundColor = '#f9ffae';
-            } else if (document.querySelector('.container[data-mode="light"]')) {
-                this.stockDiv.style.backgroundColor = '#278664';
-                this.stockHolderDiv.style.backgroundColor = '#ffffff';
-            }
+            this.updateStocksPerformance().then(() => {
+                this.stocks.forEach((stock, index) => {
+                    this.stockDiv = document.createElement('div');
+                    this.stockDiv.className = 'stocksDiv';
 
-            // Create a div for the symbol, name and profitOrLoss
-            this.infoDiv = document.createElement('div');
-            this.infoDiv.className = 'info1';
+                    if (document.querySelector('.container[data-mode="dark"]')) {
+                        this.stockDiv.style.backgroundColor = '#4e594a';
+                        this.stockHolderDiv.style.backgroundColor = '#f9ffae';
+                    } else if (document.querySelector('.container[data-mode="light"]')) {
+                        this.stockDiv.style.backgroundColor = '#278664';
+                        this.stockHolderDiv.style.backgroundColor = '#ffffff';
+                    }
 
-            this.individualStock = document.createElement('p');
-            var fontSize = stock.name.length > 20 ? '0.85rem' : '1rem';
-            this.individualStock.innerHTML = '<b>(' + stock.symbol + ')</b> ' + '<span id="stockNameSpan" style="font-size: ' + fontSize + '">' + stock.name + '</span>';
+                    // Create a div for the symbol, name and profitOrLoss
+                    this.infoDiv = document.createElement('div');
+                    this.infoDiv.className = 'info1';
 
-            this.infoDiv.appendChild(this.individualStock);
+                    this.individualStock = document.createElement('p');
+                    var fontSize = stock.name.length > 20 ? '0.85rem' : '1rem';
+                    this.individualStock.innerHTML = '<b>(' + stock.symbol + ')</b> ' + '<span id="stockNameSpan" style="font-size: ' + fontSize + '">' + stock.name + '</span>';
 
-            // Logic to calculate and display profit or loss
-            this.profitOrLoss = document.createElement('p');
-            // Get the initial price and the latest closing price
-            this.initialPrice = stock.price;
-            this.latestClosingPrice = 'N/A';
-            // Check if there is more than one closing price
-            if (stock.historicalPrice && stock.historicalPrice.length > 1) {
-                this.latestClosingPrice = stock.historicalPrice[stock.historicalPrice.length - 1].close;
-                // Calculate the change in percent
-                this.changePercent = ((this.latestClosingPrice - this.initialPrice) / this.initialPrice) * 100;
-                this.profitOrLoss.innerHTML = this.changePercent >= 0 ? '+' + this.changePercent.toFixed(2) + '<b>%</b>' : '-' + Math.abs(this.changePercent.toFixed(2)) + '<b>%</b>';
-            } else {
-                this.profitOrLoss.innerHTML = '<b>0%</b>';
-            }
-            this.infoDiv.appendChild(this.profitOrLoss);
+                    this.infoDiv.appendChild(this.individualStock);
+                    // Procentuell vinst/förlust element
+                    this.profitOrLoss = document.createElement('p');
+                    this.profitOrLoss.id = 'profitOrLoss';
+                    // Använd index för att hämta motsvarande procentandel från arrayen
+                    this.profitOrLoss.innerHTML = this.realTimePriceArr[index];
 
-            this.stockDiv.appendChild(this.infoDiv);
 
-            // Create a div for the quantity and amountInvested
-            var detailsDiv = document.createElement('div');
-            detailsDiv.className = 'info2';
-            detailsDiv.style.maxHeight = '0px'; // Hide initially
+                    this.infoDiv.appendChild(this.profitOrLoss);
 
-            this.amountInvested = document.createElement('p');
-            this.amountInvested.innerHTML = 'Investerat: ' + stock.amountInvested + ' USD$';
-            detailsDiv.appendChild(this.amountInvested);
+                    this.stockDiv.appendChild(this.infoDiv);
 
-            this.quantity = document.createElement('p');
-            this.quantity.innerHTML = '(' + stock.quantity + ' st.)';
-            detailsDiv.appendChild(this.quantity);
+                    // Create a div for the quantity and amountInvested
+                    var detailsDiv = document.createElement('div');
+                    detailsDiv.className = 'info2';
+                    detailsDiv.style.maxHeight = '0px'; // Hide initially
 
-            this.stockDiv.appendChild(detailsDiv);
+                    this.amountInvested = document.createElement('p');
+                    this.amountInvested.innerHTML = 'Investerat: ' + stock.amountInvested.toFixed(2) + ' USD$';
+                    detailsDiv.appendChild(this.amountInvested);
 
-            // Add a flag to track if the element is expanding
-            let isExpanding = false;
+                    this.quantity = document.createElement('p');
+                    this.quantity.innerHTML = '(' + stock.quantity + ' st.)';
+                    detailsDiv.appendChild(this.quantity);
 
-            // Add click event listener to the stockDiv
-            this.stockDiv.addEventListener('click', () => {
-                if (isExpanding) {
-                    // If the element is still expanding, finish the expansion immediately and collapse it
-                    detailsDiv.style.transition = 'none';
-                    detailsDiv.style.maxHeight = '500px';
-                    // Use setTimeout to allow the browser to update the max-height
-                    setTimeout(() => {
-                        detailsDiv.style.transition = 'max-height 0.2s ease-in-out';
-                        detailsDiv.style.maxHeight = '0px';
-                    }, 0);
-                    isExpanding = false;
-                } else if (detailsDiv.style.maxHeight !== '0px') {
-                    detailsDiv.style.maxHeight = '0px';
-                } else {
-                    detailsDiv.style.maxHeight = '500px'; // Or any other value that is enough to show the content
-                    isExpanding = true;
-                }
+                    this.stockDiv.appendChild(detailsDiv);
+
+                    // Add a flag to track if the element is expanding
+                    let isExpanding = false;
+
+                    // Add click event listener to the stockDiv
+                    this.stockDiv.addEventListener('click', () => {
+                        if (isExpanding) {
+                            // If the element is still expanding, finish the expansion immediately and collapse it
+                            detailsDiv.style.transition = 'none';
+                            detailsDiv.style.maxHeight = '500px';
+                            // Use setTimeout to allow the browser to update the max-height
+                            setTimeout(() => {
+                                detailsDiv.style.transition = 'max-height 0.2s ease-in-out';
+                                detailsDiv.style.maxHeight = '0px';
+                            }, 0);
+                            isExpanding = false;
+                        } else if (detailsDiv.style.maxHeight !== '0px') {
+                            detailsDiv.style.maxHeight = '0px';
+                        } else {
+                            detailsDiv.style.maxHeight = '500px'; // Or any other value that is enough to show the content
+                            isExpanding = true;
+                        }
+                    });
+
+                    this.stockHolderDiv.appendChild(this.stockDiv);
+                });
             });
 
-            this.stockHolderDiv.appendChild(this.stockDiv);
+            // Append the stockHolderDiv to the portfolioDiv
+            this.portfolioDiv.appendChild(this.stockHolderDiv);
+
+            // Append the portfolio div to the parent
+            this.parent.appendChild(this.portfolioDiv);
         });
-
-        // Append the stockHolderDiv to the portfolioDiv
-        this.portfolioDiv.appendChild(this.stockHolderDiv);
-
-        // Append the portfolio div to the parent
-        this.parent.appendChild(this.portfolioDiv);
     } else {
         return
     }

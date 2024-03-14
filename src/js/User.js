@@ -8,7 +8,6 @@ function User(name, parent, settings, portfolio, searchClass) {
 
   this.initSearch = function () {
     search.setPortfolio(portfolio);
-    search.setThis();
   }
 
   this.setCookies = function () {

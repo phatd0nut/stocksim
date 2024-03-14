@@ -3,6 +3,7 @@ function CreateUser(container, settings, charts) {
   this.settings = settings;
   this.settings.loadThemeFromCookie();
   this.portfolio = new Portfolio(container, settings);
+  this.portfolio.initLS();
   this.charts = charts;
   this.search = new Search(this.settings, this.charts);
   this.search.setPortfolio(this.portfolio);
