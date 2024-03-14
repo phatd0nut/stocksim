@@ -16,13 +16,17 @@ function StockApp() {
 
         var detectMode = new DetectMode(container); // Skapar en instans av klassen DetectMode och skickar med container som argument för att kunna appenda innehåll till denna div senare i koden.
 
-        var settings = new Settings(container, detectMode); // Skapar en instans av klassen Settings och skickar med container och detectMode som argument för att kunna appenda innehåll till denna div senare i koden.
+        var charts = new Charts(); // Skapar en instans av klassen Charts för att kunna skapa grafer för aktier.
+
+        var settings = new Settings(container, detectMode, charts); // Skapar en instans av klassen Settings och skickar med container och detectMode som argument för att kunna appenda innehåll till denna div senare i koden.
+
+        charts.getSettingsClass(settings); // Skickar settings klassen till Charts klassen för att kunna använda settings klassen i Charts klassen.
 
         settings.initIcons(); // Initierar ikonerna i settings klassen.
 
         detectMode.detect(); // Kör detect metoden i DetectMode.js för att kolla vilket tema som är satt i användarens webbläsare.
 
-        var createUser = new CreateUser(container, settings, detectMode); // Skapar en instans av klassen CreateUser och skickar med container och settings som argument för att kunna appenda innehåll till denna div senare i koden. CreateUser klassen används för att skapa en ny användare och sätta budget för användaren.
+        var createUser = new CreateUser(container, settings, charts); // Skapar en instans av klassen CreateUser och skickar med container och settings som argument för att kunna appenda innehåll till denna div senare i koden. CreateUser klassen används för att skapa en ny användare och sätta budget för användaren.
 
         createUser.createUserBox(parent); // Kör createUserBox metoden i CreateUser.js för att skapa en box där användaren kan skapa en ny användare och sätta budget.
     }

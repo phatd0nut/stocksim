@@ -1,6 +1,7 @@
 // Funktion för att söka efter aktier och hantera interaktion med användargränssnittet för köp.
 function Search(settings, charts) {
   this.charts = charts;
+  console.log(this.charts);
   this.settings = settings; // Instans av Settings-klassen.
   var apiKey = new StockMarketAPI()(); // API-nyckel för börsdata.
   var parentContainer = document.querySelector('.container'); // Huvudbehållare i DOM.
@@ -417,7 +418,7 @@ function Search(settings, charts) {
     if (name.length > 15) { // Om aktiens namn är längre än 15 tecken, sätt fontstorleken till 1rem.
       buyHeader.style.fontSize = '1rem';
     }
-    
+
     headerPrice.id = 'headerPrice';
     buyHeader.id = 'buyHeader';
     this.buyDiv.appendChild(headerHolder);

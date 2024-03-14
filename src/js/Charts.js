@@ -1,4 +1,45 @@
 function Charts() {
+    var mode = document.querySelector('.container').getAttribute('data-mode');
+    var myChart;
+
+    this.getSettingsClass = function (settings) {
+        this.settings = settings;
+    }
+
+    this.listenForModeChange = function () {
+        var observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type == "attributes" && mutation.attributeName === 'data-mode') {
+                    mode = mutation.target.getAttribute('data-mode');
+                    console.log(mode);
+                    // Update the colors in the chart
+                    this.updateChartColors(mode);
+                    // Update the chart
+                    if (myChart) {
+                        myChart.update();
+                    }
+                }
+            });
+        });
+    
+        // Start observing the target node for configured mutations
+        observer.observe(document.querySelector('.container'), { attributes: true });
+    }
+
+   this.updateChartColors = function (mode) {
+        var color = mode === 'light' ? '#ffffff' : '#f9ffae';
+        if (myChart) {
+            myChart.data.datasets[0].borderColor = color;
+            myChart.data.datasets[0].pointBackgroundColor = color;
+            if (myChart.options.scales.xAxes[0]) {
+                myChart.options.scales.xAxes[0].ticks.fontColor = color;
+            }
+            if (myChart.options.scales.yAxes[0]) {
+                myChart.options.scales.yAxes[0].ticks.fontColor = color;
+            }
+        }
+    }
+    console.log(mode);
 
     this.stockChartSetters = function (stockPrice, stockPriceP, stockChart) {
         this.stockPrice = stockPrice;
@@ -38,6 +79,7 @@ function Charts() {
                         if (price) {
                             this.stockPriceP.innerHTML = 'Aktuell kurs: <b>' + price + '  USD$</b>';
                         } else {
+                            this.stockPriceP.innerHTML = 'Kunde inte hämta aktuell kurs.';
                             console.error('Error: both realTimePrice and lastClosingPrice are undefined');
                         }
                     });
@@ -58,6 +100,7 @@ function Charts() {
     }
 
     this.createNewStockChart = (unit, data) => {
+        console.log(mode);
         var formattedData = data.map(dataPoint => ({
             x: dataPoint.date,
             y: dataPoint.close,
@@ -81,17 +124,17 @@ function Charts() {
         var canvas = document.getElementById('myChart');
         var ctx = canvas.getContext('2d');
 
-        if (this.myChart instanceof Chart) {
-            this.myChart.destroy();
+        if (myChart instanceof Chart) {
+            myChart.destroy();
         }
-        this.myChart = new Chart(ctx, {
+        myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [{
                     label: 'Aktiekurs',
                     data: formattedData,
-                    borderColor: 'white',  // Linjefärg
-                    pointBackgroundColor: '#f9ffae',  // Färg på punkterna
+                    borderColor: mode === 'light' ? '#ffffff' : '#f9ffae',  // Linjefärg
+                    pointBackgroundColor: mode === 'light' ? '#ffffff' : '#f9ffae',  // Färg på punkterna
                     pointBorderColor: 'black',  // Färg på punkternas border
                     backgroundColor: 'transparent',  // Fyllning
                     borderWidth: 2,
@@ -109,7 +152,7 @@ function Charts() {
                             display: false,  // Dölj grid lines på x-axeln
                         },
                         ticks: {
-                            fontColor: '#f9ffae',  // Svart text
+                            fontColor: mode === 'light' ? '#ffffff' : '#f9ffae',
                         },
                         type: 'time',
                         distribution: 'series',  // Add this line
@@ -124,7 +167,7 @@ function Charts() {
                             color: 'rgba(0, 0, 0, 0)',  // Dölj grid lines
                         },
                         ticks: {
-                            fontColor: '#f9ffae',  // Svart text
+                            fontColor: mode === 'light' ? '#ffffff' : '#f9ffae',
                             drawOnChartArea: false,  // Dölj tick marks på y-axeln
                         }
                     }]

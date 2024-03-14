@@ -1,9 +1,9 @@
-function CreateUser(container, settings) {
+function CreateUser(container, settings, charts) {
   this.parentContainer = container;
   this.settings = settings;
   this.settings.loadThemeFromCookie();
   this.portfolio = new Portfolio(container, settings);
-  this.charts = new Charts();
+  this.charts = charts;
   this.search = new Search(this.settings, this.charts);
   this.search.setPortfolio(this.portfolio);
   this.portfolio.initSearchClass(this.search);

@@ -1,5 +1,6 @@
 // Inställningsklassen som skapar inställningsikonen och inställningsfältet i appen. Används för att byta tema och rensa användare. Tar emot parent och detectMode som argument för att kunna appenda innehåll till denna div senare i koden och för att kunna använda detectMode klassen i Settings klassen.
-function Settings(parent, detectMode) {
+function Settings(parent, detectMode, charts) {
+    var charts = charts;
     var mode = detectMode;
     var overlay = document.createElement('div'); // Skapar en div för att använda som overlay när användaren klickar på inställningsikonen.
     overlay.id = 'overlay';
@@ -215,7 +216,7 @@ function Settings(parent, detectMode) {
             modeDiv.appendChild(lightMode);
             lightMode.addEventListener('click', () => {
                 mode.lightMode('light'); // Använder lightMode metoden i DetectMode.js för att ändra till ljus visning.
-
+                charts.listenForModeChange();
                 if (stockDiv && stockHolderDiv) {
                     stockDiv.forEach(div => {
                         div.style.backgroundColor = '#278664';
@@ -235,13 +236,12 @@ function Settings(parent, detectMode) {
             modeDiv.appendChild(darkMode);
             darkMode.addEventListener('click', () => {
                 mode.darkMode('dark'); // Använder darkMode metoden i DetectMode.js för att ändra till mörk visning.
-
+                charts.listenForModeChange();
                 if (stockDiv && stockHolderDiv) {
                     stockDiv.forEach(div => {
                         div.style.backgroundColor = '#4e594a';
                     });
                     stockHolderDiv.style.backgroundColor = '#f9ffae';
-                    console.log(goBackToSearch2);
                     goBackToSearch2.src = '../src/img/search_2.png';
                 }
 

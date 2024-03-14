@@ -50,10 +50,8 @@ body {
 #searchResultsDiv {
   margin-top: 10px;
   width: 330px;
-  background-color: white;
   height: 125px;
   scrollbar-width: thin;
-  scrollbar-color: #4e594a white;
   -webkit-overflow-scrolling: touch;
   overflow-y: hidden;
   overflow-x: hidden;
@@ -107,6 +105,7 @@ body {
 #clicked {
   color: white;
   background-color: #79a471;
+  border-radius: 10px;
 }
 
 #clicked span {
@@ -177,6 +176,154 @@ body {
   width: 100%;
 }
 
+/*---------------------------------DARK----------------------------------*/
+
+.container[data-mode="dark"] .inputBars {
+  background-color: #f9ffae;
+  color: #4e594a;
+}
+
+.container[data-mode="dark"] .buttons {
+  background-color: #79a471;
+  color: #4e594a;
+}
+
+.container[data-mode="dark"] .yearlyButton,
+.container[data-mode="dark"] .weeklyButton,
+.container[data-mode="dark"] .monthlyButton,
+.container[data-mode="dark"] .goToStock,
+.container[data-mode="dark"] .createUserBtn,
+.container[data-mode="dark"] .setBudgetBtn,
+.container[data-mode="dark"] #revertBuy,
+.container[data-mode="dark"] #adjustMode,
+.container[data-mode="dark"] #clearCookies,
+.container[data-mode="dark"] #lightMode,
+.container[data-mode="dark"] #darkMode {
+  color: #f9ffae;
+}
+
+.container[data-mode="dark"] #searchResultsDiv {
+  background-color: #f9ffae;
+  color: #000000;
+  scrollbar-color: #4e594a rgba(255, 255, 255, 0);
+}
+
+.container[data-mode="dark"] #stockRegion {
+  background-color: #4e594a;
+  color: #f9ffae;
+}
+
+.container[data-mode="dark"] #portfolioIconDiv {
+  border: #f9ffae 1px solid;
+}
+
+.container[data-mode="dark"] .buttons:active {
+  background-color: #4e594a;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+.container[data-mode="dark"] .buyStock {
+  background-color: #f9ffae;
+  box-shadow: 0 0 5px #f9ffae;
+  animation: glow 5s infinite;
+}
+
+.container[data-mode="dark"] #buyButton {
+  background-color: #f9ffae;
+  box-shadow: 0 0 5px #f9ffae;
+  animation: glow 5s infinite;
+}
+
+.container[data-mode="dark"] #buyButton:active,
+.container[data-mode="dark"] .buyStock:active  {
+  background-color: #4e594a;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+.container[data-mode="dark"] .stockPageBuyButton {
+  background-color: #f9ffae;
+  box-shadow: 0 0 5px #f9ffae;
+  animation: glow 5s infinite;
+}
+
+.container[data-mode="dark"].stockPageBuyButton:active {
+  background-color: #79a471;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+/*---------------------------------LIGHT----------------------------------*/
+
+.container[data-mode="light"] .inputBars {
+  background-color: #ffffff;
+  color: #4e594a;
+}
+
+.container[data-mode="light"] {
+ color: #ffffff;
+}
+
+.container[data-mode="light"] .chartjs-render-monitor {
+  color: #ffffff;
+ }
+
+.container[data-mode="light"] .buttons {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.container[data-mode="light"] #searchResultsDiv {
+  background-color: #ffffff;
+  color: #000000;
+  scrollbar-color: #278664 rgba(255, 255, 255, 0);
+}
+
+.container[data-mode="light"] .buttons:active {
+  background-color: #79a471;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+.container[data-mode="light"] .buyStock {
+  background-color: #f9ffae;
+  box-shadow: 0 0 5px #f9ffae;
+  animation: glow 5s infinite;
+}
+
+.container[data-mode="light"] .buyStock:active {
+  background-color: #79a471;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+.container[data-mode="light"] #buyButton {
+  background-color: #f9ffae;
+  box-shadow: 0 0 5px #f9ffae;
+  animation: glow 5s infinite;
+}
+
+.container[data-mode="light"] #buyButton:active {
+  background-color: #79a471;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+.container[data-mode="light"] .stockPageBuyButton {
+  background-color: #f9ffae;
+  box-shadow: 0 0 5px #f9ffae;
+  animation: glow 5s infinite;
+}
+
+.container[data-mode="light"].stockPageBuyButton:active {
+  background-color: #79a471;
+  color: #f9ffae;
+  border-color: #f9ffae;
+}
+
+/*------------------------------------------------------------------------*/
+
 #stockQuantityInput {
   width: 40px;
 }
@@ -191,7 +338,7 @@ body {
   font-size: 0.9rem;
 }
 
-#buyButton {
+/* #buyButton {
   background-color: #f9ffae;
   animation: glow 5s infinite;
 }
@@ -199,7 +346,7 @@ body {
 #buyButton:active {
   background-color: #4e594a;
 
-}
+} */
 
 .buyStock,
 .goToStock {
@@ -281,7 +428,6 @@ body {
   border-radius: 10px;
   font-size: 1.4rem;
   align-self: flex-end;
-
 }
 
 @keyframes glow {
@@ -629,6 +775,15 @@ body {
   margin: 0;
   padding: 0;
 }
+
+@media screen and (max-width: 3000px) {
+  .createUserDiv,
+  .setupDiv,
+  .searchBox {
+    margin-top: 4%;
+  }
+}
+
 
 @media screen and (max-width: 2000px) {
   .createUserDiv,
