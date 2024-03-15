@@ -11,7 +11,6 @@ function Charts() {
             mutations.forEach((mutation) => {
                 if (mutation.type == "attributes" && mutation.attributeName === 'data-mode') {
                     mode = mutation.target.getAttribute('data-mode');
-                    console.log(mode);
                     // Update the colors in the chart
                     this.updateChartColors(mode);
                     // Update the chart
@@ -39,7 +38,6 @@ function Charts() {
             }
         }
     }
-    console.log(mode);
 
     this.stockChartSetters = function (stockPrice, stockPriceP, stockChart) {
         this.stockPrice = stockPrice;
@@ -100,7 +98,6 @@ function Charts() {
     }
 
     this.createNewStockChart = (unit, data) => {
-        console.log(mode);
         var formattedData = data.map(dataPoint => ({
             x: dataPoint.date,
             y: dataPoint.close,

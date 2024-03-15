@@ -9,14 +9,33 @@ function Portfolio(parent, settings) {
     this.balance = 0; // Add this line to initialize the balance
 
     this.getOwnedStocks(); // Hämta aktier som ägs av användaren från cookies
-    setInterval(() => this.updateStocksPerformance(), 15 * 60 * 1000); // Uppdatera aktiernas utveckling var 15:e minut
+    this.scheduleUpdate(); // Anropar metoden för att uppdatera aktiernas prestanda varje dag kl. 22:00
+};
+
+Portfolio.prototype.scheduleUpdate = function () {
+    // Hämta aktuellt datum och tid
+    var now = new Date();
+
+    // Kalibrera tiden till 22:00 så att uppdateringen sker kl. 22:00
+    var msTo22 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 0, 0, 0) - now;
+    if (msTo22 < 0) {
+        // Om klockan är över 22:00, lägg till 24 timmar så att uppdateringen sker nästa dag kl. 22:00
+        msTo22 += 24 * 60 * 60 * 1000;
+    }
+
+    setTimeout(() => {
+        this.updateStocksPerformance();
+
+        // Anropa metoden varje 24 timmar
+        setInterval(() => this.updateStocksPerformance(), 24 * 60 * 60 * 1000);
+    }, msTo22);
 };
 
 Portfolio.prototype.initLS = function () {
     var storedTotalValue = localStorage.getItem('totalValue');
     var storedTotalValueChangePercentage = localStorage.getItem('totalValueChangePercentage');
     var storedRealTimePriceArr = localStorage.getItem('realTimePriceArr');
-    
+
     if (storedRealTimePriceArr) {
         this.realTimePriceArr = JSON.parse(storedRealTimePriceArr);
     }
@@ -116,13 +135,10 @@ Portfolio.prototype.updatePortfolioValue = function () {
     if (this.totalInvested) {
         if (this.totalValue > this.totalInvested) {
             this.totalValueChangePercentage = "+ " + ((this.totalValue - this.totalInvested) / this.totalInvested * 100).toFixed(2) + "%";
-            console.log(this.totalValueChangePercentage);
         } else if (this.totalValue < this.totalInvested) {
             this.totalValueChangePercentage = "- " + Math.abs((this.totalValue - this.totalInvested) / this.totalInvested * 100).toFixed(2) + "%";
-            console.log(this.totalValueChangePercentage);
         } else {
             this.totalValueChangePercentage = "0%";
-            console.log(this.totalValueChangePercentage);
         }
     } else {
         this.totalValueChangePercentage = "0%";
@@ -328,7 +344,7 @@ Portfolio.prototype.showPortfolio = function () {
                     this.stockDiv.appendChild(detailsDiv);
 
                     // Add a flag to track if the element is expanding
-                    let isExpanding = false;
+                    var isExpanding = false;
 
                     // Add click event listener to the stockDiv
                     this.stockDiv.addEventListener('click', () => {
