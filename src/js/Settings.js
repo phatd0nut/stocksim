@@ -34,6 +34,7 @@ function Settings(parent, detectMode, charts) {
         settingsIconElm = document.createElement('img');
         settingsIconElm.src = '../src/img/settings_icon_1.png';
         settingsIconElm.id = 'settingsIcon';
+        
         settingsHolder.appendChild(settingsIconElm);
         settingsHolder.appendChild(portfolioIconDiv);
         
@@ -73,26 +74,10 @@ function Settings(parent, detectMode, charts) {
             mode.darkMode(theme);
         }
 
-        // Update icons based on the loaded theme
+       // Uppdatera ikonerna beroende på vilket tema som är satt i användarens webbläsare.
         mode.updateIcons(theme);
     }
 
-    // Metod för att skapa portföljikonen och lägga till den i appen.
-    // this.addPortfolioIcon = function () {
-    //     var portfolioIconDiv = document.createElement('div');
-    //     portfolioIconDiv.id = 'portfolioIconDiv';
-    //     settingsHolder.appendChild(portfolioIconDiv);
-
-    //     var goToPortfolioText = document.createElement('p');
-    //     goToPortfolioText.innerHTML = 'Visa portfölj';
-    //     goToPortfolioText.id = 'goToPortfolioText';
-    //     portfolioIconDiv.appendChild(goToPortfolioText);
-
-    //     portfolioIcon = document.createElement('img');
-    //     portfolioIcon.src = '../src/img/portfolio_icon1.png';
-    //     portfolioIcon.id = 'portfolioIcon';
-    //     portfolioIconDiv.appendChild(portfolioIconElm);
-    // }
 
     mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm); // Skickar med settings ikonen och stängningsikonen för mörkt/ljust läge till detectIcons metoden i DetectMode.js för att kunna ändra ikonerna beroende på vilket tema som är satt i användarens webbläsare.
 

@@ -250,6 +250,7 @@ Portfolio.prototype.showPortfolio = function () {
             // Clear the previous content
             this.removeVisibleDivs();
             this.portfolioDiv.innerHTML = '';
+            this.settings.removePortfolioIcon();
             this.returnBtn(this.portfolioDiv);
         }
 

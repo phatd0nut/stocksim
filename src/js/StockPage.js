@@ -7,9 +7,9 @@ function StockPage(parent, stockPrice, settings, searchClass) {
     this.symbol = null;
     this.apiKey = null,
 
-    this.setCharts = function (charts) {
-        this.charts = charts;
-    }
+        this.setCharts = function (charts) {
+            this.charts = charts;
+        }
 
     this.setPortfolio = function (portfolio) {
         this.portfolio = portfolio;
@@ -53,10 +53,17 @@ function StockPage(parent, stockPrice, settings, searchClass) {
         }
 
         this.goBackToSearch.addEventListener('click', () => {
+            this.goBackToSearch.remove();
             this.stockPage.remove();
             this.searchClass.createSearchBox();
         });
         this.settingsHolder.insertBefore(this.goBackToSearch, this.portfolioIconDiv);
+
+        this.portfolioIconDiv.addEventListener('click', () => {
+            this.goBackToSearch.remove();
+            this.settings.initIcons();
+            this.settings.removePortfolioIcon();
+        });
 
         this.charts.stockChartSetters(this.stockPrice, this.stockPriceP, this.stockChart);
         this.stockBtns(name, symbol);

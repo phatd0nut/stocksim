@@ -104,6 +104,7 @@ function Search(settings, charts) {
         if (document.cookie.includes('stocks')) {
           this.searchBox.remove();
           this.portfolio.showPortfolio(parentContainer);
+          this.portfolioIconDiv.remove();
         } else {
           this.portfolio.manageMessageVisibility(parentContainer);
         }
