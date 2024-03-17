@@ -188,6 +188,13 @@ body {
   color: #4e594a;
 }
 
+.container[data-mode="dark"] .active {
+  background-color: #4e594a;
+  color: #f9ffae;
+  border-color: #f9ffae;
+
+}
+
 .container[data-mode="dark"] .yearlyButton,
 .container[data-mode="dark"] .weeklyButton,
 .container[data-mode="dark"] .monthlyButton,
@@ -248,10 +255,14 @@ body {
   animation: glow 5s infinite;
 }
 
-.container[data-mode="dark"].stockPageBuyButton:active {
+.container[data-mode="dark"] .stockPageBuyButton:active {
   background-color: #79a471;
   color: #f9ffae;
   border-color: #f9ffae;
+}
+
+.container[data-mode="dark"] #purchaseSuccessMessage {
+  color: #4e594a;
 }
 
 /*---------------------------------LIGHT----------------------------------*/
@@ -272,6 +283,13 @@ body {
 .container[data-mode="light"] .buttons {
   background-color: #ffffff;
   color: #000000;
+}
+
+.container[data-mode="light"] .active {
+  background-color: #79a471;
+  color: #f9ffae;
+  border-color: #f9ffae;
+
 }
 
 .container[data-mode="light"] #searchResultsDiv {
@@ -322,6 +340,10 @@ body {
   border-color: #f9ffae;
 }
 
+.container[data-mode="light"] #purchaseSuccessMessage {
+  color: #000000;
+}
+
 /*------------------------------------------------------------------------*/
 
 #stockQuantityInput {
@@ -337,16 +359,6 @@ body {
   width: 140px;
   font-size: 0.9rem;
 }
-
-/* #buyButton {
-  background-color: #f9ffae;
-  animation: glow 5s infinite;
-}
-
-#buyButton:active {
-  background-color: #4e594a;
-
-} */
 
 .buyStock,
 .goToStock {
@@ -774,6 +786,21 @@ body {
   width: 100px;
   margin: 0;
   padding: 0;
+}
+
+#loadingDivAfterPurchase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#purchaseSuccessMessage {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+#loadingBuyGif {
+  width: 80px;
 }
 
 @media screen and (max-width: 3000px) {

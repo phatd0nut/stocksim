@@ -1,20 +1,24 @@
+// Klass som skapar sidan för en specifik aktie. Tar emot en förälder, en instans av StockPrice, en instans av Settings, och en instans av Search som argument.
 function StockPage(parent, stockPrice, settings, searchClass) {
     this.searchClass = searchClass;
     this.stockPrice = stockPrice;
     this.parent = parent;
     this.settings = settings;
-    this.name = null;
-    this.symbol = null;
-    this.apiKey = null,
+    this.name = null; // Referens till aktiens namn. Sätts när aktiesidan skapas.
+    this.symbol = null; // Referens till aktiens symbol. Sätts när aktiesidan skapas.
+    this.apiKey = null; // Referens till aktiens API-nyckel. Sätts när aktiesidan skapas.
 
-        this.setCharts = function (charts) {
-            this.charts = charts;
-        }
+    // Metod för att sätta en instans av Charts i StockPage.
+    this.setCharts = function (charts) {
+        this.charts = charts;
+    }
 
+    // Metod för att sätta en instans av Portfolio i StockPage.
     this.setPortfolio = function (portfolio) {
         this.portfolio = portfolio;
     }
 
+    // Metod som renderar aktiesidan. Tar emot namn och symbol för aktien som argument.
     this.createStockPage = function (name, symbol) {
         this.name = name;
         this.symbol = symbol;
@@ -75,13 +79,12 @@ function StockPage(parent, stockPrice, settings, searchClass) {
         this.ownedStocks = this.portfolio.getOwnedStocks();
         this.isOwned = this.ownedStocks.some(stock => stock.symbol === symbol);
 
-        if (this.stockPage) {
-            // Remove the old ownedStocksDiv if it exists
-            if (this.ownedStocksDiv) {
+        if (this.stockPage) { // Kontrollera om aktiesidan finns i DOM:en innan du fortsätter.
+            if (this.ownedStocksDiv) { // Om ownedStocksDiv redan finns, ta bort det.
                 this.ownedStocksDiv.remove();
             }
 
-            // Always create a new ownedStocksDiv
+            // Skapa en div för att visa aktier som ägs av användaren.
             this.ownedStocksDiv = document.createElement('div');
             this.ownedStocksDiv.id = 'ownedStocks';
             this.stockPage.appendChild(this.ownedStocksDiv);
@@ -90,35 +93,34 @@ function StockPage(parent, stockPrice, settings, searchClass) {
             this.ownedStocksHeader.innerHTML = 'Äger aktier: <span id="ownedStocksInfo"></span>';
             this.ownedStocksDiv.appendChild(this.ownedStocksHeader);
 
-            // Update owned stocks content or clear it if not owned
+            // Uppdatera ownedStocksInfo med information om hur många aktier som ägs av användaren.
             var ownedStocksInfo = document.getElementById('ownedStocksInfo');
             if (ownedStocksInfo) {
                 if (this.isOwned) {
-                    // Find the first stock with the specified symbol
+                    // Hitta aktien i portföljen och hämta information om antal och investerat belopp.
                     var ownedStock = this.ownedStocks.find(stock => stock.symbol === symbol);
 
                     if (ownedStock) {
-                        // If owned, display the quantity and amountInvested of the first matching stock
                         ownedStocksInfo.innerHTML = `${ownedStock.quantity} st. (${ownedStock.amountInvested.toFixed(2)} USD$)`;
                     } else {
-                        // If not owned, display a default message
+                        // Om aktien inte finns i portföljen, visa ett standardmeddelande.
                         ownedStocksInfo.innerHTML = 'Inga.';
                     }
                 } else {
-                    // If not owned, display a default message
                     ownedStocksInfo.innerHTML = 'Inga.';
                 }
             }
         }
     }
 
-    // Funktion för att förbereda aktiekursdiagrammet för att visa det på aktiesidan och kontrollera om aktien finns i portföljen.
+    // Funktion för att förbereda aktiegrafen för att visa det på aktiesidan och kontrollera om aktien finns i portföljen.
     this.prepareChart = function (symbol, apiKey, unit) {
         this.apiKey = apiKey;
         this.charts.initStockChart(symbol, apiKey, unit);
         this.checkIfStockExistsInPortfolio(symbol);
     }
 
+    // Funktion för att skapa knappar för att ändra tidsintervall och köpa aktier.
     this.stockBtns = function (name, symbol) {
         this.changeTimeFrameDiv = document.createElement('div');
         this.changeTimeFrameDiv.className = 'changeTimeFrameDiv';
@@ -129,28 +131,40 @@ function StockPage(parent, stockPrice, settings, searchClass) {
         this.yearlyButton = document.createElement('button');
 
         this.weeklyButton.className = 'buttons weeklyButton';
-        this.weeklyButton.innerText = 'Vecka';
+        this.weeklyButton.innerHTML = 'Vecka';
         this.monthlyButton.className = 'buttons monthlyButton';
-        this.monthlyButton.innerText = 'Månad';
+        this.monthlyButton.innerHTML = 'Månad';
         this.yearlyButton.className = 'buttons yearlyButton';
-        this.yearlyButton.innerText = 'År';
+        this.yearlyButton.innerHTML = 'År';
 
         this.changeTimeFrameDiv.appendChild(this.weeklyButton);
         this.changeTimeFrameDiv.appendChild(this.monthlyButton);
         this.changeTimeFrameDiv.appendChild(this.yearlyButton);
 
-        // Lyssna på klick på knappar för att ändra tidsintervall
+        // Lyssna på klick på knapparna för tidsramen för att ändra tidsintervall
         this.weeklyButton.addEventListener('click', () => {
             this.prepareChart(this.symbol, this.apiKey, 'week');
+            this.weeklyButton.classList.add('active');
+            this.monthlyButton.classList.remove('active');
+            this.yearlyButton.classList.remove('active');
         });
 
         this.monthlyButton.addEventListener('click', () => {
             this.prepareChart(this.symbol, this.apiKey, 'month');
+            this.monthlyButton.classList.add('active');
+            this.weeklyButton.classList.remove('active');
+            this.yearlyButton.classList.remove('active');
         });
 
         this.yearlyButton.addEventListener('click', () => {
             this.prepareChart(this.symbol, this.apiKey, 'year');
+            this.yearlyButton.classList.add('active');
+            this.weeklyButton.classList.remove('active');
+            this.monthlyButton.classList.remove('active');
         });
+
+        // Sätter veckoknappen som aktiv som standard.
+        this.weeklyButton.classList.add('active');
 
         this.buyStockButton = document.createElement('button');
         this.buyStockButton.innerHTML = 'Köp aktie';
@@ -164,14 +178,17 @@ function StockPage(parent, stockPrice, settings, searchClass) {
         });
     }
 
+    // Metod för att returnera instansen av Charts.
     this.getCharts = function () {
         return this.charts;
     }
 
+    // Metod för att returnera instansen av Portfolio.
     this.getPortfolio = function () {
         return this.portfolio;
     }
 
+    // Metod för att returnera instansen av Search.
     this.getSearchClass = function () {
         return this.searchClass;
     }

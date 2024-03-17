@@ -2,19 +2,21 @@
 function User(name, parent, settings, portfolio, searchClass) {
   this.settings = settings; // Settings objektet som skickas in från StockApp.js.
   this.name = name; // Användarens namn som skickas in från main.js.
-  this.balance = 0;
-  var portfolio = portfolio;
-  var search = searchClass;
+  this.balance = 0; // Användarens budget som sätts till 0 från början.
+  var portfolio = portfolio; // Portfolio objektet som skickas in från CreateUser.js.
+  var search = searchClass; // Search objektet som skickas in från CreateUser.js.
 
+  // Metod för att skicka portfolio objektet till Search objektet.
   this.initSearch = function () {
     search.setPortfolio(portfolio);
   }
 
+  // Metod för att sätta användarens budget i cookies.
   this.setCookies = function () {
-    document.cookie = `username=${this.name}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
     document.cookie = `balance=${this.balance}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
   }
 
+  // Metod för att skapa användargränssnittet för att sätta budget.
   this.userInterface = function () {
     if (!this.setupDiv) {
       this.setupDiv = document.createElement('div');
@@ -28,7 +30,7 @@ function User(name, parent, settings, portfolio, searchClass) {
     this.setupDiv.appendChild(this.h2UserName);
 
     this.p = document.createElement('p');
-    this.p.innerHTML = 'Bestäm hur mycket pengar du vill investera:';
+    this.p.innerHTML = 'Bestäm hur mycket pengar du vill investera ($):';
     this.p.className = 'setBudgetP';
     this.setupDiv.appendChild(this.p);
 
@@ -43,6 +45,7 @@ function User(name, parent, settings, portfolio, searchClass) {
     this.setBudgetBtn.innerHTML = 'Spara';
     this.setupDiv.appendChild(this.setBudgetBtn);
 
+    // Kolla om användaren redan har namn och en budget och sätt den i så fall.
     var nameCookie = document.cookie.split('; ').find(row => row.startsWith('username='));
     var balanceCookie = document.cookie.split('; ').find(row => row.startsWith('balance='));
     if (nameCookie && balanceCookie) {
@@ -50,16 +53,16 @@ function User(name, parent, settings, portfolio, searchClass) {
       this.balance = parseFloat(balanceCookie.split('=')[1]);
       if (this.balance > 0) {
         portfolio.setBalance(this.balance);
-        // Set the value of the input field to the user's balance
         this.inputBudget.value = this.balance;
       }
     }
 
+    // Lyssnare för att sätta budgeten.
     this.setBudgetBtn.addEventListener('click', () => {
       var budget = this.inputBudget.value;
       if (budget !== '' && parseFloat(budget) > 0) {
         this.balance = parseFloat(this.inputBudget.value);
-        this.setCookies();  // Sätt cookies när balansen uppdateras
+        this.setCookies();  // Sätt cookies när saldot uppdateras
         this.inputBudget.remove();
         this.setBudgetBtn.remove();
         this.p.remove();

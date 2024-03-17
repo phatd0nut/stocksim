@@ -1,17 +1,19 @@
+// Klassen för portföljen. Här hanteras allt som har med portföljen att göra, t.ex. att lägga till och ta bort aktier, visa portföljen, uppdatera portföljens värde, etc.
 function Portfolio(parent, settings) {
-    this.settings = settings; // Settingsobjektet som skickas in från User.js
-    this.parent = parent; // Referens till förälder containern (.container) som skickas in från User.js
-    this.stocks = []; // Array to hold the stocks
-    this.totalInvested = 0; // Total amount of money invested in stocks
-    this.noStockMsg = null; // Message to display when the portfolio is empty
-    this.isMsgVisible = false; // Flag to check if the no stock message is visible
-    this.fadeTimeout = null; // Timeout for the fade-out animation
-    this.balance = 0; // Add this line to initialize the balance
+    this.settings = settings; // Settings objektet som skickas in från CreateUser.js.
+    this.parent = parent; // Referens till förälder containern (.container) som skickas in från User.js.
+    this.stocks = []; // Array för att lagra aktier som ägs av användaren.
+    this.totalInvested = 0; // Totalt investerat belopp i aktier. Sätts till 0 från början.
+    this.noStockMsg = null; // Referens till meddelandet om att portföljen är tom.
+    this.isMsgVisible = false; // Flaggar för att meddela noStockMsgs synlighet.
+    this.fadeTimeout = null; // Timeout for the fade-out animation gällande noStockMsg.
+    this.balance = 0; // Initialt värde för användarens budget. Sätts till 0 från början.
 
-    this.getOwnedStocks(); // Hämta aktier som ägs av användaren från cookies
-    this.scheduleUpdate(); // Anropar metoden för att uppdatera aktiernas prestanda varje dag kl. 22:00
+    this.getOwnedStocks(); // Hämta aktier som ägs av användaren från cookies.
+    this.scheduleUpdate(); // Anropar metoden för att uppdatera aktiernas prestanda varje dag kl. 22:00.
 };
 
+// Metod för att schemalägga uppdateringen av aktiernas prestanda.
 Portfolio.prototype.scheduleUpdate = function () {
     // Hämta aktuellt datum och tid
     var now = new Date();
@@ -31,6 +33,7 @@ Portfolio.prototype.scheduleUpdate = function () {
     }, msTo22);
 };
 
+// Metod för att initiera localStorage och hämta data från localStorage.
 Portfolio.prototype.initLS = function () {
     var storedTotalValue = localStorage.getItem('totalValue');
     var storedTotalValueChangePercentage = localStorage.getItem('totalValueChangePercentage');
@@ -49,11 +52,13 @@ Portfolio.prototype.initLS = function () {
     }
 };
 
+// Metod för att initiera Search klassen i Portfolio klassen.
 Portfolio.prototype.initSearchClass = function (searchClass) {
     this.searchClass = searchClass;
     return this.searchClass;
 };
 
+// Metod för att initiera Price klassen i Portfolio klassen.
 Portfolio.prototype.initPriceClass = function (priceClass) {
     this.priceClass = priceClass;
     return this.priceClass;
@@ -65,31 +70,28 @@ Portfolio.prototype.getOwnedStocks = function () {
     if (stocksInCookies) {
         this.stocks = JSON.parse(stocksInCookies);
     }
-    // Always return this.stocks, whether it's been updated or not
     return this.stocks;
 };
 
-// Method to add a stock to the portfolio
+// Metod för att lägga till en ny aktie i portföljen.
 Portfolio.prototype.addStock = function (stock) {
-    // Calculate the amount that would be spent on the new stock
+    // Beräkna hur mycket pengar som spenderas på nya aktier.
     var spentOnNewStock = parseFloat(stock.price * stock.quantity);
 
-    // Check if the balance will go negative
+    // Kontrollera om användaren har tillräckligt med pengar för att köpa aktierna.
     if (this.getBalance() - spentOnNewStock < 0) {
         alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
         return;
     }
 
-    // Check if the stock already exists in the portfolio
+    // Kontrollera om användaren redan äger aktier av samma typ
     var existingStock = this.stocks.find(s => s.symbol === stock.symbol);
 
     if (existingStock) {
-        // If it exists, increase the quantity and update the totalInvested and amountInvested
         existingStock.quantity += stock.quantity;
         existingStock.amountInvested += stock.amountInvested;
         this.totalInvested += stock.amountInvested;
     } else {
-        // If it doesn't exist, add it to the portfolio and update the totalInvested
         if (this.stocks.length < 10) {
             this.stocks.push(stock);
             this.totalInvested += stock.amountInvested;
@@ -99,39 +101,38 @@ Portfolio.prototype.addStock = function (stock) {
         }
     }
 
-    this.totalInvested = parseFloat(this.totalInvested.toFixed(2)); // Round the final result
+    this.totalInvested = parseFloat(this.totalInvested.toFixed(2));
 
-    // Update the balance
+    // Uppdatera balansen efter att ha köpt nya aktier. Skicka med den nya aktien som argument för hålla reda på hur mycket pengar som spenderas på nya aktier.
     this.updateBalance(stock);
 
-    // Save a cookie for the stock without an expiration date
+    // Spara aktiesymbolen som en cookie.
     document.cookie = `${stock.symbol}=${JSON.stringify(stock)};path=/`;
 
-    // Save the entire stocks array as a cookie
+    // Spara hela aktie arrayen som en cookie.
     document.cookie = `stocks=${JSON.stringify(this.stocks)};path=/`;
 
-    // Update the stocks performance after adding a new stock
+    // Anropa metoden för att aktiernas prestanda ska uppdateras.
     this.updateStocksPerformance();
 };
 
-// Method to update the total value of the portfolio
+// Metod för att uppdatera portföljens värde.
 Portfolio.prototype.updatePortfolioValue = function () {
-    // Initialize the total value to 0
-    this.totalValue = 0;
-    this.totalValueChangePercentage = 0;
+    // Sätt totalValue och totalValueChangePercentage till 0 från början.
+    this.totalValue = 0; // Referens till portföljens totala värde.
+    this.totalValueChangePercentage = 0; // Referens till portföljens totala värdeförändring i procent.
 
-    // Iterate over all stocks
+    // Iterera över alla aktier
     for (var i = 0; i < this.stocks.length; i++) {
         var stock = this.stocks[i];
 
-        // Add the current value of the stock to the total value
+        // Lägg till aktiens värde till totalValue.
         this.totalValue += stock.price * stock.quantity;
     }
 
-    // Round the final result to 2 decimal places
     this.totalValue = parseFloat(this.totalValue.toFixed(2));
 
-    // Calculate the percentage change in the total value
+    // Jämför totalValue med totalInvested för att räkna ut totalValueChangePercentage.
     if (this.totalInvested) {
         if (this.totalValue > this.totalInvested) {
             this.totalValueChangePercentage = "+ " + ((this.totalValue - this.totalInvested) / this.totalInvested * 100).toFixed(2) + "%";
@@ -144,25 +145,26 @@ Portfolio.prototype.updatePortfolioValue = function () {
         this.totalValueChangePercentage = "0%";
     }
 
-    // Save the totalValue and totalValueChangePercentage in localStorage
+    // Spara totalValue och totalValueChangePercentage i localStorage.
     localStorage.setItem('totalValue', JSON.stringify(this.totalValue));
     localStorage.setItem('totalValueChangePercentage', JSON.stringify(this.totalValueChangePercentage));
 };
 
+// Metod för att uppdatera aktiernas prestanda.
 Portfolio.prototype.updateStocksPerformance = async function () {
-    this.realTimePriceArr = [];
-    var priceChangePercentage;
+    this.realTimePriceArr = []; // Array för att lagra procentuell vinst/förlust för varje aktie.
+    var priceChangePercentage; // Variabel för att lagra procentuell vinst/förlust för varje aktie.
 
-    // Iterera över alla aktier
+    // Iterera över alla aktier.
     for (var i = 0; i < this.stocks.length; i++) {
         var stock = this.stocks[i];
 
-        this.priceClass.setSymbol(stock.symbol);
+        this.priceClass.setSymbol(stock.symbol); // Koppla rätt aktiesymbol till Price klassen för att hämta realtidspriset.
 
-        // Hämta det senaste realtidspriset (med en 15 minuters fördröjning) baserat på aktiesymbolen
+        // Hämta det senaste realtidspriset.
         var currentPrice = await this.priceClass.getRealTimePrice();
 
-        // Jämför realtidspriset med det initiala priset
+        // Jämför realtidspriset med det initiala priset.
         if (currentPrice > stock.price) {
             priceChangePercentage = "+ " + ((currentPrice - stock.price) / stock.price * 100).toFixed(2) + "%";
             this.realTimePriceArr.push(priceChangePercentage);
@@ -174,12 +176,13 @@ Portfolio.prototype.updateStocksPerformance = async function () {
             this.realTimePriceArr.push(priceChangePercentage);
         }
 
-        // Save the realTimePriceArr in localStorage
+        // Spara procentuell vinst/förlust i localStorage.
         localStorage.setItem('realTimePriceArr', JSON.stringify(this.realTimePriceArr));
     }
-    this.updatePortfolioValue();
+    this.updatePortfolioValue(); // Anropa metoden för att uppdatera portföljens värde efter att ha uppdaterat aktiernas prestanda.
 };
 
+// Metod för att hämta cookies.
 Portfolio.prototype.getCookie = function (name) {
     var cookieArr = document.cookie.split(";");
     for (var i = 0; i < cookieArr.length; i++) {
@@ -191,6 +194,7 @@ Portfolio.prototype.getCookie = function (name) {
     return null;
 }
 
+// Metod för att ta bort andra synliga divar.
 Portfolio.prototype.removeVisibleDivs = function () {
     var classes = ['.setupDiv', '.searchBox', '.createUserDiv', '.stockPage'];
     var elements = [];
@@ -205,6 +209,7 @@ Portfolio.prototype.removeVisibleDivs = function () {
     });
 };
 
+// Metod för att skapa en tillbaka-knapp för att gå tillbaka till söksidan.
 Portfolio.prototype.returnBtn = async function (container) {
     await this.settings.loadThemeFromCookie();
 
@@ -237,16 +242,16 @@ Portfolio.prototype.returnBtn = async function (container) {
 };
 
 
-// Method to display the portfolio
+// Metod för att visa portföljen.
 Portfolio.prototype.showPortfolio = function () {
-    // Check if the user has any stocks in the portfolio or in the cookies
+    // Kontrollera om användaren redan äger aktier och om det finns cookies med aktier.
     var stocksInCookies = this.getCookie('stocks');
     if (this.stocks.length > 0 || (stocksInCookies && JSON.parse(stocksInCookies).length > 0)) {
         if (stocksInCookies) {
             var stocksFromCookies = JSON.parse(stocksInCookies);
-            // Merge this.stocks and stocksFromCookies
+            // Slå ihop aktierna från cookies med de befintliga aktierna.
             var mergedStocks = this.stocks.concat(stocksFromCookies);
-            // Filter out duplicates
+            // Ta bort dubletter från den sammanslagna arrayen.
             this.stocks = mergedStocks.filter((stock, index, self) =>
                 index === self.findIndex((t) => (
                     t.symbol === stock.symbol
@@ -254,23 +259,21 @@ Portfolio.prototype.showPortfolio = function () {
             );
         }
 
-        // Create a new div for the portfolio if it doesn't exist
+        // Skapa en div för portföljen om den inte redan finns.
         if (!this.portfolioDiv) {
             this.portfolioDiv = document.createElement('div');
             this.portfolioDiv.className = 'portfolioDiv';
-            // Remove visible elements
             this.removeVisibleDivs();
             this.settings.removePortfolioIcon();
             this.returnBtn(this.portfolioDiv);
         } else {
-            // Clear the previous content
             this.removeVisibleDivs();
             this.portfolioDiv.innerHTML = '';
             this.settings.removePortfolioIcon();
             this.returnBtn(this.portfolioDiv);
         }
 
-        // Calculate total invested and number of different stocks
+        // Uppdatera totalt investerat och antal aktier
         this.totalInvested = this.stocks.reduce((total, stock) => total + stock.amountInvested, 0);
         this.totalInvested = parseFloat(this.totalInvested.toFixed(2));
         this.numberOfStocks = this.stocks.length;
@@ -280,8 +283,8 @@ Portfolio.prototype.showPortfolio = function () {
         this.h2.innerHTML = 'Min Portfölj';
         this.portfolioDiv.appendChild(this.h2);
 
+        // Uppdatera totalt investerat och antal aktier i portföljen. Samt visa procentuell vinst/förlust för varje aktie.
         this.updateStocksPerformance().then(() => {
-            // Create and append total invested
             this.totalInvestedP = document.createElement('p');
             this.totalInvestedP.textContent = 'Totalt investerat: ' + this.totalInvested + ' USD$ (' + this.totalValueChangePercentage + ' förändring)';
             this.portfolioDiv.appendChild(this.totalInvestedP);
@@ -290,11 +293,10 @@ Portfolio.prototype.showPortfolio = function () {
             this.numberOfStocksP.textContent = 'Antal olika aktier: ' + this.numberOfStocks + ' st.';
             this.portfolioDiv.appendChild(this.numberOfStocksP);
 
-
-            // Create a new div to hold all the stockDiv elements
             this.stockHolderDiv = document.createElement('div');
             this.stockHolderDiv.id = 'stockHolderDiv';
 
+            // Skapa en div för varje aktie som ägs av användaren. Visa aktiens namn, symbol, procentuell vinst/förlust, investerat belopp och antal aktier. Lägg till en eventlistener för att visa mer information om varje aktie.
             this.updateStocksPerformance().then(() => {
                 this.stocks.forEach((stock, index) => {
                     this.stockDiv = document.createElement('div');
@@ -308,7 +310,6 @@ Portfolio.prototype.showPortfolio = function () {
                         this.stockHolderDiv.style.backgroundColor = '#ffffff';
                     }
 
-                    // Create a div for the symbol, name and profitOrLoss
                     this.infoDiv = document.createElement('div');
                     this.infoDiv.className = 'info1';
 
@@ -317,21 +318,16 @@ Portfolio.prototype.showPortfolio = function () {
                     this.individualStock.innerHTML = '<b>(' + stock.symbol + ')</b> ' + '<span id="stockNameSpan" style="font-size: ' + fontSize + '">' + stock.name + '</span>';
 
                     this.infoDiv.appendChild(this.individualStock);
-                    // Procentuell vinst/förlust element
                     this.profitOrLoss = document.createElement('p');
                     this.profitOrLoss.id = 'profitOrLoss';
-                    // Använd index för att hämta motsvarande procentandel från arrayen
                     this.profitOrLoss.innerHTML = this.realTimePriceArr[index];
 
-
                     this.infoDiv.appendChild(this.profitOrLoss);
-
                     this.stockDiv.appendChild(this.infoDiv);
 
-                    // Create a div for the quantity and amountInvested
                     var detailsDiv = document.createElement('div');
                     detailsDiv.className = 'info2';
-                    detailsDiv.style.maxHeight = '0px'; // Hide initially
+                    detailsDiv.style.maxHeight = '0px';
 
                     this.amountInvested = document.createElement('p');
                     this.amountInvested.innerHTML = 'Investerat: ' + stock.amountInvested.toFixed(2) + ' USD$';
@@ -343,16 +339,12 @@ Portfolio.prototype.showPortfolio = function () {
 
                     this.stockDiv.appendChild(detailsDiv);
 
-                    // Add a flag to track if the element is expanding
                     var isExpanding = false;
 
-                    // Add click event listener to the stockDiv
                     this.stockDiv.addEventListener('click', () => {
                         if (isExpanding) {
-                            // If the element is still expanding, finish the expansion immediately and collapse it
                             detailsDiv.style.transition = 'none';
                             detailsDiv.style.maxHeight = '500px';
-                            // Use setTimeout to allow the browser to update the max-height
                             setTimeout(() => {
                                 detailsDiv.style.transition = 'max-height 0.2s ease-in-out';
                                 detailsDiv.style.maxHeight = '0px';
@@ -361,7 +353,7 @@ Portfolio.prototype.showPortfolio = function () {
                         } else if (detailsDiv.style.maxHeight !== '0px') {
                             detailsDiv.style.maxHeight = '0px';
                         } else {
-                            detailsDiv.style.maxHeight = '500px'; // Or any other value that is enough to show the content
+                            detailsDiv.style.maxHeight = '500px';
                             isExpanding = true;
                         }
                     });
@@ -370,44 +362,40 @@ Portfolio.prototype.showPortfolio = function () {
                 });
             });
 
-            // Append the stockHolderDiv to the portfolioDiv
             this.portfolioDiv.appendChild(this.stockHolderDiv);
-
-            // Append the portfolio div to the parent
             this.parent.appendChild(this.portfolioDiv);
         });
     } else {
-        return
+        return // Om användaren inte äger några aktier, gör inget.
     }
 };
 
-// Metod för att hantera fade-in och fade-out-effekter samt meddelandets synlighet när portföljen är tom
+// Metod för att hantera fade-in och fade-out-effekter samt meddelandets synlighet när portföljen är tom.
 Portfolio.prototype.manageMessageVisibility = function (container) {
     if (!this.noStockMsg) {
         this.noStockMsg = document.createElement('p');
         this.noStockMsg.id = 'noStockMsg';
         this.noStockMsg.innerHTML = 'Du måste äga aktier innan portföljen kan visas!';
 
-        // Kontrollera om container är definierad innan du använder appendChild
         if (container) {
             container.appendChild(this.noStockMsg);
         }
     }
 
-    // Kontrollera om fadeInAndOut redan körs eller inte
+    // Kontrollera om fadeInAndOut redan körs eller inte.
     if (!this.animationInProgress) {
         this.fadeInAndOut();
     }
 };
 
 
-// Metod för att visa meddelandet om inga aktier med en fade-in och fade-out-effekt
+// Metod för att visa meddelandet om inga aktier med en fade-in och fade-out-effekt.
 Portfolio.prototype.fadeInAndOut = function () {
     if (this.animationInProgress) {
-        return; // Gör inget om en animation redan pågår
+        return; // Gör inget om en animation redan pågår.
     }
 
-    this.animationInProgress = true; // Sätter flaggan till true för att indikera att en animation pågår
+    this.animationInProgress = true; // Sätter flaggan till true för att indikera att en animation pågår.
 
     // Trigga en reflow för att starta en ny animation. En reflow är en process där webbläsaren beräknar layouten för elementen på sidan för att uppdatera dem, och därmed starta en ny CSS-animation.
     this.noStockMsg.offsetWidth;
@@ -419,57 +407,51 @@ Portfolio.prototype.fadeInAndOut = function () {
 
         setTimeout(() => {
             this.noStockMsg.remove();
-            this.noStockMsg = null; // Nollställ referensen till meddelandet
-            this.animationInProgress = false; // Sätt flaggan till false för att indikera att animationen är klar
-        }, 1000); // Vänta 1 sekund innan meddelandet tas bort
-    }, 3000); // Visa meddelandet i 3 sekunder
+            this.noStockMsg = null; // Nollställ referensen till meddelandet.
+            this.animationInProgress = false; // Sätt flaggan till false för att indikera att animationen är klar.
+        }, 1000); // Vänta 1 sekund innan meddelandet tas bort.
+    }, 3000); // Visa meddelandet i 3 sekunder.
 };
 
-// Method to show the amount of money invested in stocks
+// Metod för att returnera totalt investerat belopp.
 Portfolio.prototype.showInvestedMoney = function () {
     return this.totalInvested;
 };
 
-// Method to update the balance after a stock purchase
+// Metod för att uppdatea totalt investerat belopp. Tar emot en ny aktie som argument för att räkna ut det nya totala investerade beloppet och beräkna värdeförändringen.
 Portfolio.prototype.updateBalance = function (newStock) {
-    // Read the balance from cookies
+    // Läs in saldot från cookien.
     this.balance = parseFloat(document.cookie.replace(/(?:(?:^|.*;\s*)balance\s*\=\s*([^;]*).*$)|^.*$/, "$1"));
 
-    // If newStock is not defined, return the current balance
+    // Om det inte finns någon ny aktie, returnera saldot.
     if (!newStock) {
         return this.balance;
     }
 
-    // Calculate the amount spent on the new stock
+    // Beräkna hur mycket pengar som spenderas på nya aktier.
     var spentOnNewStock = parseFloat(newStock.price * newStock.quantity);
 
-    /*
-        if (this.balance - spentOnNewStock < 0) {
-            alert('Du har inte tillräckligt med pengar för att köpa aktierna!');
-            return;
-        }
-    */
-    // Subtract the amount spent on the new stock from the balance
+    // Subrahera det spenderade beloppet från saldot.
     this.balance -= spentOnNewStock;
 
-    // Round the final result to 2 decimal places
+    // Avrunda slutgiltiga saldot till två decimaler.
     this.balance = parseFloat(this.balance.toFixed(2));
 
-    // Save the updated balance as a cookie
+    // Spara det nya saldot i en cookie.
     document.cookie = `balance=${this.balance};path=/`;
 };
 
-// Method to set the balance
+// Metod för att sätta saldot.
 Portfolio.prototype.setBalance = function (balance) {
     this.balance = parseFloat(balance);
 };
 
-// Method to get the balance
+// Metod för att hämta saldot.
 Portfolio.prototype.getBalance = function () {
-    // Try to retrieve the balance from the cookie
+    // Hämta saldot från cookien.
     var balanceFromCookie = parseFloat(this.getCookie('balance'));
 
-    // If the balance is not found in the cookie, return the current balance
+    // Om saldot inte är ett nummer från cookien, returnera det nuvarande saldot som inte är sparat i cookien.
     if (isNaN(balanceFromCookie)) {
         return this.balance;
     }

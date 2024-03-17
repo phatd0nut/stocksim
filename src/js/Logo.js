@@ -1,3 +1,4 @@
+// Klass för att skapa logotypen för appen.
 function Logo() {
     this.createLogo = function (container) {
         this.appLogo = document.createElement('img');
@@ -7,6 +8,7 @@ function Logo() {
         this.backToStart();
     }
 
+    // Metod för att ladda om appen när användaren klickar på loggan.
     this.backToStart = function () {
         this.appLogo.addEventListener('click', () => {
             location.reload();

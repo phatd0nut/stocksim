@@ -1,6 +1,5 @@
-// Funktion för att skapa en aktieklass
-function Stock(stockPrice, symbol, name, price, quantity) {
-    this.priceData = stockPrice;
+// Klass för aktier. Här skapas objekt för aktier som används i appen. Tar emot symbol, namn, pris och kvantitet som argument.
+function Stock(symbol, name, price, quantity) {
     this.symbol = symbol;
     this.name = name;
     this.price = price;

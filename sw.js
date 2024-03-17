@@ -49,7 +49,6 @@ self.addEventListener('install', function (event) {
     console.log('Service Worker installerad');
     event.waitUntil(
         caches.open(cacheName).then(function (cache) {
-            console.log('Cachar filer');
             return cache.addAll(cachedAssets);
         }).then(function () {
             return self.skipWaiting();
@@ -65,7 +64,6 @@ self.addEventListener('activate', function (event) {
             return Promise.all(
                 cacheNames.map(function (thisCacheName) {
                     if (thisCacheName !== cacheName) {
-                        console.log('Tar bort gammal cache:', thisCacheName);
                         return caches.delete(thisCacheName);
                     }
                 })
@@ -74,16 +72,23 @@ self.addEventListener('activate', function (event) {
     );
 });
 
-// Hämta filer från cachen om användaren är offline och inte kan hämta filerna från servern.
 self.addEventListener('fetch', function (event) {
-    event.respondWith(
-        caches.match(event.request).then(function (response) {
-            if (response) {
-                console.log('Hämtar från cachen:', event.request.url);
-                return response;
-            }
-            console.log('Hämtar från servern:', event.request.url);
-            return fetch(event.request);
-        })
-    );
+    var specificFileUrl = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@1.1.0/dist/chartjs-adapter-date-fns.bundle.min.js';
+    if (event.request.url === specificFileUrl) {
+        // Om URL:en matchar den specifika filen, returnera en tom respons direkt.
+        event.respondWith(new Response());
+    } else if (event.request.url.startsWith('http')) {
+        event.respondWith(
+            fetch(event.request).catch(function(error) {
+                console.log('Fetch failed; returning cache instead.', error);
+                return caches.match(event.request);
+            })
+        );
+    } else {
+        event.respondWith(
+            caches.match(event.request).then(function (response) {
+                return response || fetch(event.request);
+            })
+        );
+    }
 });

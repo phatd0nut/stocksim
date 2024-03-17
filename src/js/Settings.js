@@ -10,7 +10,8 @@ function Settings(parent, detectMode, charts) {
     settingsHolder.id = 'settingsHolder';
     parent.appendChild(settingsHolder);
     var portfolioIconDiv;
-
+    
+    // Metod för att skapa ikonerna för inställningsfältet och portfolioikonen och lägga till dem i appen.
     this.createIcons = function () {
         portfolioIconDiv = document.createElement('div');
         portfolioIconDiv.id = 'portfolioIconDiv';
@@ -25,12 +26,10 @@ function Settings(parent, detectMode, charts) {
         portfolioIconElm.id = 'portfolioIcon';
         portfolioIconDiv.appendChild(portfolioIconElm);
 
-        // Skapar stängningsikonen för mörkt/ljust läge och lägger till den i appen.
         closeModeIconElm = document.createElement('img');
         closeModeIconElm.src = '../src/img/close_icon_1.png';
         closeModeIconElm.id = 'closeModeIcon';
 
-        // Skapar inställningsikonen och lägger till den i appen.
         settingsIconElm = document.createElement('img');
         settingsIconElm.src = '../src/img/settings_icon_1.png';
         settingsIconElm.id = 'settingsIcon';
@@ -38,7 +37,6 @@ function Settings(parent, detectMode, charts) {
         settingsHolder.appendChild(settingsIconElm);
         settingsHolder.appendChild(portfolioIconDiv);
         
-
         settingsIconElm.style.visibility = 'visible'; // Visar settings ikonen initialt.
         setTimeout(() => {
             settingsIconElm.classList.add('show'); // För att få en fade in effekt på settings ikonen.
@@ -52,6 +50,7 @@ function Settings(parent, detectMode, charts) {
         closeSettingsIconElm.style.visibility = 'hidden'; // Gömmer closeSettings ikonen initialt.
     }
 
+    // Metod för att hämta temat från en cookie.
     this.getCookie = function (name) {
         var nameEQ = name + "=";
         var ca = document.cookie.split(';');
@@ -63,7 +62,7 @@ function Settings(parent, detectMode, charts) {
         return null;
     }
 
-    // Lägg till denna metod för att läsa in temat från cookien när en instans av klassen skapas
+    // Metod för att läsa in temat från cookien när en instans av klassen skapas, med andra ord när användaren kommer tillbaka till appen.
     this.loadThemeFromCookie = function () {
         var theme = this.getCookie("theme");
         mode.detectIcons(settingsIconElm, closeModeIconElm, closeSettingsIconElm, portfolioIconElm);
@@ -260,12 +259,14 @@ function Settings(parent, detectMode, charts) {
         return settingsIconElm;
     }
 
+    // Metod för att initiera ikonerna.
     this.initIcons = function () {
         this.createIcons();
         this.settingsIcon();
         this.loadThemeFromCookie();
     };
 
+    // Metod för at ta bort portföljikonen.
     this.removePortfolioIcon = function () {
         portfolioIconDiv.remove();
     }

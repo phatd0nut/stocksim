@@ -306,9 +306,9 @@ function Search(settings, charts) {
           this.usStocks = data.filter(stock => stock.type === 'stock' && (stock.exchangeShortName === 'NASDAQ' || stock.exchangeShortName === 'NYSE'));
           break;
         } catch (error) {
-          console.error(`Attempt ${i + 1} failed. Retrying...`);
+          console.error(`Försök ${i + 1} misslyckades. Återupptar försök...`);
           if (i === 4) {
-            console.error('Error fetching stocklist after 5 attempts');
+            console.error('Fel vid hämtning av aktier efter 5 försök.');
             this.p.innerHTML = 'Fel vid hämtning av aktier. Kontrollera din nätanslutning eller försök igen senare.';
           } else {
             await new Promise(resolve => setTimeout(resolve, 3000)); // Vänta 3 sekunder innan nästa försök.
@@ -406,21 +406,21 @@ function Search(settings, charts) {
 
   // Funktion för att skapa aktieinformationen och visa den i köpboxen. Name är argumentet som används för att skapa rätt köpbox för rätt aktie (se createBuyDiv-funktionen) och för att hämta rätt aktieinformation (se showResults-funktionen).
   this.createStockInfo = function (name, symbol) {
-    var headerHolder = document.createElement('div');
-    headerHolder.id = 'headerHolder';
-    var buyHeader = document.createElement('h2');
-    var headerPrice = document.createElement('span');
+    this.headerHolder = document.createElement('div');
+    this.headerHolder.id = 'headerHolder';
+    this.buyHeader = document.createElement('h2');
+    this.headerPrice = document.createElement('span');
 
-    buyHeader.innerHTML = name + ' (' + symbol + ')';
+    this.buyHeader.innerHTML = name + ' (' + symbol + ')';
     if (name.length > 15) { // Om aktiens namn är längre än 15 tecken, sätt fontstorleken till 1rem.
-      buyHeader.style.fontSize = '1rem';
+      this.buyHeader.style.fontSize = '1rem';
     }
 
-    headerPrice.id = 'headerPrice';
-    buyHeader.id = 'buyHeader';
-    this.buyDiv.appendChild(headerHolder);
-    headerHolder.appendChild(buyHeader);
-    headerHolder.appendChild(headerPrice);
+    this.headerPrice.id = 'headerPrice';
+    this.buyHeader.id = 'buyHeader';
+    this.buyDiv.appendChild(this.headerHolder);
+    this.headerHolder.appendChild(this.buyHeader);
+    this.headerHolder.appendChild(this.headerPrice);
 
 
     // Hämta realtidspriset (5 försök) för aktien och uppdatera sedan inputfältet med det nya priset (inklusive validering) och visa det i köpboxen. Om det inte går att hämta realtidspriset, hämta det senaste stängningspriset istället. Om det inte går att hämta det senaste stängningspriset, visa ett felmeddelande.
@@ -431,7 +431,7 @@ function Search(settings, charts) {
           if (realTimePrice) {
             realTimePrice = parseFloat(realTimePrice).toFixed(2); // Begränsar till 2 decimaler
             currentStockPrice = realTimePrice; // Sparar det realtida priset.
-            headerPrice.innerHTML = realTimePrice + '$';
+            this.headerPrice.innerHTML = realTimePrice + '$';
             this.updateInputField();
             return;
           } else {
@@ -447,7 +447,7 @@ function Search(settings, charts) {
         let closingPrice = closingPriceData.lastClosingPrice;
         closingPrice = parseFloat(closingPrice).toFixed(2); // Begränsar till 2 decimaler
         currentStockPrice = closingPrice; // Sparar det senaste stängningspriset.
-        headerPrice.innerHTML = closingPrice + '$';
+        this.headerPrice.innerHTML = closingPrice + '$';
         this.updateInputField();
       } catch (error) {
         console.error('Error getting last closing price:', error);
@@ -561,11 +561,29 @@ function Search(settings, charts) {
         }
       });
 
+      this.loadingDiv = document.createElement('div');
+      this.loadingDiv.style.display = 'none';
+      this.loadingDiv.id = 'loadingDivAfterPurchase';
+      this.buyDiv.appendChild(this.loadingDiv);
+
+      this.loadingGif = document.createElement('img');
+      this.loadingGif.src = '/src/img/sedel_1.gif';
+      this.loadingGif.id = 'loadingBuyGif';
+      this.loadingDiv.appendChild(this.loadingGif);
+
+      this.successMessage = document.createElement('p');
+      this.successMessage.innerHTML = 'Köpet har slutförts!';
+      this.successMessage.id = 'purchaseSuccessMessage';
+      this.loadingDiv.appendChild(this.successMessage);
+
       // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen). Om aktie köps från aktiesidan, visa aktiesidan igen efter köpet (se showStockPageAfterPurchase-funktionen).
       this.buyButton.addEventListener('click', async () => {
         await this.updateInputField(); // Kontrollera att inputfältet uppdaterats med det nya priset innan köpet genomförs.
-        this.buyDiv.remove();
-        this.buyDiv = null;
+        this.inputField.style.display = 'none';
+        this.stockQuantityInput.style.display = 'none';
+        this.headerHolder.style.display = 'none';
+        // this.buyDiv.remove();
+        // this.buyDiv = null;
         this.inputField.remove();
         this.inputField = null;
         this.buyButton.remove();
@@ -573,16 +591,32 @@ function Search(settings, charts) {
         this.revertBuy.remove();
         this.revertBuy = null;
         this.searchBox.appendChild(this.buttonsDiv);
-        this.showSearchElements();
-        this.showStockPageAfterPurchase();
+        // this.showSearchElements();
+        // this.showStockPageAfterPurchase();
         this.createButtons(name, symbol); // Länkar rätt knappar till rätt aktie (se createButtons-funktionen).
 
 
-        var stockObj = new Stock(stockPrice, symbol, name, currentStockPrice, this.numberOfStocks); // Skapa ett nytt Stock-objekt med aktiepris, aktiesymbol, aktienamn, aktiepris och antal aktier som argument (se Stock.js).
+        var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks); // Skapa ett nytt Stock-objekt med aktiepris, aktiesymbol, aktienamn, aktiepris och antal aktier som argument (se Stock.js).
         this.portfolio.addStock(stockObj); // Lägg till aktien i portföljen (se Portfolio.js).
 
         this.updateBalance(); // Uppdatera saldo och visa det i sökrutan.
         stockPage.checkIfStockExistsInPortfolio(symbol, this.portfolio); // Kontrollera om aktien redan finns i portföljen och uppdatera portföljen med köpet (se StockPage.js).
+
+        this.loadingDiv.style.display = 'flex';
+        this.buttonsDiv.style.display = 'none';
+        this.successMessage.style.display = 'none';
+
+        setTimeout(() => {
+          this.successMessage.style.display = 'flex';
+          this.loadingGif.style.display = 'none';
+
+          setTimeout(() => {
+            this.buyDiv.remove(); // Stäng buyDiv rutan
+            this.buyDiv = null;
+            this.showSearchElements();
+            this.showStockPageAfterPurchase();
+          }, 2000); // Vänta 2 sekunder innan du stänger buyDiv rutan
+        }, 2000); // Vänta 2 sekunder innan du visar meddelandet
       });
     };
   }

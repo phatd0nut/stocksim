@@ -1,18 +1,20 @@
+// Klass för att skapa en ny användare. Användarens namn och portfölj sätts här. Har användaren redan en cookie med namn och portfölj visas portföljen direkt, annars skapas en ny användare.
 function CreateUser(container, settings, charts) {
-  this.parentContainer = container;
-  this.settings = settings;
-  this.settings.loadThemeFromCookie();
-  this.portfolio = new Portfolio(container, settings);
-  this.portfolio.initLS();
-  this.charts = charts;
-  this.search = new Search(this.settings, this.charts);
-  this.search.setPortfolio(this.portfolio);
-  this.portfolio.initSearchClass(this.search);
+  this.parentContainer = container; // Container för att hålla användargränssnittet och fästa det i DOM:en.
+  this.settings = settings; // Settings objektet som skickas in från StockApp.js.
+  this.settings.loadThemeFromCookie(); // Ladda temat från en cookie om det finns en.
+  this.portfolio = new Portfolio(container, settings); // Skapa en ny portfölj.
+  this.portfolio.initLS(); // Kolla om det finns en portfölj i local storage.
+  this.charts = charts; // Charts objektet som skickas in från StockApp.js.
+  this.search = new Search(this.settings, this.charts); // Instansiering av Search klassen.
+  this.search.setPortfolio(this.portfolio); // Skicka portfolio objektet till Search objektet.
+  this.portfolio.initSearchClass(this.search); // Skicka search objektet till Portfolio objektet.
 
+  // Metod för att skapa användargränssnittet för att skapa en ny användare.
   this.createUserBox = function () {
     // Om cookies 'username' och 'stocks' finns, visa portföljen
     if (document.cookie.includes('username') && document.cookie.includes('stocks')) {
-      this.portfolio.showPortfolio(this.parentContainer); // Du behöver ange rätt container här
+      this.portfolio.showPortfolio(this.parentContainer);
     } else {
       this.createUserDiv = document.createElement('div');
       this.createUserDiv.className = 'createUserDiv';
@@ -36,12 +38,27 @@ function CreateUser(container, settings, charts) {
 
       this.createUserBtn = document.createElement('button');
       this.createUserBtn.className = 'buttons createUserBtn';
-      this.createUserBtn.innerHTML = 'Tryck för att påbörja';
+      this.createUserBtn.innerHTML = 'Skriv ett namn för att fortsätta';
+      this.createUserBtn.disabled = true; // Inaktivera knappen initialt
+      this.createUserBtn.style.backgroundColor = '#cccccc'; // Gråmarkera knappen
+      this.createUserBtn.style.color = '#666666'; // Ändra textfärgen till mörkgrå
       this.createUserDiv.appendChild(this.createUserBtn);
 
+      this.inputName.addEventListener('input', () => {
+        if (this.inputName.value.trim() !== '') {
+          this.createUserBtn.disabled = false; // Aktivera knappen när användaren skriver något
+          this.createUserBtn.style.backgroundColor = ''; // Ta bort gråmarkeringen
+          this.createUserBtn.style.color = ''; // Återställ textfärgen
+        } else {
+          this.createUserBtn.disabled = true; // Inaktivera knappen om användaren tar bort all text
+          this.createUserBtn.style.backgroundColor = '#cccccc'; // Gråmarkera knappen
+          this.createUserBtn.style.color = '#666666'; // Ändra textfärgen till mörkgrå
+        }
+      });
+      
       this.createUserBtn.addEventListener('click', () => {
-        var name = this.inputName.value;
-        if (name !== '') { // Check if input is not empty
+        var name = this.inputName.value.trim();
+        if (name !== '') { // Kolla om användaren har skrivit in ett namn
           // Skapa en ny användare om det inte finns en cookie med det angivna namnet
           var createNewU = new User(name, this.parentContainer, this.settings, this.portfolio, this.search);
           createNewU.initSearch();
