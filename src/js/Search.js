@@ -473,6 +473,8 @@ function Search(settings, charts) {
 
       // Uppdatera inputfältet med det nya priset (antal aktier * aktiepris) och visa det i köpboxen.
       this.inputField.value = (this.numberOfStocks * currentStockPrice).toFixed(2);
+
+      this.purchaseCost = this.numberOfStocks * currentStockPrice; // Sparar det totala beloppet att investera som används för kontroll av saldo och köp.
     };
 
     this.showStockPageAfterPurchase = function () {
@@ -578,44 +580,54 @@ function Search(settings, charts) {
 
       // Event listener för att genomföra köp av aktier samt uppdatera saldo och portfölj med köpet. När köpet slutförs, ta bort köpboxen och visa sökresultaten och sökrutan igen (se showSearchElements-funktionen). Om aktie köps från aktiesidan, visa aktiesidan igen efter köpet (se showStockPageAfterPurchase-funktionen).
       this.buyButton.addEventListener('click', async () => {
-        await this.updateInputField(); // Kontrollera att inputfältet uppdaterats med det nya priset innan köpet genomförs.
+        await this.updateInputField();
+        var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks);
+      
+        const resetState = () => {
+          this.inputField.style.display = 'none';
+          this.stockQuantityInput.style.display = 'none';
+          this.headerHolder.style.display = 'none';
+          this.inputField.remove();
+          this.inputField = null;
+          this.buyButton.remove();
+          this.buyButton = null;
+          this.revertBuy.remove();
+          this.revertBuy = null;
+          this.searchBox.appendChild(this.buttonsDiv);
+          this.createButtons(name, symbol);
+      
+          this.buyDiv.remove();
+          this.buyDiv = null;
+          this.showSearchElements();
+          this.showStockPageAfterPurchase();
+        };
+      
+        if (this.purchaseCost > this.balance) {
+          resetState();
+          this.portfolio.addStock(stockObj);
+          return;
+        }
+      
+        this.portfolio.addStock(stockObj);
+      
+        this.updateBalance();
+        stockPage.checkIfStockExistsInPortfolio(symbol, this.portfolio);
+
         this.inputField.style.display = 'none';
         this.stockQuantityInput.style.display = 'none';
         this.headerHolder.style.display = 'none';
-        // this.buyDiv.remove();
-        // this.buyDiv = null;
-        this.inputField.remove();
-        this.inputField = null;
-        this.buyButton.remove();
-        this.buyButton = null;
-        this.revertBuy.remove();
-        this.revertBuy = null;
-        this.searchBox.appendChild(this.buttonsDiv);
-        // this.showSearchElements();
-        // this.showStockPageAfterPurchase();
-        this.createButtons(name, symbol); // Länkar rätt knappar till rätt aktie (se createButtons-funktionen).
-
-
-        var stockObj = new Stock(symbol, name, currentStockPrice, this.numberOfStocks); // Skapa ett nytt Stock-objekt med aktiepris, aktiesymbol, aktienamn, aktiepris och antal aktier som argument (se Stock.js).
-        this.portfolio.addStock(stockObj); // Lägg till aktien i portföljen (se Portfolio.js).
-
-        this.updateBalance(); // Uppdatera saldo och visa det i sökrutan.
-        stockPage.checkIfStockExistsInPortfolio(symbol, this.portfolio); // Kontrollera om aktien redan finns i portföljen och uppdatera portföljen med köpet (se StockPage.js).
-
+      
         this.loadingDiv.style.display = 'flex';
         this.buttonsDiv.style.display = 'none';
         this.successMessage.style.display = 'none';
-
+      
         setTimeout(() => {
-          this.successMessage.style.display = 'flex';
           this.loadingGif.style.display = 'none';
-
+          this.successMessage.style.display = 'flex';
+      
           setTimeout(() => {
-            this.buyDiv.remove(); // Stäng buyDiv rutan
-            this.buyDiv = null;
-            this.showSearchElements();
-            this.showStockPageAfterPurchase();
-          }, 2000); // Vänta 2 sekunder innan du stänger buyDiv rutan
+            resetState();
+          }, 2000); // Vänta 2 sekunder innan du stänger allt
         }, 2000); // Vänta 2 sekunder innan du visar meddelandet
       });
     };

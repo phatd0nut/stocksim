@@ -47,12 +47,14 @@ function CreateUser(container, settings, charts) {
       this.inputName.addEventListener('input', () => {
         if (this.inputName.value.trim() !== '') {
           this.createUserBtn.disabled = false; // Aktivera knappen när användaren skriver något
+          this.createUserBtn.innerHTML = 'Tryck här för att fortsätta'
           this.createUserBtn.style.backgroundColor = ''; // Ta bort gråmarkeringen
           this.createUserBtn.style.color = ''; // Återställ textfärgen
         } else {
           this.createUserBtn.disabled = true; // Inaktivera knappen om användaren tar bort all text
-          this.createUserBtn.style.backgroundColor = '#cccccc'; // Gråmarkera knappen
-          this.createUserBtn.style.color = '#666666'; // Ändra textfärgen till mörkgrå
+          this.createUserBtn.innerHTML = 'Skriv ett namn för att fortsätta';
+          this.createUserBtn.style.backgroundColor = '#cccccc';
+          this.createUserBtn.style.color = '#666666';
         }
       });
       
