@@ -54,10 +54,10 @@ function DetectMode(container) {
             }
         } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
             this.darkMode('dark');
-            document.cookie = "theme=dark; path=/";
+            document.cookie = "theme=dark; path=/;expires=Fri, 01 Dec 9999 00:00:00 GMT";
         } else {
             this.lightMode('light');
-            document.cookie = "theme=light; path=/";
+            document.cookie = "theme=light; path=/;expires=Fri, 01 Dec 9999 00:00:00 GMT";
         }
     }
 }

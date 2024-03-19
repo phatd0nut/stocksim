@@ -106,11 +106,11 @@ Portfolio.prototype.addStock = function (stock) {
     // Uppdatera balansen efter att ha köpt nya aktier. Skicka med den nya aktien som argument för hålla reda på hur mycket pengar som spenderas på nya aktier.
     this.updateBalance(stock);
 
-    // Spara aktiesymbolen som en cookie.
-    document.cookie = `${stock.symbol}=${JSON.stringify(stock)};path=/`;
+// Spara aktiesymbolen som en cookie.
+document.cookie = `${stock.symbol}=${JSON.stringify(stock)};path=/;expires=Fri, 01 Dec 9999 00:00:00 GMT`;
 
-    // Spara hela aktie arrayen som en cookie.
-    document.cookie = `stocks=${JSON.stringify(this.stocks)};path=/`;
+// Spara hela aktie arrayen som en cookie.
+document.cookie = `stocks=${JSON.stringify(this.stocks)};path=/;expires=Fri, 01 Dec 9999 00:00:00 GMT`;
 
     // Anropa metoden för att aktiernas prestanda ska uppdateras.
     this.updateStocksPerformance();
